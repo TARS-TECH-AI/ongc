@@ -10,7 +10,7 @@ import PhotoGraphy from "./components/PhotoGallery";
 import Constitution from "./components/Constitution";
 import Documents from "./components/Documents";
 import ImportantUpdates from "./components/ImportantUpdates";
-import AiscsstewaUnits from "./components/AiscsstewaUnits";
+import AISCSSTEWAUnits from "./components/AISCSSTEWAUnits";
 import Association from "./components/Association";
 import ImportantLinks from "./components/ImportantLinks";
 import ContactForm from "./components/ContactForm";
@@ -113,7 +113,7 @@ function App() {
           <ImportantUpdates />
         </>
       )}
-      <AiscsstewaUnits />
+      <AISCSSTEWAUnits />
       <PhotoGraphy />
       <Association />
       <ImportantLinks />
