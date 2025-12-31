@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* Interactive cursor improvements: ensure clickable parts show pointer */
+button, a, input[type="button"], input[type="submit"], [role="button"], .clickable, .cursor-pointer {
+  cursor: pointer;
+}
+
+/* Make icons that are used as actions show pointer */
+.icon-btn, .action-icon {
+  cursor: pointer;
+}
+
+/* Table rows that have action or are clickable can use .clickable-row */
+.clickable-row {
+  cursor: pointer;
+}
+
