@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
-import Hero1 from "../assets/img/1.png";
-import Hero2 from "../assets/img/2.png";
-import Hero3 from "../assets/img/3.png";
-import Hero4 from "../assets/img/4.png";
-import Hero5 from "../assets/img/5.png";
+import Hero1 from "../assets/Img/1.png";
+import Hero2 from "../assets/Img/2.png";
+import Hero3 from "../assets/Img/3.png";
+import Hero4 from "../assets/Img/4.png";
+import Hero5 from "../assets/Img/5.png";
 
 const HeroSection = () => {
   const wrapperRef = useRef(null);
