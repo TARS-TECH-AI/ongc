@@ -22,9 +22,15 @@ const adminAuth = (req, res, next) => {
   }
 };
 
-// storage for multer
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// storage for multer (use /tmp on serverless)
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (err) {
+    console.warn('Could not create upload directory:', err.message);
+  }
+}
 const storage = multer.diskStorage({ destination: uploadDir, filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`) });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
