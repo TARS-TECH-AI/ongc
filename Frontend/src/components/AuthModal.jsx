@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { LoginForm } from "../pages/Login";
-import { RegisterForm } from "../pages/Register";
+import { LoginForm } from "../pages/login";
+import { RegisterForm } from "../pages/register";
 
 const AuthModal = ({ open, onClose, initialMode = "login", onAuthSuccess }) => {
   const [mode, setMode] = useState(initialMode);
