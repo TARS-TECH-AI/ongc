@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
-import Hero1 from "../assets/Hero1.jpg";
-import Hero2 from "../assets/Hero2.png";
-import Hero3 from "../assets/Hero3.png";
-import Hero4 from "../assets/Hero4.png";
-import Hero5 from "../assets/Hero5.png";
+import Hero1 from "../assets/img/1.png";
+import Hero2 from "../assets/img/2.png";
+import Hero3 from "../assets/img/3.png";
+import Hero4 from "../assets/img/4.png";
+import Hero5 from "../assets/img/5.png";
 
 const HeroSection = () => {
   const wrapperRef = useRef(null);
@@ -124,11 +124,9 @@ const HeroSection = () => {
           <p className="mt-6 text-white/90 max-w-4xl text-base sm:text-lg md:text-xl lg:text-xl">
             <span className="block">
               Committed to safeguarding the constitutional rights and welfare of
- SC/ST employees
+ SC/ST employees across all ONGC establishments nationwide.
             </span>
-            <span className="block mt-1">
-              across all ONGC establishments nationwide.
-            </span>
+            
           </p>
 
           {/* Buttons */}

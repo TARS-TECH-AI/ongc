@@ -119,7 +119,7 @@ const Gallery = () => {
       const API =
         import.meta.env.VITE_API_URL ||
         import.meta.env.VITE_API_BASE ||
-        "http://localhost:5000/api";
+        "https://ongc-q48j.vercel.app/api";
       const fd = new FormData();
       fd.append("image", file);
       fd.append("title", form.title);
