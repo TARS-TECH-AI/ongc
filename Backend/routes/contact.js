@@ -4,6 +4,36 @@ const Contact = require('../models/Contact');
 const User = require('../models/User');
 const router = express.Router();
 
+// Admin middleware
+const adminAuth = async (req, res, next) => {
+  try {
+    const auth = req.headers.authorization;
+    if (!auth) return res.status(401).json({ message: 'Unauthorized' });
+    const token = auth.split(' ')[1];
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const user = await User.findById(payload.id);
+    if (!user || user.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
+    req.admin = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+// Admin: Get all contact enquiries
+router.get('/admin/enquiries', adminAuth, async (req, res) => {
+  try {
+    const contacts = await Contact.find()
+      .populate('user', 'name email mobile employeeId')
+      .sort({ createdAt: -1 });
+    
+    res.json({ contacts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Require auth for contact submissions
 router.post('/', async (req, res) => {
   try {

@@ -102,7 +102,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
               >
                 +91-11-23456789
               </a>
-              
+              <br/>
               ONGC Bhawan,<br />
               Jeevan Bharti-II,<br />
               124 Connaught Circus,<br />
@@ -115,7 +115,20 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
         <div className="mt-14 text-slate-900 ">
           © 2025 Oil and Natural Gas Corporation Limited. All rights reserved.
         </div>
-
+        
+        {/* Horizontal line */}
+        <div className="mt-8 border-t border-slate-300"></div>
+          
+        <div className="mt-6 text-slate-500 justify-center text-center text-sm">
+          <a 
+            href="https://tarstech.in" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-slate-700 cursor-pointer transition"
+          >
+            © copyright 2025 Design and Developed with love by TARS TECHNOLOGIES
+          </a>
+        </div>
       </div>
     </footer>
   );

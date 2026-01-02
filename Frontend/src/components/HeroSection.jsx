@@ -5,7 +5,7 @@ import Hero3 from "../assets/Img/3.png";
 import Hero4 from "../assets/Img/4.png";
 import Hero5 from "../assets/Img/5.png";
 
-const HeroSection = () => {
+const HeroSection = ({ onOpenAuth }) => {
   const wrapperRef = useRef(null);
   const trackRef = useRef(null);
   const pausedRef = useRef(false);
@@ -13,6 +13,19 @@ const HeroSection = () => {
   const startXRef = useRef(0);
   const offsetRef = useRef(0);
   const startOffsetRef = useRef(0);
+
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById('about');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleJoinCommunity = () => {
+    if (onOpenAuth) {
+      onOpenAuth('login');
+    }
+  };
 
   /* ---------- MARQUEE ---------- */
   useEffect(() => {
@@ -135,10 +148,16 @@ const HeroSection = () => {
 
           {/* Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
-            <button className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold w-full sm:w-auto">
+            <button 
+              onClick={scrollToAbout}
+              className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold w-full sm:w-auto hover:bg-gray-100 transition"
+            >
               Learn More
             </button>
-            <button className="px-8 py-3 rounded-2xl border border-white text-white w-full sm:w-auto">
+            <button 
+              onClick={handleJoinCommunity}
+              className="px-8 py-3 rounded-2xl border border-white text-white w-full sm:w-auto hover:bg-white/10 transition"
+            >
               Join Community
             </button>
           </div>
@@ -167,6 +186,8 @@ const HeroSection = () => {
             &nbsp;
             <span className="font-bold">AISCSSTEWA–CWC</span>
           </div>
+
+          
         </div>
       </div>
     </section>

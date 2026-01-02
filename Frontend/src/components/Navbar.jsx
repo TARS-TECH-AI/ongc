@@ -6,6 +6,7 @@ import ProfileImg from "../assets/Profile.png";
 const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate, currentView }) => {
   const [open, setOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
   const profileRef = useRef(null);
 
   useEffect(() => {
@@ -16,6 +17,35 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
   }, []);
+
+  // Scroll spy effect
+  useEffect(() => {
+    if (currentView !== 'home') {
+      setActiveSection('');
+      return;
+    }
+
+    const handleScroll = () => {
+      const sections = ["home", "about", "members", "documents", "updates", "units", "gallery"];
+      const scrollPosition = window.scrollY + 100; // Offset for navbar height
+
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial check
+    
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [currentView]);
 
   const getInitials = (name = "") => {
     return name
@@ -85,7 +115,11 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }
                 }}
-                className="cursor-pointer hover:text-orange-500 transition"
+                className={`cursor-pointer transition ${
+                  activeSection === item.id 
+                    ? 'text-orange-500 font-semibold' 
+                    : 'hover:text-orange-500'
+                }`}
               >
                 {item.label}
               </li>
@@ -184,7 +218,11 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           {links.map((item, i) => (
             <li
               key={i}
-              className=" pb-2 cursor-pointer hover:text-orange-500"
+              className={`pb-2 cursor-pointer transition ${
+                activeSection === item.id 
+                  ? 'text-orange-500 font-semibold border-b-2 border-orange-500' 
+                  : 'hover:text-orange-500'
+              }`}
               onClick={() => {
                 setOpen(false);
                 if (item.restricted && !isAuthenticated) return onOpenAuth && onOpenAuth('login');

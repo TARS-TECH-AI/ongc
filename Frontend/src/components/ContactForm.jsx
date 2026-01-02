@@ -190,7 +190,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
                     >
                       {submitting ? 'Sending...' : (
                         <>
-                          <span>Send Message</span>
+                          <span>Send</span>
                           <ArrowRight size={18} />
                         </>
                       )}

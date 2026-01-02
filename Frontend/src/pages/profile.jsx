@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { User, Mail, Phone, IdCard, FileText, Shield, CheckCircle, XCircle, Clock, ArrowLeft, Edit2, Save, X, Eye, Upload } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  IdCard,
+  FileText,
+  Shield,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ArrowLeft,
+  Edit2,
+  Save,
+  X,
+  Eye,
+  Upload,
+} from "lucide-react";
 
 const Profile = ({ onBack }) => {
   const [user, setUser] = useState(null);
@@ -10,8 +26,10 @@ const Profile = ({ onBack }) => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [newIdProof, setNewIdProof] = useState(null);
   const [newIdProofPreview, setNewIdProofPreview] = useState("");
+  const [showApprovalMessage, setShowApprovalMessage] = useState(false);
 
-  const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
+  const API =
+    import.meta.env.VITE_API_URL || "https://ongc-q48j.vercel.app/api";
 
   const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -44,7 +62,7 @@ const Profile = ({ onBack }) => {
         <!DOCTYPE html>
         <html>
           <head>
-            <title>${user.idProofFileName || 'ID Proof Document'}</title>
+            <title>${user.idProofFileName || "ID Proof Document"}</title>
             <style>
               body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f5f5f5; }
               img { max-width: 100%; max-height: 100vh; object-fit: contain; }
@@ -52,9 +70,10 @@ const Profile = ({ onBack }) => {
             </style>
           </head>
           <body>
-            ${user.idProofFileType?.includes('pdf') 
-              ? `<iframe src="${user.idProofDocument}"></iframe>`
-              : `<img src="${user.idProofDocument}" alt="ID Proof" />`
+            ${
+              user.idProofFileType?.includes("pdf")
+                ? `<iframe src="${user.idProofDocument}"></iframe>`
+                : `<img src="${user.idProofDocument}" alt="ID Proof" />`
             }
           </body>
         </html>
@@ -69,21 +88,21 @@ const Profile = ({ onBack }) => {
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        setError('Please login to view profile');
+        setError("Please login to view profile");
         setLoading(false);
         return;
       }
 
       const res = await fetch(`${API}/auth/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!res.ok) {
-        throw new Error('Failed to fetch profile');
+        throw new Error("Failed to fetch profile");
       }
 
       const data = await res.json();
@@ -91,8 +110,24 @@ const Profile = ({ onBack }) => {
       setEditedData({
         name: data.user.name,
         mobile: data.user.mobile,
-        employeeId: data.user.employeeId
+        employeeId: data.user.employeeId,
       });
+
+      // Check if we should show approval message (only once)
+      if (data.user.status === 'Approved') {
+        const approvalShownKey = `approval_shown_${data.user._id}`;
+        const hasShownApproval = localStorage.getItem(approvalShownKey);
+        
+        if (!hasShownApproval) {
+          setShowApprovalMessage(true);
+          localStorage.setItem(approvalShownKey, 'true');
+          
+          // Auto-hide message after 10 seconds
+          setTimeout(() => {
+            setShowApprovalMessage(false);
+          }, 10000);
+        }
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -109,7 +144,7 @@ const Profile = ({ onBack }) => {
     setEditedData({
       name: user.name,
       mobile: user.mobile,
-      employeeId: user.employeeId
+      employeeId: user.employeeId,
     });
     setNewIdProof(null);
     setNewIdProofPreview("");
@@ -121,9 +156,9 @@ const Profile = ({ onBack }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const updateData = { ...editedData };
-      
+
       // Add new ID proof if uploaded
       if (newIdProof) {
         const base64File = await fileToBase64(newIdProof);
@@ -131,35 +166,42 @@ const Profile = ({ onBack }) => {
         updateData.idProofFileName = newIdProof.name;
         updateData.idProofFileType = newIdProof.type;
       }
-      
+
       const res = await fetch(`${API}/auth/profile`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateData)
+        body: JSON.stringify(updateData),
       });
 
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Profile update feature is not available yet. Please deploy the updated backend.');
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(
+          "Profile update feature is not available yet. Please deploy the updated backend."
+        );
       }
 
       const data = await res.json();
-      
+
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to update profile');
+        throw new Error(data.message || "Failed to update profile");
       }
 
       setUser(data.user);
       setIsEditing(false);
       setNewIdProof(null);
       setNewIdProofPreview("");
-      
+
       // Update localStorage without large document data
-      const { idProofDocument, idProofFileName, idProofFileType, ...userDataToStore } = data.user;
-      localStorage.setItem('user', JSON.stringify(userDataToStore));
+      const {
+        idProofDocument,
+        idProofFileName,
+        idProofFileType,
+        ...userDataToStore
+      } = data.user;
+      localStorage.setItem("user", JSON.stringify(userDataToStore));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -170,7 +212,7 @@ const Profile = ({ onBack }) => {
   const handleInputChange = (e) => {
     setEditedData({
       ...editedData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -180,26 +222,28 @@ const Profile = ({ onBack }) => {
         icon: <Clock className="w-4 h-4" />,
         bg: "bg-yellow-100",
         text: "text-yellow-800",
-        label: "Pending Approval"
+        label: "Pending Approval",
       },
       Approved: {
         icon: <CheckCircle className="w-4 h-4" />,
         bg: "bg-green-100",
         text: "text-green-800",
-        label: "Approved"
+        label: "Approved",
       },
       Rejected: {
         icon: <XCircle className="w-4 h-4" />,
         bg: "bg-red-100",
         text: "text-red-800",
-        label: "Rejected"
-      }
+        label: "Rejected",
+      },
     };
 
     const config = statusConfig[status] || statusConfig.Pending;
-    
+
     return (
-      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
+      <span
+        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}
+      >
         {config.icon}
         {config.label}
       </span>
@@ -210,7 +254,7 @@ const Profile = ({ onBack }) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0C2E50] mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading profile...</p>
         </div>
       </div>
@@ -239,16 +283,16 @@ const Profile = ({ onBack }) => {
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            console.log('Back button clicked');
+            console.log("Back button clicked");
             if (onBack) {
               onBack();
-              console.log('Navigating to home');
+              console.log("Navigating to home");
             }
             setTimeout(() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }, 100);
           }}
-          className="flex items-center gap-2 mb-6 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors cursor-pointer shadow-md hover:shadow-lg"
+          className="flex items-center gap-2 mb-6 px-4 py-2 bg-[#0C2E50] hover:bg-[#0b2948] text-white rounded-lg transition-colors cursor-pointer shadow-md hover:shadow-lg"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Back to Home</span>
@@ -258,11 +302,13 @@ const Profile = ({ onBack }) => {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
-              <div className="bg-orange-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold">
+              <div className="bg-[#0C2E50] text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {user?.name}
+                </h1>
                 <p className="text-gray-600">{user?.email}</p>
               </div>
             </div>
@@ -271,9 +317,9 @@ const Profile = ({ onBack }) => {
               {!isEditing ? (
                 <button
                   onClick={handleEdit}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#0C2E50] text-white rounded-lg transition-colors cursor-pointer"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-4 h-4 " />
                   Edit Profile
                 </button>
               ) : (
@@ -284,7 +330,7 @@ const Profile = ({ onBack }) => {
                     className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
-                    {updateLoading ? 'Saving...' : 'Save'}
+                    {updateLoading ? "Saving..." : "Save"}
                   </button>
                   <button
                     onClick={handleCancel}
@@ -303,7 +349,7 @@ const Profile = ({ onBack }) => {
         {/* Profile Information Card */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Shield className="w-6 h-6 text-orange-500" />
+            <Shield className="w-6 h-6 text-[#0C2E50]" />
             Profile Information
           </h2>
 
@@ -331,9 +377,13 @@ const Profile = ({ onBack }) => {
             <div className="flex items-start gap-3">
               <Mail className="w-5 h-5 text-gray-500 mt-1" />
               <div>
-                <p className="text-sm text-gray-500 font-medium">Email Address</p>
+                <p className="text-sm text-gray-500 font-medium">
+                  Email Address
+                </p>
                 <p className="text-gray-900 font-semibold">{user?.email}</p>
-                <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Email cannot be changed
+                </p>
               </div>
             </div>
 
@@ -341,7 +391,9 @@ const Profile = ({ onBack }) => {
             <div className="flex items-start gap-3">
               <Phone className="w-5 h-5 text-gray-500 mt-1" />
               <div className="flex-1">
-                <p className="text-sm text-gray-500 font-medium">Mobile Number</p>
+                <p className="text-sm text-gray-500 font-medium">
+                  Mobile Number
+                </p>
                 {isEditing ? (
                   <input
                     type="tel"
@@ -375,13 +427,17 @@ const Profile = ({ onBack }) => {
             <div className="flex items-start gap-3 md:col-span-2">
               <FileText className="w-5 h-5 text-gray-500 mt-1" />
               <div className="flex-1">
-                <p className="text-sm text-gray-500 font-medium mb-2">ID Proof Document</p>
+                <p className="text-sm text-gray-500 font-medium mb-2">
+                  ID Proof Document
+                </p>
                 {isEditing ? (
                   <div>
                     <label className="flex items-center justify-center w-full px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
                       <Upload className="w-5 h-5 mr-2 text-gray-500" />
                       <span className="text-sm text-gray-600 truncate">
-                        {newIdProofPreview || user?.idProofFileName || "Upload New ID Proof (JPG, PNG, PDF - Max 2MB)"}
+                        {newIdProofPreview ||
+                          user?.idProofFileName ||
+                          "Upload New ID Proof (JPG, PNG, PDF - Max 2MB)"}
                       </span>
                       <input
                         type="file"
@@ -391,27 +447,38 @@ const Profile = ({ onBack }) => {
                       />
                     </label>
                     {user?.idProofDocument && (
-                      <p className="text-xs text-gray-500 mt-2">Current: {user.idProofFileName || 'Document uploaded'}</p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Current: {user.idProofFileName || "Document uploaded"}
+                      </p>
                     )}
                   </div>
                 ) : user?.idProofDocument ? (
                   <div className="flex gap-2">
-                    <button 
+                    <button
                       onClick={handleViewDocument}
                       title="View Document"
                       className="p-2 bg-green-400 hover:bg-green-300 text-white font-semibold rounded-lg inline-flex items-center justify-center transition"
                     >
                       <Eye className="w-5 h-5" />
                     </button>
-                    <a 
+                    <a
                       href={user.idProofDocument}
-                      download={user.idProofFileName || 'id-proof'}
-                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg inline-flex items-center gap-2 transition"
+                      download={user.idProofFileName || "id-proof"}
+                      className="px-4 py-2 bg-[#0C2E50] hover:bg-[#0b2948] text-white font-semibold rounded-lg inline-flex items-center gap-2 transition"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
                       </svg>
-                    
                     </a>
                   </div>
                 ) : (
@@ -424,13 +491,17 @@ const Profile = ({ onBack }) => {
             <div className="flex items-start gap-3 md:col-span-2">
               <Clock className="w-5 h-5 text-gray-500 mt-1" />
               <div>
-                <p className="text-sm text-gray-500 font-medium">Member Since</p>
+                <p className="text-sm text-gray-500 font-medium">
+                  Member Since
+                </p>
                 <p className="text-gray-900 font-semibold">
-                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  }) : 'N/A'}
+                  {user?.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "N/A"}
                 </p>
               </div>
             </div>
@@ -446,42 +517,61 @@ const Profile = ({ onBack }) => {
           )}
 
           {/* Status Information */}
-          {user?.status === 'Pending' && (
+          {user?.status === "Pending" && (
             <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
               <div className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-yellow-600 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-yellow-800">Registration Pending</p>
+                  <p className="font-semibold text-yellow-800">
+                    Registration Pending
+                  </p>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Your registration is currently under review by the administrator. You will be notified once your account is approved.
+                    Your registration is currently under review by the
+                    administrator. You will be notified once your account is
+                    approved.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {user?.status === 'Approved' && (
-            <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+          {user?.status === "Approved" && showApprovalMessage && (
+            <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg relative">
+              <button
+                onClick={() => setShowApprovalMessage(false)}
+                className="absolute top-2 right-2 text-green-600 hover:text-green-800"
+                aria-label="Close message"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-start gap-3 pr-8">
+                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-green-800">✓ Profile Approved by AISCSSTEWA</p>
+                  <p className="font-semibold text-green-800">
+                    ✓ Profile Approved by AISCSSTEWA
+                  </p>
                   <p className="text-sm text-green-700 mt-1">
-                    Congratulations! Your registration has been approved by the administrator. You now have full access to all member features and resources.
+                    Congratulations! Your registration has been approved by the
+                    administrator. You now have full access to all member
+                    features and resources.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {user?.status === 'Rejected' && (
+          {user?.status === "Rejected" && (
             <div className="mt-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
               <div className="flex items-start gap-3">
                 <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-red-800">Registration Not Approved</p>
+                  <p className="font-semibold text-red-800">
+                    Registration Not Approved
+                  </p>
                   <p className="text-sm text-red-700 mt-1">
-                    Unfortunately, your registration was not approved by the administrator. Please contact support for more information or to resubmit your application.
+                    Unfortunately, your registration was not approved by the
+                    administrator. Please contact support for more information
+                    or to resubmit your application.
                   </p>
                 </div>
               </div>

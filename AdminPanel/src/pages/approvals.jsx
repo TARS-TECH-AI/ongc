@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Eye, FileText } from 'lucide-react';
+import { Download, Eye, FileText, Search, Filter } from 'lucide-react';
 
 const sample = [
   { id: 1, name: 'Rajesh Kumar', category: 'SC', date: '5/19/12', status: 'Rejected' },
@@ -31,18 +31,21 @@ const Approvals = () => {
   const [rows, setRows] = useState(sample);
   const [selected, setSelected] = useState(null);
   const [loadingRows, setLoadingRows] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
 
   const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
 
-  // load users (pending by default)
-  const loadRows = async () => {
+  // load users (all users, not just pending)
+  const loadRows = async (status = '') => {
     setLoadingRows(true);
     try {
       const token = localStorage.getItem('admin-token');
-      const res = await fetch(`${API}/admin/approvals?status=Pending`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const queryParam = status && status !== 'All' ? `?status=${status}` : '';
+      const res = await fetch(`${API}/admin/approvals${queryParam}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      const mapped = data.map(u => ({ id: u.id || u._id, name: u.name, date: new Date(u.date || u.createdAt).toLocaleDateString(), status: u.status }));
+      const mapped = data.map(u => ({ id: u.id || u._id, name: u.name, email: u.email, mobile: u.mobile, employeeId: u.employeeId, date: new Date(u.date || u.createdAt).toLocaleDateString(), status: u.status }));
       setRows(mapped);
     } catch (err) {
       // keep sample as fallback
@@ -110,6 +113,23 @@ const Approvals = () => {
   const approve = (id) => changeStatus(id, 'Approved');
   const reject = (id) => changeStatus(id, 'Rejected');
 
+  // Filter and search logic
+  const filteredRows = rows.filter(row => {
+    const matchesSearch = searchQuery.trim() === '' || 
+      row.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      row.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      row.mobile?.includes(searchQuery) ||
+      row.employeeId?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleFilterChange = (status) => {
+    setStatusFilter(status);
+  };
+
   const viewDocument = (docData, fileName) => {
     if (!docData) return;
     const newWindow = window.open("", "_blank");
@@ -160,6 +180,43 @@ const Approvals = () => {
     <div className="min-h-screen bg-slate-50 py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+        {/* Search and Filter Section */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search Input */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by name, email, mobile or employee ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Filter Dropdown */}
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+              <select
+                value={statusFilter}
+                onChange={(e) => handleFilterChange(e.target.value)}
+                className="pl-10 pr-8 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+              >
+                <option value="All">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="mt-3 text-sm text-slate-600">
+            Showing {filteredRows.length} of {rows.length} users
+          </div>
+        </div>
+
         {/* Desktop table */}
         {loadingRows ? (
           <div className="bg-white rounded-lg shadow p-8 text-center text-sm text-slate-600">Loading approvals...</div>
@@ -169,6 +226,8 @@ const Approvals = () => {
               <thead>
                 <tr className="bg-white">
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Employee ID</th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Category</th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Registration Date</th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Status</th>
@@ -176,9 +235,11 @@ const Approvals = () => {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {rows.map((row) => (
+                {filteredRows.map((row) => (
                   <tr key={row.id} className="bg-white">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800">{row.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{row.email || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{row.employeeId || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{row.category}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{row.date}</td>
                     <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={row.status} /></td>
@@ -194,11 +255,12 @@ const Approvals = () => {
 
         {/* Mobile list */}
         <div className="md:hidden space-y-4">
-          {rows.map((row) => (
+          {filteredRows.map((row) => (
             <div key={row.id} className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
               <div>
                 <div className="text-sm font-medium text-slate-800">{row.name}</div>
-                <div className="text-xs text-slate-500">{row.category} • {row.date}</div>
+                <div className="text-xs text-slate-500">{row.email || '-'}</div>
+                <div className="text-xs text-slate-500">{row.employeeId || '-'} • {row.category} • {row.date}</div>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <StatusBadge status={row.status} />

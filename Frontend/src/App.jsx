@@ -187,7 +187,7 @@ function App() {
         <Profile onBack={() => setCurrentView("home")} />
       ) : (
         <>
-          <HeroSection />
+          <HeroSection onOpenAuth={openAuth} />
           <About />
           <CoreValues />
           <MembersSection />
