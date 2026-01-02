@@ -2,7 +2,7 @@ import React from 'react';
 import { Bell, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
-import defaultAvatar from '../assets/profile.png';
+import defaultAvatar from '../assets/Profile.png';
 
 const routeTitleMap = {
   '': 'Admin Dashboard',
