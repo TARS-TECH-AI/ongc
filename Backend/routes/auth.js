@@ -109,7 +109,8 @@ router.post('/register', async (req, res) => {
         mobile: user.mobile,
         employeeId: user.employeeId,
         category: user.category,
-        status: user.status
+        status: user.status,
+        hasIdProof: !!user.idProofDocument
       }
     });
   } catch (err) {
@@ -142,8 +143,8 @@ router.post('/login', async (req, res) => {
         mobile: user.mobile,
         employeeId: user.employeeId,
         category: user.category,
-        idProofDocument: user.idProofDocument,
-        status: user.status
+        status: user.status,
+        hasIdProof: !!user.idProofDocument
       }
     });
   } catch (err) {

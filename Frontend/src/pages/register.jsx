@@ -109,7 +109,11 @@ export const RegisterForm = ({onSuccess}) => {
       }
       
       if (json.token) localStorage.setItem('token', json.token);
-      if (json.user) localStorage.setItem('user', JSON.stringify(json.user));
+      if (json.user) {
+        // Remove large document data before storing in localStorage
+        const { idProofDocument, idProofFileName, idProofFileType, ...userDataToStore } = json.user;
+        localStorage.setItem('user', JSON.stringify(userDataToStore));
+      }
       
       console.log('Register success', json);
       onSuccess && onSuccess(json.user, 'register');

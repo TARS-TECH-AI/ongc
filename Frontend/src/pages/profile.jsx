@@ -93,8 +93,9 @@ const Profile = ({ onBack }) => {
       setUser(data.user);
       setIsEditing(false);
       
-      // Update localStorage
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Update localStorage without large document data
+      const { idProofDocument, idProofFileName, idProofFileType, ...userDataToStore } = data.user;
+      localStorage.setItem('user', JSON.stringify(userDataToStore));
     } catch (err) {
       setError(err.message);
     } finally {
