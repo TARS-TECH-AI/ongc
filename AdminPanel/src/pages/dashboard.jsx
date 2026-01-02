@@ -44,40 +44,7 @@ const recentUpdates = [
 
 const Dashboard = () => {
   const [allRegs, setAllRegs] = React.useState([]);
-  const [recentRegs, setRecentRegs] = React.useState([
-    {
-      id: 1,
-      name: "Rajesh Kumar",
-      status: "Pending",
-      tag: "Pending",
-      date: "2024-01-15",
-      group: "SC",
-    },
-    {
-      id: 2,
-      name: "Sunita Devi",
-      status: "Approved",
-      tag: "Approved",
-      date: "2024-01-14",
-      group: "ST",
-    },
-    {
-      id: 3,
-      name: "Priya Sharma",
-      status: "Rejected",
-      tag: "Rejected",
-      date: "2024-01-15",
-      group: "SC",
-    },
-    {
-      id: 4,
-      name: "Sunita Devi",
-      status: "Approved",
-      tag: "Approved",
-      date: "2024-01-14",
-      group: "ST",
-    },
-  ]);
+  const [recentRegs, setRecentRegs] = React.useState([]);
   const [loadingRecent, setLoadingRecent] = React.useState(false);
   const [page, setPage] = React.useState(1);
   const [showAll, setShowAll] = React.useState(false);
@@ -89,6 +56,8 @@ const Dashboard = () => {
   const [loadingStats, setLoadingStats] = React.useState(false);
 
   const [selectedUser, setSelectedUser] = React.useState(null);
+  const [userDetails, setUserDetails] = React.useState(null);
+  const [showUserModal, setShowUserModal] = React.useState(false);
 
   const loadOverview = async () => {
     setLoadingRecent(true);
@@ -128,20 +97,24 @@ const Dashboard = () => {
   };
 
   const openDetails = async (id) => {
-    setSelectedUser({ loading: true });
+    setShowUserModal(true);
+    setUserDetails({ loading: true });
     try {
       const token = localStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Not found');
       const data = await res.json();
-      setSelectedUser({ ...data, loading: false });
+      setUserDetails({ ...data, loading: false });
     } catch (err) {
-      const fallback = allRegs.find(u => u.id === id);
-      setSelectedUser({ ...(fallback || {}), loading: false });
+      const fallback = allRegs.find(u => u._id === id || u.id === id);
+      setUserDetails({ ...(fallback || {}), loading: false, error: err.message });
     }
   };
 
-  const closeDetails = () => setSelectedUser(null);
+  const closeDetails = () => {
+    setShowUserModal(false);
+    setUserDetails(null);
+  };
 
   const changeStatus = async (id, newStatus) => {
     try {
@@ -157,6 +130,7 @@ const Dashboard = () => {
       }
       await loadOverview();
       closeDetails();
+      alert(`User status updated to ${newStatus} successfully!`);
     } catch (err) {
       alert(err.message || 'Failed to update status');
     }
@@ -239,61 +213,132 @@ const Dashboard = () => {
                   </div>
 
                   {/* Details Modal */}
-                  {selectedUser && (
-                    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4">
+                  {showUserModal && userDetails && (
+                    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
                       <div className="fixed inset-0 bg-black/50 cursor-pointer" onClick={closeDetails} />
 
-                      <div className="relative z-50 w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <h2 className="text-lg font-semibold">User Details</h2>
-                          <button onClick={closeDetails} className="text-slate-600">✕</button>
+                      <div className="relative z-50 w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 my-8">
+                        <div className="flex items-start justify-between mb-6">
+                          <h2 className="text-xl font-bold text-slate-900">User Details</h2>
+                          <button onClick={closeDetails} className="text-slate-400 hover:text-slate-600 text-2xl leading-none">✕</button>
                         </div>
 
-                        {selectedUser.loading ? (
+                        {userDetails.loading ? (
                           <div className="py-8 text-center text-sm text-slate-600">Loading details…</div>
+                        ) : userDetails.error ? (
+                          <div className="py-8 text-center text-sm text-red-600">{userDetails.error}</div>
                         ) : (
                           <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <div className="text-sm text-slate-500">Full Name</div>
-                                <div className="font-medium text-slate-800">{selectedUser.name}</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                              <div className="space-y-4">
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Full Name</div>
+                                  <div className="font-semibold text-slate-900">{userDetails.name || '—'}</div>
+                                </div>
 
-                                <div className="mt-3 text-sm text-slate-500">Phone</div>
-                                <div className="font-medium text-slate-800">{selectedUser.phone || '—'}</div>
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Email Address</div>
+                                  <div className="font-medium text-slate-900">{userDetails.email || '—'}</div>
+                                </div>
 
-                                <div className="mt-3 text-sm text-slate-500">Registration Date</div>
-                                <div className="font-medium text-slate-800">{selectedUser.date ? new Date(selectedUser.date).toLocaleDateString() : ''}</div>
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Mobile Number</div>
+                                  <div className="font-medium text-slate-900">{userDetails.mobile || userDetails.phone || '—'}</div>
+                                </div>
+
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Registration Date</div>
+                                  <div className="font-medium text-slate-900">{userDetails.date ? new Date(userDetails.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}</div>
+                                </div>
                               </div>
 
-                              <div>
-                                <div className="text-sm text-slate-500">Email</div>
-                                <div className="font-medium text-slate-800">{selectedUser.email || ''}</div>
+                              <div className="space-y-4">
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Employee ID</div>
+                                  <div className="font-semibold text-slate-900">{userDetails.employeeId || '—'}</div>
+                                </div>
 
-                                <div className="mt-3 text-sm text-slate-500">Category</div>
-                                <div className="font-medium text-slate-800">{selectedUser.category || selectedUser.group}</div>
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Category</div>
+                                  <div className="font-medium text-slate-900">{userDetails.category || userDetails.group || '—'}</div>
+                                </div>
 
-                                <div className="mt-3 text-sm text-slate-500">Status</div>
-                                <div className="mt-2"><span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{selectedUser.status}</span></div>
-                              </div>
-                            </div>
-
-                            <div className="mt-6">
-                              <h3 className="text-sm font-semibold mb-2">Uploaded Documents</h3>
-                              <div className="space-y-2">
-                                {selectedUser.docs && selectedUser.docs.length ? selectedUser.docs.map(d => (
-                                  <div key={d.url || d.name} className="flex items-center justify-between bg-slate-100 rounded p-3">
-                                    <div className="text-sm">{d.name}</div>
-                                    <div className="flex items-center gap-3">
-                                      <a href={d.url && d.url.startsWith('/') ? `${API.replace(/\/api\/?$/,'')}${d.url}` : d.url} target="_blank" rel="noreferrer" className="px-3 py-1 bg-amber-200 text-amber-900 rounded">Open</a>
-                                    </div>
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-1">Current Status</div>
+                                  <div className="mt-1">
+                                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold ${
+                                      userDetails.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                                      userDetails.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                      'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                      {userDetails.status || 'Pending'}
+                                    </span>
                                   </div>
-                                )) : <div className="text-sm text-slate-500">No documents uploaded</div>}
+                                </div>
                               </div>
                             </div>
 
-                            <div className="mt-6 flex items-center gap-4">
-                              <button onClick={() => changeStatus(selectedUser.id, 'Approved')} className="px-6 py-2 bg-slate-900 text-white rounded">Approve</button>
-                              <button onClick={() => changeStatus(selectedUser.id, 'Rejected')} className="px-6 py-2 bg-rose-600 text-white rounded">Reject</button>
+                            <div className="border-t pt-6 mb-6">
+                              <h3 className="text-lg font-semibold mb-4 text-slate-900">ID Proof Document</h3>
+                              {userDetails.idProofDocument ? (
+                                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <FileText className="w-5 h-5 text-slate-600" />
+                                      <div>
+                                        <div className="font-medium text-slate-900">{userDetails.idProofFileName || 'ID Proof Document'}</div>
+                                        <div className="text-sm text-slate-500">{userDetails.idProofFileType || 'Document'}</div>
+                                      </div>
+                                    </div>
+                                    <a 
+                                      href={userDetails.idProofDocument} 
+                                      download={userDetails.idProofFileName || 'id-proof'}
+                                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                                    >
+                                      Download
+                                    </a>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-sm text-slate-500 py-4">No ID proof document uploaded</div>
+                              )}
+                            </div>
+
+                            <div className="border-t pt-6 mb-6">
+                              <h3 className="text-lg font-semibold mb-4 text-slate-900">Additional Documents</h3>
+                              <div className="space-y-2">
+                                {userDetails.docs && userDetails.docs.length ? userDetails.docs.map((d, idx) => (
+                                  <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-lg p-4 border border-slate-200">
+                                    <div className="flex items-center gap-3">
+                                      <FileText className="w-5 h-5 text-slate-600" />
+                                      <div className="font-medium text-slate-900">{d.name || 'Document'}</div>
+                                    </div>
+                                    <a 
+                                      href={d.url && d.url.startsWith('/') ? `${API.replace(/\/api\/?$/,'')}${d.url}` : d.url} 
+                                      target="_blank" 
+                                      rel="noreferrer" 
+                                      className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition text-sm font-medium"
+                                    >
+                                      View
+                                    </a>
+                                  </div>
+                                )) : <div className="text-sm text-slate-500 py-4">No additional documents uploaded</div>}
+                              </div>
+                            </div>
+
+                            <div className="border-t pt-6 flex items-center gap-4">
+                              <button 
+                                onClick={() => changeStatus(userDetails.id, 'Approved')} 
+                                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition"
+                              >
+                                Approve User
+                              </button>
+                              <button 
+                                onClick={() => changeStatus(userDetails.id, 'Rejected')} 
+                                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition"
+                              >
+                                Reject User
+                              </button>
                             </div>
                           </>
                         )}

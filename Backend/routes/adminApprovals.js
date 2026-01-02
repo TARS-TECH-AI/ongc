@@ -52,7 +52,21 @@ router.get('/:id', adminAuth, async (req, res) => {
   try {
     const u = await User.findById(req.params.id).select('-passwordHash');
     if (!u) return res.status(404).json({ message: 'Not found' });
-    res.json({ id: u._id, name: u.name, email: u.email, phone: u.phone, category: u.category, date: u.createdAt, status: u.status, docs: u.documents || [] });
+    res.json({ 
+      id: u._id, 
+      name: u.name, 
+      email: u.email, 
+      phone: u.mobile || u.phone, 
+      mobile: u.mobile,
+      employeeId: u.employeeId,
+      category: u.category, 
+      date: u.createdAt, 
+      status: u.status, 
+      docs: u.documents || [],
+      idProofDocument: u.idProofDocument,
+      idProofFileName: u.idProofFileName,
+      idProofFileType: u.idProofFileType
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

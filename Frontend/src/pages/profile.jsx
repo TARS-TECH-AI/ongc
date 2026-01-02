@@ -382,26 +382,44 @@ const Profile = ({ onBack }) => {
 
           {/* Status Information */}
           {user?.status === 'Pending' && (
-            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Your registration is pending approval. You will be notified once your account is reviewed by the administrator.
-              </p>
+            <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-yellow-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-yellow-800">Registration Pending</p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Your registration is currently under review by the administrator. You will be notified once your account is approved.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
           {user?.status === 'Approved' && (
-            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800">
-                <strong>Congratulations!</strong> Your account has been approved. You now have full access to all member features.
-              </p>
+            <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-green-800">✓ Profile Approved by Admin</p>
+                  <p className="text-sm text-green-700 mt-1">
+                    Congratulations! Your registration has been approved by the administrator. You now have full access to all member features and resources.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
           {user?.status === 'Rejected' && (
-            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">
-                <strong>Notice:</strong> Your registration was not approved. Please contact the administrator for more information.
-              </p>
+            <div className="mt-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
+              <div className="flex items-start gap-3">
+                <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-red-800">Registration Not Approved</p>
+                  <p className="text-sm text-red-700 mt-1">
+                    Unfortunately, your registration was not approved by the administrator. Please contact support for more information or to resubmit your application.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
