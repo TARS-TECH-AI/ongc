@@ -14,7 +14,7 @@ const HeroSection = () => {
   const offsetRef = useRef(0);
   const startOffsetRef = useRef(0);
 
-  /* ---------- MARQUEE LOGIC (UNCHANGED) ---------- */
+  /* ---------- MARQUEE ---------- */
   useEffect(() => {
     const wrapper = wrapperRef.current;
     const track = trackRef.current;
@@ -63,11 +63,10 @@ const HeroSection = () => {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, []);
 
   const handlePointerDown = (e) => {
     draggingRef.current = true;
-    wrapperRef.current.style.cursor = "grabbing";
     startXRef.current = e.clientX;
     startOffsetRef.current = offsetRef.current;
     pausedRef.current = true;
@@ -82,32 +81,40 @@ const HeroSection = () => {
 
   const handlePointerUp = () => {
     draggingRef.current = false;
-    wrapperRef.current.style.cursor = "grab";
-    setTimeout(() => (pausedRef.current = false), 800);
+    setTimeout(() => (pausedRef.current = false), 700);
   };
 
   return (
-    <section id="home" className="relative min-h-screen w-full">
-      {/* BACKGROUND */}
-      <div className="absolute inset-0 overflow-hidden">
+    <section
+      id="home"
+      className="relative min-h-[100svh] w-full overflow-hidden"
+    >
+      {/* BACKGROUND IMAGES */}
+      <div className="absolute inset-0">
         {images.map((src, i) => (
           <div
             key={i}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+            className={`absolute inset-0 transition-opacity duration-1000 ${
               i === index ? "opacity-100" : "opacity-0"
             }`}
-            style={{ backgroundImage: `url(${src})` }}
+            style={{
+              backgroundImage: `url(${src})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/10" />
       </div>
 
       {/* CONTENT */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-32 sm:pt-36 md:pt-44 pb-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 md:pt-44 pb-24">
         <div className="max-w-3xl text-white">
           {/* Heading */}
-          <h1 className="font-bold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-6xl">
-            <span className="block sm:whitespace-nowrap">
+          <h1 className="font-extrabold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-6xl">
+            <span className="block">
               All India SC & ST Employees
             </span>
             <span className="block text-orange-400 mt-2">
@@ -116,25 +123,22 @@ const HeroSection = () => {
           </h1>
 
           {/* Motto */}
-          <p className="italic text-orange-300 text-base sm:text-lg mt-6">
+          <p className="italic text-orange-300 text-base sm:text-lg mt-5">
             "Educate • Agitate • Organise"
           </p>
 
           {/* Description */}
-          <p className="mt-6 text-white/90 max-w-4xl text-base sm:text-lg md:text-xl lg:text-xl">
-            <span className="block">
-              Committed to safeguarding the constitutional rights and welfare of
- SC/ST employees across all ONGC establishments nationwide.
-            </span>
-            
+          <p className="mt-6 text-white/90 text-sm sm:text-base md:text-lg lg:text-xl max-w-4xl">
+            Committed to safeguarding the constitutional rights and welfare of
+            SC/ST employees across all ONGC establishments nationwide.
           </p>
 
           {/* Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
-            <button className="px-8 py-3 rounded-2xl bg-white text-sky-700 font-semibold w-full sm:w-auto cursor-pointer">
+            <button className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold w-full sm:w-auto">
               Learn More
             </button>
-            <button className="px-8 py-3 rounded-2xl border border-white w-full sm:w-auto cursor-pointer">
+            <button className="px-8 py-3 rounded-2xl border border-white text-white w-full sm:w-auto">
               Join Community
             </button>
           </div>
@@ -161,7 +165,7 @@ const HeroSection = () => {
               justice of our community.
             </span>
             &nbsp;
-            <span className="font-bold">AISCS&STEWA–CWC</span>
+            <span className="font-bold">AISCSSTEWA–CWC</span>
           </div>
         </div>
       </div>

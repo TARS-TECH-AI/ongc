@@ -32,7 +32,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
               />
               <div>
                 <h3 className="text-lg font-semibold text-slate-900">
-                  AISCS&STEWA – CWC
+                  AISCSSTEWA – CWC
                 </h3>
                 <p className="text-base font-medium text-slate-900 mt-1">
                   All India SC & ST Employees Welfare Association
@@ -82,7 +82,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
           {/* Units */}
           <div className="lg:col-span-2">
             <h4 className="font-semibold text-slate-900 mb-3">
-              AISCS&STEWA Units
+              AISCSSTEWA Units
             </h4>
             <ul className="space-y-4 text-slate-700">
               <li onClick={() => handleClick('updates', true)} className="hover:text-orange-500 cursor-pointer">Important Updates</li>

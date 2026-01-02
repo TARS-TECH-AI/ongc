@@ -1,15 +1,75 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
 const User = require('../models/User');
 
 const router = express.Router();
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'idproof-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only .jpg, .jpeg, .png and .pdf files are allowed'));
+    }
+  }
+});
+
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ message: 'Access denied' });
+  
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    req.userId = verified.id;
+    next();
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid token' });
+  }
+};
+
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, phone, category } = req.body;
-    if (!name || !email || !password) return res.status(400).json({ message: 'Missing fields' });
+    console.log('Registration request received');
+    console.log('Body keys:', Object.keys(req.body));
+    
+    const { name, email, password, mobile, employeeId, category, idProofDocument, idProofFileName, idProofFileType } = req.body;
+    
+    if (!name || !email || !password || !mobile || !employeeId || !category) {
+      const missing = [];
+      if (!name) missing.push('name');
+      if (!email) missing.push('email');
+      if (!password) missing.push('password');
+      if (!mobile) missing.push('mobile');
+      if (!employeeId) missing.push('employeeId');
+      if (!category) missing.push('category');
+      
+      console.log('Missing fields:', missing);
+      return res.status(400).json({ 
+        message: 'All fields are required',
+        missingFields: missing 
+      });
+    }
 
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: 'Email already registered' });
@@ -17,16 +77,44 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Default status is Pending (set in model)
-    const user = new User({ name, email, passwordHash, phone, category, status: 'Pending' });
+    const userData = {
+      name,
+      email,
+      passwordHash,
+      mobile,
+      employeeId,
+      category,
+      status: 'Pending'
+    };
+
+    // Store base64 document if provided
+    if (idProofDocument) {
+      userData.idProofDocument = idProofDocument; // Store base64 string
+      userData.idProofFileName = idProofFileName;
+      userData.idProofFileType = idProofFileType;
+    }
+
+    const user = new User(userData);
     await user.save();
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
-    res.json({ message: 'Registered successfully', token, user: { id: user._id, name: user.name, email: user.email, status: user.status } });
+    res.json({
+      message: 'Registered successfully',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        employeeId: user.employeeId,
+        category: user.category,
+        status: user.status
+      }
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Registration error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
@@ -44,7 +132,33 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
-    res.json({ message: 'Logged in', token, user: { id: user._id, name: user.name, email: user.email } });
+    res.json({
+      message: 'Logged in',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        employeeId: user.employeeId,
+        category: user.category,
+        idProofDocument: user.idProofDocument,
+        status: user.status
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get user profile
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-passwordHash');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    res.json({ user });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

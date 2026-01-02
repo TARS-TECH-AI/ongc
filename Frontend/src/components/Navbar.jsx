@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
 import ProfileImg from "../assets/Profile.png";
 
-const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated }) => {
+const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate, currentView }) => {
   const [open, setOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileRef = useRef(null);
@@ -110,13 +110,23 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated }) => {
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white  rounded-md  py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-1 z-50">
+                    <button
+                      onClick={() => {
+                        onNavigate && onNavigate('profile');
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      View Profile
+                    </button>
                     <button
                       onClick={() => {
                         onLogout && onLogout();
+                        onNavigate && onNavigate('home');
                         setShowProfileMenu(false);
                       }}
-                      className="w-full text-left px-4 py-2 "
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
                     >
                       Logout
                     </button>
@@ -209,7 +219,17 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated }) => {
                 <button
                   onClick={() => {
                     setOpen(false);
+                    onNavigate && onNavigate('profile');
+                  }}
+                  className="w-full border py-2 rounded-md"
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={() => {
+                    setOpen(false);
                     onLogout && onLogout();
+                    onNavigate && onNavigate('home');
                   }}
                   className="w-full border py-2 rounded-md"
                 >

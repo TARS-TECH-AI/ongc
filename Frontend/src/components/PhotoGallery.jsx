@@ -2,22 +2,42 @@ import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 // Images
-import P1 from "../assets/PhotoImg/P1.png";
-import P2 from "../assets/PhotoImg/P2.png";
-import P3 from "../assets/PhotoImg/P3.png";
-import P4 from "../assets/PhotoImg/P4.png";
-import P5 from "../assets/PhotoImg/P5.png";
+import P1 from "../assets/Img/11.png";
+import P2 from "../assets/Img/12.png";
+import P3 from "../assets/Img/13.png";
+import P4 from "../assets/Img/14.png";
+import P5 from "../assets/Img/15.png";
+import P6 from "../assets/Img/16.png";
+import P7 from "../assets/Img/17.png";
+import P8 from "../assets/Img/18.png";
+import P9 from "../assets/Img/19.png";
+import P10 from "../assets/Img/20.png";
+import P11 from "../assets/Img/21.png";
+import P12 from "../assets/Img/22.png";
+import P13 from "../assets/Img/23.png";
+import P14 from "../assets/Img/24.png";
+import P15 from "../assets/Img/25.png";
 
-const images = [P1, P2, P3, P4, P5];
+
+const images=[P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14,P15];
 
 const PhotoGallery = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [index, setIndex] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+  
+  const VISIBLE_IMAGES = 6; // Two rows with 3 columns
+  const visibleImages = showAll ? images : images.slice(0, VISIBLE_IMAGES - 1);
+  const remainingCount = images.length - VISIBLE_IMAGES + 1;
 
   const open = (i) => {
     setIndex(i);
     setIsOpen(true);
     document.body.style.overflow = "hidden";
+  };
+  
+  const showAllPhotos = () => {
+    setShowAll(true);
   };
 
   const close = () => {
@@ -66,7 +86,7 @@ const PhotoGallery = () => {
 
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {images.map((img, i) => (
+          {visibleImages.map((img, i) => (
             <button
               key={i}
               onClick={() => open(i)}
@@ -79,6 +99,25 @@ const PhotoGallery = () => {
               />
             </button>
           ))}
+          
+          {/* Last image with remaining count */}
+          {!showAll && remainingCount > 0 && (
+            <button
+              onClick={showAllPhotos}
+              className="relative block overflow-hidden rounded-xl focus:outline-none group"
+            >
+              <img
+                src={images[VISIBLE_IMAGES - 1]}
+                alt={`Gallery image ${VISIBLE_IMAGES}`}
+                className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl"
+              />
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl group-hover:bg-black/70 transition">
+                <span className="text-white text-3xl sm:text-4xl font-bold">
+                  +{remainingCount}
+                </span>
+              </div>
+            </button>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React from "react";
-import corevalueImage from "../assets/corevalues.png";
+import corevalueImage from "../assets/Img/7.png";
 import justiceImg from "../assets/justice.png";
 import unityImg from "../assets/unity.png";
 import processImg from "../assets/Process.png";

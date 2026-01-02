@@ -4,8 +4,12 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   passwordHash: { type: String, required: true },
-  phone: { type: String },
-  category: { type: String },
+  mobile: { type: String, required: true },
+  employeeId: { type: String, required: true },
+  category: { type: String, enum: ['General', 'SC', 'ST', 'OBC'], required: true },
+  idProofDocument: { type: String }, // Base64 encoded document
+  idProofFileName: { type: String }, // Original file name
+  idProofFileType: { type: String }, // File MIME type
   status: { type: String, enum: ['Pending','Approved','Rejected'], default: 'Pending' },
   documents: [
     {

@@ -71,7 +71,7 @@ const AISCSSTEWAUnits = () => {
       {/* ===== HEADING ===== */}
       <div className="max-w-7xl mx-auto px-4 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0C2E50]">
-          AISCS&STEWA Units
+          AISCSSTEWA Units
         </h2>
         <div className="w-28 sm:w-40 h-1 bg-orange-500 mx-auto mt-4" />
       </div>

@@ -14,10 +14,12 @@ import AISCSSTEWAUnits from "./components/AISCSSTEWAUnits";
 import Association from "./components/Association";
 import ImportantLinks from "./components/ImportantLinks";
 import ContactForm from "./components/ContactForm";
+import Profile from "./pages/profile";
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
+  const [currentView, setCurrentView] = useState("home");
 
   const openAuth = (mode = "login") => {
     setAuthMode(mode);
@@ -78,6 +80,8 @@ function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         isAuthenticated={isAuthenticated}
+        onNavigate={setCurrentView}
+        currentView={currentView}
       />
 
       <AuthModal
@@ -101,24 +105,31 @@ function App() {
           </div>
         </div>
       )}
-      <HeroSection />
-      <About />
-      <CoreValues />
-      <MembersSection />
-      <Constitution />
-      {/* Protected Content */}
-      {isAuthenticated && (
+
+      {currentView === "profile" ? (
+        <Profile />
+      ) : (
         <>
-          <Documents />
-          <ImportantUpdates />
+          <HeroSection />
+          <About />
+          <CoreValues />
+          <MembersSection />
+          <Constitution />
+          {/* Protected Content */}
+          {isAuthenticated && (
+            <>
+              <Documents />
+              <ImportantUpdates />
+            </>
+          )}
+          <AISCSSTEWAUnits />
+          <PhotoGraphy />
+          <Association />
+          <ImportantLinks />
+          <ContactForm />
+          <Footer onOpenAuth={openAuth} isAuthenticated={isAuthenticated} />
         </>
       )}
-      <AISCSSTEWAUnits />
-      <PhotoGraphy />
-      <Association />
-      <ImportantLinks />
-      <ContactForm />
-      <Footer onOpenAuth={openAuth} isAuthenticated={isAuthenticated} />
     </>
   );
 }

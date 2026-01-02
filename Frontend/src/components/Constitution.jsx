@@ -7,7 +7,7 @@ const PdfCard = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-[#0C2E50]">
-            AISCS&STEWA Constitution
+            AISCSSTEWA Constitution
           </h2>
           <div className="w-40 h-1 bg-orange-500 mx-auto mt-4" />
         </div>
