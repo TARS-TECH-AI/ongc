@@ -4,16 +4,15 @@ const Contact = require('../models/Contact');
 const User = require('../models/User');
 const router = express.Router();
 
-// Admin middleware
-const adminAuth = async (req, res, next) => {
+// Admin middleware - matches the one used in adminApprovals.js
+const adminAuth = (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ message: 'Unauthorized' });
+  const token = auth.split(' ')[1];
   try {
-    const auth = req.headers.authorization;
-    if (!auth) return res.status(401).json({ message: 'Unauthorized' });
-    const token = auth.split(' ')[1];
     const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    const user = await User.findById(payload.id);
-    if (!user || user.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
-    req.admin = user;
+    if (payload.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+    req.admin = payload;
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid token' });
