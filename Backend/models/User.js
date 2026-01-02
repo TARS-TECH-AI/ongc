@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   mobile: { type: String, required: true },
   employeeId: { type: String, required: true },
-  category: { type: String, enum: ['General', 'SC', 'ST', 'OBC'], required: true },
+  category: { type: String, required: false }, // Made optional for backward compatibility
   idProofDocument: { type: String }, // Base64 encoded document
   idProofFileName: { type: String }, // Original file name
   idProofFileType: { type: String }, // File MIME type
@@ -19,6 +19,6 @@ const userSchema = new mongoose.Schema({
     }
   ],
   createdAt: { type: Date, default: Date.now },
-});
+}, { strict: false });
 
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);

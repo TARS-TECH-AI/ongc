@@ -39,7 +39,7 @@ router.get('/', adminAuth, async (req, res) => {
   try {
     const { status } = req.query;
     const q = status ? { status } : {};
-    const users = await User.find(q).select('name email category status createdAt');
+    const users = await User.find(q).select('-passwordHash -idProofDocument');
     res.json(users);
   } catch (err) {
     console.error(err);

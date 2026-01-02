@@ -39,8 +39,7 @@ const Profile = ({ onBack }) => {
       setEditedData({
         name: data.user.name,
         mobile: data.user.mobile,
-        employeeId: data.user.employeeId,
-        category: data.user.category
+        employeeId: data.user.employeeId
       });
     } catch (err) {
       setError(err.message);
@@ -58,8 +57,7 @@ const Profile = ({ onBack }) => {
     setEditedData({
       name: user.name,
       mobile: user.mobile,
-      employeeId: user.employeeId,
-      category: user.category
+      employeeId: user.employeeId
     });
     setError(null);
   };
@@ -308,29 +306,6 @@ const Profile = ({ onBack }) => {
                   />
                 ) : (
                   <p className="text-gray-900 font-semibold">{user?.employeeId}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Category */}
-            <div className="flex items-start gap-3">
-              <FileText className="w-5 h-5 text-gray-500 mt-1" />
-              <div className="flex-1">
-                <p className="text-sm text-gray-500 font-medium">Category</p>
-                {isEditing ? (
-                  <select
-                    name="category"
-                    value={editedData.category}
-                    onChange={handleInputChange}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  >
-                    <option value="General">General</option>
-                    <option value="SC">SC (Scheduled Caste)</option>
-                    <option value="ST">ST (Scheduled Tribe)</option>
-                    <option value="OBC">OBC (Other Backward Class)</option>
-                  </select>
-                ) : (
-                  <p className="text-gray-900 font-semibold">{user?.category}</p>
                 )}
               </div>
             </div>

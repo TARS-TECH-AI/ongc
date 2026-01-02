@@ -7,7 +7,6 @@ export const RegisterForm = ({onSuccess}) => {
     email: "",
     mobile: "",
     employeeId: "",
-    category: "",
     password: "",
     confirmPassword: "",
   });
@@ -54,8 +53,19 @@ export const RegisterForm = ({onSuccess}) => {
     e.preventDefault();
     setError(null);
     
+    // Validate all required fields
+    if (!formData.name || !formData.email || !formData.mobile || !formData.employeeId || !formData.password || !formData.confirmPassword) {
+      setError('Please fill in all required fields');
+      return;
+    }
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      return;
+    }
+
+    if (!idProof) {
+      setError('ID Proof document is required');
       return;
     }
 
@@ -63,11 +73,10 @@ export const RegisterForm = ({onSuccess}) => {
     
     try {
       const registrationData = {
-        name: formData.name,
-        email: formData.email,
-        mobile: formData.mobile,
-        employeeId: formData.employeeId,
-        category: formData.category,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        mobile: formData.mobile.trim(),
+        employeeId: formData.employeeId.trim(),
         password: formData.password
       };
       
@@ -193,45 +202,6 @@ export const RegisterForm = ({onSuccess}) => {
           />
         </div>
 
-        {/* Category */}
-        <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
-            Category <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="category"
-            required
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition"
-          >
-            <option value="">Select Category</option>
-            <option value="General">General</option>
-            <option value="SC">SC (Scheduled Caste)</option>
-            <option value="ST">ST (Scheduled Tribe)</option>
-            <option value="OBC">OBC (Other Backward Class)</option>
-          </select>
-        </div>
-
-        {/* ID Proof Upload */}
-        <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
-            ID Proof Document <span className="text-gray-500">(Upload after backend deployment)</span>
-          </label>
-          <label className="flex items-center justify-center w-full px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition">
-            <Upload className="w-5 h-5 mr-2 text-gray-500" />
-            <span className="text-sm text-gray-600 truncate">
-              {idProofPreview || "Upload (JPG, PNG, PDF - Max 2MB)"}
-            </span>
-            <input
-              type="file"
-              accept=".jpg,.jpeg,.png,.pdf"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
-        </div>
-
         {/* Password */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1">
@@ -281,6 +251,25 @@ export const RegisterForm = ({onSuccess}) => {
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
+        </div>
+
+        {/* ID Proof Upload */}
+        <div className="md:col-span-2">
+          <label className="text-sm font-medium text-gray-700 block mb-1">
+            ID Proof Document <span className="text-red-500">*</span>
+          </label>
+          <label className="flex items-center justify-center w-full px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition">
+            <Upload className="w-5 h-5 mr-2 text-gray-500" />
+            <span className="text-sm text-gray-600 truncate">
+              {idProofPreview || "Upload (JPG, PNG, PDF - Max 2MB)"}
+            </span>
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
         </div>
       </div>
 

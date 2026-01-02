@@ -53,16 +53,15 @@ router.post('/register', async (req, res) => {
     console.log('Registration request received');
     console.log('Body keys:', Object.keys(req.body));
     
-    const { name, email, password, mobile, employeeId, category, idProofDocument, idProofFileName, idProofFileType } = req.body;
-    
-    if (!name || !email || !password || !mobile || !employeeId || !category) {
+    const { name, email, password, mobile, employeeId, idProofDocument, idProofFileName, idProofFileType } = req.body;
+
+    if (!name || !email || !password || !mobile || !employeeId) {
       const missing = [];
       if (!name) missing.push('name');
       if (!email) missing.push('email');
       if (!password) missing.push('password');
       if (!mobile) missing.push('mobile');
       if (!employeeId) missing.push('employeeId');
-      if (!category) missing.push('category');
       
       console.log('Missing fields:', missing);
       return res.status(400).json({ 
@@ -83,7 +82,6 @@ router.post('/register', async (req, res) => {
       passwordHash,
       mobile,
       employeeId,
-      category,
       status: 'Pending'
     };
 
@@ -108,7 +106,6 @@ router.post('/register', async (req, res) => {
         email: user.email,
         mobile: user.mobile,
         employeeId: user.employeeId,
-        category: user.category,
         status: user.status,
         hasIdProof: !!user.idProofDocument
       }
@@ -142,7 +139,6 @@ router.post('/login', async (req, res) => {
         email: user.email,
         mobile: user.mobile,
         employeeId: user.employeeId,
-        category: user.category,
         status: user.status,
         hasIdProof: !!user.idProofDocument
       }
@@ -169,7 +165,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 // Update user profile
 router.put('/profile', verifyToken, async (req, res) => {
   try {
-    const { name, mobile, employeeId, category } = req.body;
+    const { name, mobile, employeeId } = req.body;
     
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -178,7 +174,6 @@ router.put('/profile', verifyToken, async (req, res) => {
     if (name) user.name = name;
     if (mobile) user.mobile = mobile;
     if (employeeId) user.employeeId = employeeId;
-    if (category) user.category = category;
     
     await user.save();
     

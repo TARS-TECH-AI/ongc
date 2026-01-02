@@ -259,11 +259,6 @@ const Dashboard = () => {
                                 </div>
 
                                 <div>
-                                  <div className="text-sm text-slate-500 mb-1">Category</div>
-                                  <div className="font-medium text-slate-900">{userDetails.category || userDetails.group || '—'}</div>
-                                </div>
-
-                                <div>
                                   <div className="text-sm text-slate-500 mb-1">Current Status</div>
                                   <div className="mt-1">
                                     <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold ${
