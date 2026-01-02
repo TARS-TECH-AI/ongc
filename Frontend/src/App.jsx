@@ -107,7 +107,7 @@ function App() {
       )}
 
       {currentView === "profile" ? (
-        <Profile />
+        <Profile onBack={() => setCurrentView("home")} />
       ) : (
         <>
           <HeroSection />

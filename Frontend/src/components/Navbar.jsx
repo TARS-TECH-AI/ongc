@@ -45,12 +45,17 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           <img
             src={Logo}
             alt="logo"
+            onClick={() => {
+              onNavigate && onNavigate('home');
+              setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+            }}
             className="
               w-20 h-20
               sm:w-24 sm:h-24
               md:w-28 md:h-28
               lg:w-32 lg:h-32
               object-contain
+              cursor-pointer
             "
           />
 
@@ -66,7 +71,16 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                     onOpenAuth && onOpenAuth('login');
                     return;
                   }
-                  if (item.id) {
+                  // Navigate to home if on different view
+                  if (currentView !== 'home') {
+                    onNavigate && onNavigate('home');
+                    setTimeout(() => {
+                      if (item.id) {
+                        const el = document.getElementById(item.id);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 100);
+                  } else if (item.id) {
                     const el = document.getElementById(item.id);
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }
@@ -174,7 +188,16 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
               onClick={() => {
                 setOpen(false);
                 if (item.restricted && !isAuthenticated) return onOpenAuth && onOpenAuth('login');
-                if (item.id) {
+                // Navigate to home if on different view
+                if (currentView !== 'home') {
+                  onNavigate && onNavigate('home');
+                  setTimeout(() => {
+                    if (item.id) {
+                      const el = document.getElementById(item.id);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                } else if (item.id) {
                   const el = document.getElementById(item.id);
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }

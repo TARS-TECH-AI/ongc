@@ -165,4 +165,28 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
+// Update user profile
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const { name, mobile, employeeId, category } = req.body;
+    
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    // Update fields
+    if (name) user.name = name;
+    if (mobile) user.mobile = mobile;
+    if (employeeId) user.employeeId = employeeId;
+    if (category) user.category = category;
+    
+    await user.save();
+    
+    const updatedUser = await User.findById(req.userId).select('-passwordHash');
+    res.json({ message: 'Profile updated successfully', user: updatedUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;

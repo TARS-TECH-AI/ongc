@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { User, Mail, Phone, IdCard, FileText, Shield, CheckCircle, XCircle, Clock } from "lucide-react";
+import { User, Mail, Phone, IdCard, FileText, Shield, CheckCircle, XCircle, Clock, ArrowLeft, Edit2, Save, X } from "lucide-react";
 
-const Profile = () => {
+const Profile = ({ onBack }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState({});
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
@@ -33,11 +36,77 @@ const Profile = () => {
 
       const data = await res.json();
       setUser(data.user);
+      setEditedData({
+        name: data.user.name,
+        mobile: data.user.mobile,
+        employeeId: data.user.employeeId,
+        category: data.user.category
+      });
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedData({
+      name: user.name,
+      mobile: user.mobile,
+      employeeId: user.employeeId,
+      category: user.category
+    });
+    setError(null);
+  };
+
+  const handleSave = async () => {
+    setUpdateLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editedData)
+      });
+
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Profile update feature is not available yet. Please deploy the updated backend.');
+      }
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
+      setUser(data.user);
+      setIsEditing(false);
+      
+      // Update localStorage
+      localStorage.setItem('user', JSON.stringify(data.user));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setEditedData({
+      ...editedData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const getStatusBadge = (status) => {
@@ -98,8 +167,28 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 mt-24">
       <div className="max-w-4xl mx-auto">
+        {/* Back Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            console.log('Back button clicked');
+            if (onBack) {
+              onBack();
+              console.log('Navigating to home');
+            }
+            setTimeout(() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+          }}
+          className="flex items-center gap-2 mb-6 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors cursor-pointer shadow-md hover:shadow-lg"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-medium">Back to Home</span>
+        </button>
+
         {/* Header Card */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -112,8 +201,36 @@ const Profile = () => {
                 <p className="text-gray-600">{user?.email}</p>
               </div>
             </div>
-            <div>
+            <div className="flex items-center gap-3">
               {getStatusBadge(user?.status)}
+              {!isEditing ? (
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors cursor-pointer"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit Profile
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSave}
+                    disabled={updateLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <Save className="w-4 h-4" />
+                    {updateLoading ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={updateLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -129,9 +246,19 @@ const Profile = () => {
             {/* Full Name */}
             <div className="flex items-start gap-3">
               <User className="w-5 h-5 text-gray-500 mt-1" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-gray-500 font-medium">Full Name</p>
-                <p className="text-gray-900 font-semibold">{user?.name}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="name"
+                    value={editedData.name}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900 font-semibold">{user?.name}</p>
+                )}
               </div>
             </div>
 
@@ -141,33 +268,69 @@ const Profile = () => {
               <div>
                 <p className="text-sm text-gray-500 font-medium">Email Address</p>
                 <p className="text-gray-900 font-semibold">{user?.email}</p>
+                <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
               </div>
             </div>
 
             {/* Mobile */}
             <div className="flex items-start gap-3">
               <Phone className="w-5 h-5 text-gray-500 mt-1" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-gray-500 font-medium">Mobile Number</p>
-                <p className="text-gray-900 font-semibold">{user?.mobile}</p>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    name="mobile"
+                    value={editedData.mobile}
+                    onChange={handleInputChange}
+                    pattern="[0-9]{10}"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900 font-semibold">{user?.mobile}</p>
+                )}
               </div>
             </div>
 
             {/* Employee ID */}
             <div className="flex items-start gap-3">
               <IdCard className="w-5 h-5 text-gray-500 mt-1" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-gray-500 font-medium">Employee ID</p>
-                <p className="text-gray-900 font-semibold">{user?.employeeId}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="employeeId"
+                    value={editedData.employeeId}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900 font-semibold">{user?.employeeId}</p>
+                )}
               </div>
             </div>
 
             {/* Category */}
             <div className="flex items-start gap-3">
               <FileText className="w-5 h-5 text-gray-500 mt-1" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-gray-500 font-medium">Category</p>
-                <p className="text-gray-900 font-semibold">{user?.category}</p>
+                {isEditing ? (
+                  <select
+                    name="category"
+                    value={editedData.category}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  >
+                    <option value="General">General</option>
+                    <option value="SC">SC (Scheduled Caste)</option>
+                    <option value="ST">ST (Scheduled Tribe)</option>
+                    <option value="OBC">OBC (Other Backward Class)</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900 font-semibold">{user?.category}</p>
+                )}
               </div>
             </div>
 
@@ -206,6 +369,15 @@ const Profile = () => {
               </div>
             </div>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800">
+                <strong>Error:</strong> {error}
+              </p>
+            </div>
+          )}
 
           {/* Status Information */}
           {user?.status === 'Pending' && (
