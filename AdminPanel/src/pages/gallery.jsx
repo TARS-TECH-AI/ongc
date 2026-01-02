@@ -3,15 +3,7 @@ import { Image, Plus, Eye, Download, Trash2 } from "lucide-react";
 import placeholder from "../assets/photo-placeholder.svg";
 
 const Gallery = () => {
-  const [items, setItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem('gallery-items');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const [items, setItems] = useState([]);
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -20,6 +12,64 @@ const Gallery = () => {
   const [filePreview, setFilePreview] = useState(null);
   const [error, setError] = useState("");
   const fileRef = useRef(null);
+
+  useEffect(() => {
+    loadGallery();
+  }, []);
+
+  const loadGallery = async () => {
+    const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
+    
+    try {
+      // Try to load from backend first
+      const res = await fetch(`${API}/gallery`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          const backendItems = data.items.map(item => ({
+            id: item.id,
+            title: item.title,
+            caption: item.caption,
+            date: new Date(item.date).toLocaleDateString(),
+            src: item.src
+          }));
+          setItems(backendItems);
+          localStorage.setItem('gallery-items', JSON.stringify(backendItems));
+          return;
+        }
+      }
+    } catch (err) {
+      console.log('Backend gallery load failed, using localStorage');
+    }
+
+    // Fallback to localStorage
+    try {
+      const saved = localStorage.getItem('gallery-items');
+      if (saved) {
+        const localItems = JSON.parse(saved);
+        setItems(localItems);
+        
+        // Sync localStorage items to backend
+        for (const item of localItems) {
+          try {
+            await fetch(`${API}/gallery`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: item.title,
+                caption: item.caption,
+                image: item.src
+              })
+            });
+          } catch (err) {
+            console.log('Failed to sync item to backend:', err);
+          }
+        }
+      }
+    } catch (err) {
+      console.log('localStorage load failed');
+    }
+  };
 
   useEffect(() => {
     const onKey = (e) => {
@@ -64,17 +114,24 @@ const Gallery = () => {
     setError("");
 
     try {
-      // Attempt real upload
+      // Send to backend with base64 encoded image
       const API =
         import.meta.env.VITE_API_URL ||
         import.meta.env.VITE_API_BASE ||
         "https://ongc-q48j.vercel.app/api";
-      const fd = new FormData();
-      fd.append("image", file);
-      fd.append("title", form.title);
-      fd.append("caption", form.caption);
 
-      const res = await fetch(`${API}/gallery`, { method: "POST", body: fd });
+      const res = await fetch(`${API}/gallery`, { 
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: form.title || file.name,
+          caption: form.caption || "",
+          image: filePreview
+        })
+      });
+      
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json().catch(() => ({}));
       const newItem = {
@@ -91,20 +148,8 @@ const Gallery = () => {
       // Reset form and close modal
       resetForm();
     } catch (err) {
-      // fallback: simulate upload locally
-      const newItem = {
-        id: Date.now(),
-        title: form.title || file.name,
-        caption: form.caption || "",
-        date: new Date().toLocaleDateString(),
-        src: filePreview,
-      };
-      const updated = [newItem, ...items];
-      setItems(updated);
-      localStorage.setItem('gallery-items', JSON.stringify(updated));
-      
-      // Reset form and close modal
-      resetForm();
+      console.error('Upload error:', err);
+      setError('Failed to upload image');
     } finally {
       setUploading(false);
     }

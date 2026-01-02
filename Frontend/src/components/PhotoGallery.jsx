@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-// Images
-import P1 from "../assets/Img/11.png";
-import P2 from "../assets/Img/12.png";
-import P3 from "../assets/Img/13.png";
-import P4 from "../assets/Img/14.png";
-import P5 from "../assets/Img/15.png";
-import P6 from "../assets/Img/16.png";
-import P7 from "../assets/Img/17.png";
-import P8 from "../assets/Img/18.png";
-import P9 from "../assets/Img/19.png";
-import P10 from "../assets/Img/20.png";
-import P11 from "../assets/Img/21.png";
-import P12 from "../assets/Img/22.png";
-import P13 from "../assets/Img/23.png";
-import P14 from "../assets/Img/24.png";
-import P15 from "../assets/Img/25.png";
-
-
-const images=[P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14,P15];
+const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
 const PhotoGallery = () => {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    loadGallery();
+  }, []);
+  
+  const loadGallery = async () => {
+    try {
+      const res = await fetch(`${API}/gallery`);
+      if (!res.ok) throw new Error('Failed to load gallery');
+      const data = await res.json();
+      setImages(data.items?.map(item => item.src) || []);
+    } catch (err) {
+      console.error('Error loading gallery:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const VISIBLE_IMAGES = 6; // Two rows with 3 columns
   const visibleImages = showAll ? images : images.slice(0, VISIBLE_IMAGES - 1);
@@ -85,40 +86,50 @@ const PhotoGallery = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visibleImages.map((img, i) => (
-            <button
-              key={i}
-              onClick={() => open(i)}
-              className="block overflow-hidden rounded-xl focus:outline-none"
-            >
-              <img
-                src={img}
-                alt={`Gallery image ${i + 1}`}
-                className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl transform hover:scale-105 transition"
-              />
-            </button>
-          ))}
-          
-          {/* Last image with remaining count */}
-          {!showAll && remainingCount > 0 && (
-            <button
-              onClick={showAllPhotos}
-              className="relative block overflow-hidden rounded-xl focus:outline-none group"
-            >
-              <img
-                src={images[VISIBLE_IMAGES - 1]}
-                alt={`Gallery image ${VISIBLE_IMAGES}`}
-                className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl"
-              />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl group-hover:bg-black/70 transition">
-                <span className="text-white text-3xl sm:text-4xl font-bold">
-                  +{remainingCount}
-                </span>
-              </div>
-            </button>
-          )}
-        </div>
+        {loading ? (
+          <div className="text-center py-12 text-slate-600">
+            Loading gallery...
+          </div>
+        ) : images.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">
+            No images in gallery yet
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visibleImages.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => open(i)}
+                className="block overflow-hidden rounded-xl focus:outline-none"
+              >
+                <img
+                  src={img}
+                  alt={`Gallery image ${i + 1}`}
+                  className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl transform hover:scale-105 transition"
+                />
+              </button>
+            ))}
+            
+            {/* Last image with remaining count */}
+            {!showAll && remainingCount > 0 && (
+              <button
+                onClick={showAllPhotos}
+                className="relative block overflow-hidden rounded-xl focus:outline-none group"
+              >
+                <img
+                  src={images[VISIBLE_IMAGES - 1]}
+                  alt={`Gallery image ${VISIBLE_IMAGES}`}
+                  className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl"
+                />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl group-hover:bg-black/70 transition">
+                  <span className="text-white text-3xl sm:text-4xl font-bold">
+                    +{remainingCount}
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {isOpen && (

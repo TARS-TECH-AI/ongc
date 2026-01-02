@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contact');
+const galleryRoutes = require('./routes/gallery');
 const path = require('path');
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/gallery', galleryRoutes);
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminApprovalsRoutes = require('./routes/adminApprovals');
 app.use('/api/admin', adminAuthRoutes);
