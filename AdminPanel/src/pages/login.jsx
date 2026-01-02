@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import defaultAvatar from '../assets/profile.png';
+import defaultAvatar from '../assets/Profile.png';
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
