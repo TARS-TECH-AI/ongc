@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, FileText } from 'lucide-react';
 
 const sample = [
   { id: 1, name: 'Rajesh Kumar', category: 'SC', date: '5/19/12', status: 'Rejected' },
@@ -42,7 +42,7 @@ const Approvals = () => {
       const res = await fetch(`${API}/admin/approvals?status=Pending`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      const mapped = data.map(u => ({ id: u.id || u._id, name: u.name, category: u.category, date: new Date(u.date || u.createdAt).toLocaleDateString(), status: u.status }));
+      const mapped = data.map(u => ({ id: u.id || u._id, name: u.name, date: new Date(u.date || u.createdAt).toLocaleDateString(), status: u.status }));
       setRows(mapped);
     } catch (err) {
       // keep sample as fallback
@@ -61,8 +61,12 @@ const Approvals = () => {
       const res = await fetch(`${API}/admin/approvals/${row.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Not found');
       const data = await res.json().catch(() => ({}));
-      // expect data: { id, name, category, date, status, phone, email, docs: [{id,name,url}] }
-      setSelected({ ...data, docs: data.docs || docsMap[row.id] || [] });
+      // expect comprehensive data: id, name, email, mobile, employeeId, status, date, createdAt, idProofDocument, idProofFileName, idProofFileType, docs
+      setSelected({ 
+        ...data, 
+        docs: data.docs || docsMap[row.id] || [],
+        loading: false
+      });
     } catch (err) {
       // fallback to local sample data
       setSelected({ ...row, docs: docsMap[row.id] || [], loading: false });
@@ -105,6 +109,33 @@ const Approvals = () => {
 
   const approve = (id) => changeStatus(id, 'Approved');
   const reject = (id) => changeStatus(id, 'Rejected');
+
+  const viewDocument = (docData, fileName) => {
+    if (!docData) return;
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${fileName || 'Document'}</title>
+            <style>
+              body { margin: 0; padding: 0; background: #f3f4f6; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+              img { max-width: 100%; display: block; margin: 20px auto; }
+            </style>
+          </head>
+          <body>
+            ${docData.startsWith('data:image') 
+              ? `<img src="${docData}" alt="${fileName || 'Document'}" />` 
+              : `<iframe src="${docData}"></iframe>`
+            }
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
+  };
 
   const downloadDoc = (doc) => {
     if (doc.url) {
@@ -182,58 +213,156 @@ const Approvals = () => {
           <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4">
             <div className="fixed inset-0 bg-black/50 cursor-pointer" onClick={closeDetails} />
 
-            <div className="relative z-50 w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-start justify-between mb-4">
-                <h2 className="text-lg font-semibold">User Details</h2>
-                <button onClick={closeDetails} className="text-slate-600">✕</button>
+            <div className="relative z-50 w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start justify-between mb-6">
+                <h2 className="text-xl font-bold text-slate-900">User Details</h2>
+                <button onClick={closeDetails} className="text-slate-400 hover:text-slate-600 text-2xl leading-none">✕</button>
               </div>
 
               {selected.loading ? (
                 <div className="py-8 text-center text-sm text-slate-600">Loading details…</div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-slate-500">Full Name</div>
-                      <div className="font-medium text-slate-800">{selected.name}</div>
+                  {/* Personal Information */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Personal Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Full Name</div>
+                          <div className="font-semibold text-slate-900">{selected.name || '—'}</div>
+                        </div>
 
-                      <div className="mt-3 text-sm text-slate-500">Phone</div>
-                      <div className="font-medium text-slate-800">{selected.phone || '+91 9876543210'}</div>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Email Address</div>
+                          <div className="font-medium text-slate-900 break-all">{selected.email || (selected.name ? selected.name.split(' ').join('.').toLowerCase() + '@email.com' : '—')}</div>
+                        </div>
 
-                      <div className="mt-3 text-sm text-slate-500">Registration Date</div>
-                      <div className="font-medium text-slate-800">{selected.date}</div>
-                    </div>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Mobile Number</div>
+                          <div className="font-medium text-slate-900">{selected.mobile || selected.phone || '—'}</div>
+                        </div>
+                      </div>
 
-                    <div>
-                      <div className="text-sm text-slate-500">Email</div>
-                      <div className="font-medium text-slate-800">{selected.email || (selected.name ? selected.name.split(' ').join('.').toLowerCase() + '@email.com' : '')}</div>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Employee ID</div>
+                          <div className="font-semibold text-slate-900">{selected.employeeId || '—'}</div>
+                        </div>
 
-                      <div className="mt-3 text-sm text-slate-500">Category</div>
-                      <div className="font-medium text-slate-800">{selected.category}</div>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">User ID</div>
+                          <div className="font-mono text-sm text-slate-700">{selected.id || selected._id || '—'}</div>
+                        </div>
 
-                      <div className="mt-3 text-sm text-slate-500">Status</div>
-                      <div className="mt-2"><StatusBadge status={selected.status} /></div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <h3 className="text-sm font-semibold mb-2">Uploaded Documents</h3>
-                    <div className="space-y-2">
-                      {selected.docs && selected.docs.length ? selected.docs.map(d => (
-                        <div key={d.id} className="flex items-center justify-between bg-slate-100 rounded p-3">
-                          <div className="text-sm">{d.name}</div>
-                          <div className="flex items-center gap-3">
-                            <button onClick={() => downloadDoc(d)} className="px-3 py-1 bg-amber-200 text-amber-900 rounded">Download</button>
-                            <button onClick={() => downloadDoc(d)} className="text-slate-600"><Download size={16} /></button>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Registration Date</div>
+                          <div className="font-medium text-slate-900">
+                            {selected.date || selected.createdAt ? new Date(selected.date || selected.createdAt).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : '—'}
                           </div>
                         </div>
-                      )) : <div className="text-sm text-slate-500">No documents uploaded</div>}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 flex items-center gap-4">
-                    <button onClick={() => approve(selected.id)} className="px-6 py-2 bg-slate-900 text-white rounded">Approved</button>
-                    <button onClick={() => reject(selected.id)} className="px-6 py-2 bg-rose-600 text-white rounded">Rejected</button>
+                  {/* Status Information */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Account Status</h3>
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <div className="text-sm text-slate-500 mb-2">Current Status</div>
+                        <StatusBadge status={selected.status} />
+                      </div>
+                      {selected.category && (
+                        <div>
+                          <div className="text-sm text-slate-500 mb-2">Category</div>
+                          <div className="font-medium text-slate-900">{selected.category}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Documents Section */}
+                  <div className="border-t pt-6 mb-6">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Documents</h3>
+                    
+                    {/* ID Proof Document */}
+                    <div className="mb-6">
+                      <h4 className="text-md font-semibold mb-3 text-slate-800">ID Proof Document</h4>
+                      {selected.idProofDocument ? (
+                        <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-5 h-5 text-slate-600" />
+                              <div>
+                                <div className="font-medium text-slate-900">{selected.idProofFileName || 'ID Proof Document'}</div>
+                                <div className="text-sm text-slate-500">{selected.idProofFileType || 'Document'}</div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => viewDocument(selected.idProofDocument, selected.idProofFileName || 'ID Proof')}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                              >
+                                <Eye size={16} />
+                                View
+                              </button>
+                              <a 
+                                href={selected.idProofDocument} 
+                                download={selected.idProofFileName || 'id-proof'}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                              >
+                                Download
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-slate-500 py-4 bg-slate-50 rounded-lg text-center border border-slate-200">No ID proof document uploaded</div>
+                      )}
+                    </div>
+
+                    {/* Additional Documents */}
+                    <div>
+                      <h4 className="text-md font-semibold mb-3 text-slate-800">Additional Documents ({selected.docs?.length || 0})</h4>
+                      <div className="space-y-2">
+                        {selected.docs && selected.docs.length ? selected.docs.map((d, idx) => (
+                          <div key={d.id || idx} className="flex items-center justify-between bg-slate-50 rounded-lg p-4 border border-slate-200">
+                            <div className="flex items-center gap-3 flex-1">
+                              <FileText className="w-5 h-5 text-slate-600" />
+                              <div className="flex-1">
+                                <div className="font-medium text-slate-900">{d.name || 'Document'}</div>
+                                {d.uploadedAt && (
+                                  <div className="text-xs text-slate-500">Uploaded: {new Date(d.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                                )}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                if (d.url) {
+                                  let url = d.url;
+                                  if (url.startsWith('/')) {
+                                    const base = API.replace(/\/api\/?$/, '');
+                                    url = `${base}${url}`;
+                                  }
+                                  viewDocument(url, d.name || 'Document');
+                                }
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition text-sm font-medium"
+                            >
+                              <Eye size={16} />
+                              View
+                            </button>
+                          </div>
+                        )) : <div className="text-sm text-slate-500 py-4 bg-slate-50 rounded-lg text-center border border-slate-200">No additional documents uploaded</div>}
+                      </div>
+                    </div>
                   </div>
                 </>
               )}

@@ -1,64 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { XCircle, CheckCircle } from "lucide-react";
+import { XCircle, CheckCircle, Trash2 } from "lucide-react";
 import Member1 from "../assets/Member1.png";
 import Member2 from "../assets/Member2.png";
 import Member3 from "../assets/Member3.png";
 
 const sampleMembers = [
-  {
-    id: 1,
-    name: "Rajesh Kumar",
-    email: "rajesh.kumar@ongc.co.in",
-    phone: "+91 98XXX 12345",
-    category: "SC",
-    joined: "5/19/12",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Sunita Devi",
-    email: "sunita.devi@ongc.co.in",
-    phone: "+91 98XXX 12345",
-    category: "SC",
-    joined: "5/27/15",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Priya Sharma",
-    email: "priya.sharma@ongc.co.in",
-    phone: "+91 98XXX 12345",
-    category: "ST",
-    joined: "10/28/12",
-    status: "Inactive",
-  },
-  {
-    id: 4,
-    name: "Sunita Devi",
-    email: "sunita.devi2@ongc.co.in",
-    phone: "+91 98XXX 12345",
-    category: "SC",
-    joined: "8/2/19",
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Rajesh Kumar",
-    email: "rajesh.kumar2@ongc.co.in",
-    phone: "+91 98XXX 12345",
-    category: "SC",
-    joined: "9/23/16",
-    status: "Active",
-  },
-  {
-    id: 6,
-    name: "Sunita Devi",
-    email: "sunita@example.com",
-    phone: "+91 98XXX 12345",
-    category: "ST",
-    joined: "6/21/19",
-    status: "Inactive",
-  },
+
 ];
 
 const Badge = ({ status }) => {
@@ -105,7 +52,13 @@ const downloadCSV = (rows) => {
 
 const Members = () => {
   const [q, setQ] = useState("");
-  const [members] = useState(sampleMembers);
+  const [members, setMembers] = useState(sampleMembers);
+
+  const handleDeleteMember = (memberId) => {
+    if (window.confirm('Are you sure you want to remove this member?')) {
+      setMembers(prevMembers => prevMembers.filter(m => m.id !== memberId));
+    }
+  };
 
   const filtered = useMemo(() => {
     const val = q.trim().toLowerCase();
@@ -250,9 +203,18 @@ const Members = () => {
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button className="text-sky-700 hover:underline">
-                      View Details
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button className="text-sky-700 hover:underline">
+                        View Details
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteMember(m.id)}
+                        className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition"
+                        title="Remove Member"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -265,23 +227,32 @@ const Members = () => {
           {filtered.map((m) => (
             <div
               key={m.id}
-              className="bg-white rounded-lg shadow p-4 flex items-center justify-between"
+              className="bg-white rounded-lg shadow p-4"
             >
-              <div>
-                <div className="text-sm font-medium text-slate-800">
-                  {m.name}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-slate-800">
+                    {m.name}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    {m.category} • {m.joined}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2">
+                    {m.email} • {m.phone}
+                  </div>
                 </div>
-                <div className="text-xs text-slate-500">
-                  {m.category} • {m.joined}
-                </div>
-                <div className="text-xs text-slate-500 mt-2">
-                  {m.email} • {m.phone}
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2">
                 <Badge status={m.status} />
+              </div>
+              <div className="flex items-center justify-end gap-2">
                 <button className="text-sky-700 text-sm hover:underline">
                   View Details
+                </button>
+                <button 
+                  onClick={() => handleDeleteMember(m.id)}
+                  className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition"
+                  title="Remove Member"
+                >
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

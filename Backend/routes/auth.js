@@ -165,7 +165,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 // Update user profile
 router.put('/profile', verifyToken, async (req, res) => {
   try {
-    const { name, mobile, employeeId } = req.body;
+    const { name, mobile, employeeId, idProofDocument, idProofFileName, idProofFileType } = req.body;
     
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -174,6 +174,13 @@ router.put('/profile', verifyToken, async (req, res) => {
     if (name) user.name = name;
     if (mobile) user.mobile = mobile;
     if (employeeId) user.employeeId = employeeId;
+    
+    // Update ID proof if provided
+    if (idProofDocument) {
+      user.idProofDocument = idProofDocument;
+      user.idProofFileName = idProofFileName;
+      user.idProofFileType = idProofFileType;
+    }
     
     await user.save();
     

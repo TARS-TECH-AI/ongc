@@ -40,6 +40,81 @@ function App() {
     currentUser && localStorage.getItem("token")
   );
 
+  const isApprovedUser = Boolean(
+    isAuthenticated && currentUser?.status === 'Approved'
+  );
+
+  // Fetch fresh user data on mount to get latest status
+  useEffect(() => {
+    const refreshUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !isAuthenticated) return;
+
+      try {
+        const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
+        const res = await fetch(`${API}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          console.log('Fetched user profile:', data);
+          
+          // Backend returns { user: {...} }
+          const userData = data.user || data;
+          
+          // Update user data with latest status
+          const updatedUser = {
+            id: userData._id || userData.id,
+            name: userData.name,
+            email: userData.email,
+            mobile: userData.mobile,
+            employeeId: userData.employeeId,
+            status: userData.status,
+            hasIdProof: !!userData.idProofDocument
+          };
+          
+          console.log('Updated user with status:', updatedUser);
+          
+          // Only update if status has changed
+          if (currentUser?.status !== updatedUser.status) {
+            setCurrentUser(updatedUser);
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            
+            // Show notification if status changed to Approved
+            if (updatedUser.status === 'Approved' && currentUser?.status === 'Pending') {
+              setToast({
+                message: 'Your profile has been approved! You now have access to all sections.',
+                type: 'success'
+              });
+              setTimeout(() => setToast(null), 5000);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to refresh user data:', err);
+      }
+    };
+
+    // Initial fetch
+    refreshUserData();
+
+    // Set up polling to check status every 30 seconds if user is authenticated
+    let pollInterval;
+    if (isAuthenticated) {
+      pollInterval = setInterval(() => {
+        refreshUserData();
+      }, 30000); // Poll every 30 seconds
+    }
+
+    // Cleanup interval on unmount
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [isAuthenticated, currentUser?.status]);
+
   const handleAuthSuccess = (user, action) => {
     setCurrentUser(user);
     localStorage.setItem("user", JSON.stringify(user));
@@ -70,8 +145,10 @@ function App() {
       currentUser,
       token: localStorage.getItem("token"),
       isAuthenticated,
+      isApprovedUser,
+      userStatus: currentUser?.status
     });
-  }, [currentUser, isAuthenticated]);
+  }, [currentUser, isAuthenticated, isApprovedUser]);
 
   return (
     <>
@@ -114,11 +191,15 @@ function App() {
           <About />
           <CoreValues />
           <MembersSection />
-          <Constitution />
-          {/* Protected Content */}
+          {/* Protected Content - Only for Approved Users */}
+          {isApprovedUser && (
+            <>
+              {/* <Constitution /> */}
+              <Documents />
+            </>
+          )}
           {isAuthenticated && (
             <>
-              <Documents />
               <ImportantUpdates />
             </>
           )}

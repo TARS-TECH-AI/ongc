@@ -22,7 +22,7 @@ const PdfCard = () => {
             {/* Text */}
             <div className="flex-1 text-center md:text-left px-2 md:px-6">
               <h3 className="text-lg md:text-xl font-semibold text-slate-900">
-                AISCS&STEWA Constitution (Amended 2023)
+                AISCSSTEWA Constitution (Amended 2023)
               </h3>
               <p className="text-sm text-slate-500 mt-1">PDF Document • 2.4 MB</p>
               <p className="text-sm text-slate-600 mt-2">

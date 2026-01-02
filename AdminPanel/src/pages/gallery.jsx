@@ -2,65 +2,13 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Image, Plus, Eye, Download, Trash2 } from "lucide-react";
 import placeholder from "../assets/photo-placeholder.svg";
 
-const sample = [
-  {
-    id: 1,
-    title: "PM Meeting 2024",
-    caption: "Meetings",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-  {
-    id: 2,
-    title: "PM Meeting 2024",
-    caption: "Meeting",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-  {
-    id: 3,
-    title: "PM Meeting 2024",
-    caption: "Meeting",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-  {
-    id: 4,
-    title: "PM Meeting 2024",
-    caption: "Meeting",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-  {
-    id: 5,
-    title: "PM Meeting 2024",
-    caption: "Meeting",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-  {
-    id: 6,
-    title: "PM Meeting 2024",
-    caption: "Meeting",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-  {
-    id: 7,
-    title: "PM Meeting 2024",
-    caption: "Meeting",
-    date: "2024-01-15",
-    src: placeholder,
-  },
-];
-
 const Gallery = () => {
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem('gallery-items');
-      return saved ? JSON.parse(saved) : sample;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return sample;
+      return [];
     }
   });
 
@@ -113,6 +61,7 @@ const Gallery = () => {
     e && e.preventDefault();
     if (!file) return setError("Please select an image");
     setUploading(true);
+    setError("");
 
     try {
       // Attempt real upload
@@ -138,10 +87,9 @@ const Gallery = () => {
       const updated = [newItem, ...items];
       setItems(updated);
       localStorage.setItem('gallery-items', JSON.stringify(updated));
-      setIsOpen(false);
-      setForm({ title: "", caption: "" });
-      setFile(null);
-      setFilePreview(null);
+      
+      // Reset form and close modal
+      resetForm();
     } catch (err) {
       // fallback: simulate upload locally
       const newItem = {
@@ -154,12 +102,22 @@ const Gallery = () => {
       const updated = [newItem, ...items];
       setItems(updated);
       localStorage.setItem('gallery-items', JSON.stringify(updated));
-      setIsOpen(false);
-      setForm({ title: "", caption: "" });
-      setFile(null);
-      setFilePreview(null);
+      
+      // Reset form and close modal
+      resetForm();
     } finally {
       setUploading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setIsOpen(false);
+    setForm({ title: "", caption: "" });
+    setFile(null);
+    setFilePreview(null);
+    setError("");
+    if (fileRef.current) {
+      fileRef.current.value = "";
     }
   };
 
@@ -178,7 +136,25 @@ const Gallery = () => {
     a.remove();
   };
   const onView = (item) => {
-    window.open(item.src, "_blank");
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${item.title || 'Gallery Image'}</title>
+            <style>
+              body { margin: 0; padding: 20px; background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+              img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+            </style>
+          </head>
+          <body>
+            <img src="${item.src}" alt="${item.title || 'Gallery Image'}" />
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
   };
 
   return (

@@ -84,7 +84,7 @@ const AdminLogin = () => {
         </form>
 
         {/* Switch link */}
-        <p className="mt-4 text-sm text-center text-slate-600">
+        {/* <p className="mt-4 text-sm text-center text-slate-600">
           Don’t have an account?{' '}
           <Link
             to="/register"
@@ -92,7 +92,7 @@ const AdminLogin = () => {
           >
             Sign up
           </Link>
-        </p>
+        </p> */}
       </div>
     </div>
   );

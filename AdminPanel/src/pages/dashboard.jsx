@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Users, FileText, Bell } from "lucide-react";
+import { User, Users, FileText, Bell, Eye } from "lucide-react";
 
 const stats = [
   {
@@ -136,6 +136,33 @@ const Dashboard = () => {
     }
   };
 
+  const viewDocument = (docData, fileName) => {
+    if (!docData) return;
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${fileName || 'Document'}</title>
+            <style>
+              body { margin: 0; padding: 0; background: #f3f4f6; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+              img { max-width: 100%; display: block; margin: 20px auto; }
+            </style>
+          </head>
+          <body>
+            ${docData.startsWith('data:image') 
+              ? `<img src="${docData}" alt="${fileName || 'Document'}" />` 
+              : `<iframe src="${docData}"></iframe>`
+            }
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -229,17 +256,20 @@ const Dashboard = () => {
                           <div className="py-8 text-center text-sm text-red-600">{userDetails.error}</div>
                         ) : (
                           <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                              <div className="space-y-4">
-                                <div>
-                                  <div className="text-sm text-slate-500 mb-1">Full Name</div>
-                                  <div className="font-semibold text-slate-900">{userDetails.name || '—'}</div>
-                                </div>
+                            {/* Personal Information */}
+                            <div className="mb-6">
+                              <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Personal Information</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                  <div>
+                                    <div className="text-sm text-slate-500 mb-1">Full Name</div>
+                                    <div className="font-semibold text-slate-900">{userDetails.name || '—'}</div>
+                                  </div>
 
-                                <div>
-                                  <div className="text-sm text-slate-500 mb-1">Email Address</div>
-                                  <div className="font-medium text-slate-900">{userDetails.email || '—'}</div>
-                                </div>
+                                  <div>
+                                    <div className="text-sm text-slate-500 mb-1">Email Address</div>
+                                    <div className="font-medium text-slate-900 break-all">{userDetails.email || '—'}</div>
+                                  </div>
 
                                 <div>
                                   <div className="text-sm text-slate-500 mb-1">Mobile Number</div>
@@ -252,72 +282,120 @@ const Dashboard = () => {
                                 </div>
                               </div>
 
-                              <div className="space-y-4">
-                                <div>
-                                  <div className="text-sm text-slate-500 mb-1">Employee ID</div>
-                                  <div className="font-semibold text-slate-900">{userDetails.employeeId || '—'}</div>
-                                </div>
+                                <div className="space-y-4">
+                                  <div>
+                                    <div className="text-sm text-slate-500 mb-1">Employee ID</div>
+                                    <div className="font-semibold text-slate-900">{userDetails.employeeId || '—'}</div>
+                                  </div>
 
-                                <div>
-                                  <div className="text-sm text-slate-500 mb-1">Current Status</div>
-                                  <div className="mt-1">
-                                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold ${
-                                      userDetails.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                                      userDetails.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                      'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                      {userDetails.status || 'Pending'}
-                                    </span>
+                                  <div>
+                                    <div className="text-sm text-slate-500 mb-1">User ID</div>
+                                    <div className="font-mono text-sm text-slate-700">{userDetails.id || userDetails._id || '—'}</div>
+                                  </div>
+
+                                  <div>
+                                    <div className="text-sm text-slate-500 mb-1">Registration Date</div>
+                                    <div className="font-medium text-slate-900">
+                                      {userDetails.date || userDetails.createdAt ? new Date(userDetails.date || userDetails.createdAt).toLocaleDateString('en-US', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      }) : '—'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
 
-                            <div className="border-t pt-6 mb-6">
-                              <h3 className="text-lg font-semibold mb-4 text-slate-900">ID Proof Document</h3>
-                              {userDetails.idProofDocument ? (
-                                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                      <FileText className="w-5 h-5 text-slate-600" />
-                                      <div>
-                                        <div className="font-medium text-slate-900">{userDetails.idProofFileName || 'ID Proof Document'}</div>
-                                        <div className="text-sm text-slate-500">{userDetails.idProofFileType || 'Document'}</div>
-                                      </div>
-                                    </div>
-                                    <a 
-                                      href={userDetails.idProofDocument} 
-                                      download={userDetails.idProofFileName || 'id-proof'}
-                                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                                    >
-                                      Download
-                                    </a>
-                                  </div>
+                            {/* Status Information */}
+                            <div className="mb-6">
+                              <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Account Status</h3>
+                              <div className="flex items-center gap-4">
+                                <div>
+                                  <div className="text-sm text-slate-500 mb-2">Current Status</div>
+                                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${
+                                    userDetails.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                                    userDetails.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                    {userDetails.status || 'Pending'}
+                                  </span>
                                 </div>
-                              ) : (
-                                <div className="text-sm text-slate-500 py-4">No ID proof document uploaded</div>
-                              )}
+                                {userDetails.category && (
+                                  <div>
+                                    <div className="text-sm text-slate-500 mb-2">Category</div>
+                                    <div className="font-medium text-slate-900">{userDetails.category}</div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
 
                             <div className="border-t pt-6 mb-6">
-                              <h3 className="text-lg font-semibold mb-4 text-slate-900">Additional Documents</h3>
-                              <div className="space-y-2">
-                                {userDetails.docs && userDetails.docs.length ? userDetails.docs.map((d, idx) => (
-                                  <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-lg p-4 border border-slate-200">
-                                    <div className="flex items-center gap-3">
-                                      <FileText className="w-5 h-5 text-slate-600" />
-                                      <div className="font-medium text-slate-900">{d.name || 'Document'}</div>
+                              <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Documents</h3>
+                              
+                              {/* ID Proof Document */}
+                              <div className="mb-6">
+                                <h4 className="text-md font-semibold mb-3 text-slate-800">ID Proof Document</h4>
+                                {userDetails.idProofDocument ? (
+                                  <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3">
+                                        <FileText className="w-5 h-5 text-slate-600" />
+                                        <div>
+                                          <div className="font-medium text-slate-900">{userDetails.idProofFileName || 'ID Proof Document'}</div>
+                                          <div className="text-sm text-slate-500">{userDetails.idProofFileType || 'Document'}</div>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => viewDocument(userDetails.idProofDocument, userDetails.idProofFileName || 'ID Proof')}
+                                          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                                        >
+                                          <Eye size={16} />
+                                          View
+                                        </button>
+                                        <a 
+                                          href={userDetails.idProofDocument} 
+                                          download={userDetails.idProofFileName || 'id-proof'}
+                                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                                        >
+                                          Download
+                                        </a>
+                                      </div>
                                     </div>
-                                    <a 
-                                      href={d.url && d.url.startsWith('/') ? `${API.replace(/\/api\/?$/,'')}${d.url}` : d.url} 
-                                      target="_blank" 
-                                      rel="noreferrer" 
-                                      className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition text-sm font-medium"
-                                    >
-                                      View
-                                    </a>
                                   </div>
-                                )) : <div className="text-sm text-slate-500 py-4">No additional documents uploaded</div>}
+                                ) : (
+                                  <div className="text-sm text-slate-500 py-4 bg-slate-50 rounded-lg text-center border border-slate-200">No ID proof document uploaded</div>
+                                )}
+                              </div>
+
+                              {/* Additional Documents */}
+                              <div>
+                                <h4 className="text-md font-semibold mb-3 text-slate-800">Additional Documents ({userDetails.docs?.length || 0})</h4>
+                                <div className="space-y-2">
+                                  {userDetails.docs && userDetails.docs.length ? userDetails.docs.map((d, idx) => (
+                                    <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-lg p-4 border border-slate-200">
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <FileText className="w-5 h-5 text-slate-600" />
+                                        <div className="flex-1">
+                                          <div className="font-medium text-slate-900">{d.name || 'Document'}</div>
+                                          {d.uploadedAt && (
+                                            <div className="text-xs text-slate-500">Uploaded: {new Date(d.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() => viewDocument(d.url && d.url.startsWith('/') ? `${API.replace(/\/api\/?$/,'')}${d.url}` : d.url, d.name || 'Document')}
+                                        className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition text-sm font-medium"
+                                      >
+                                        <Eye size={16} />
+                                        View
+                                      </button>
+                                    </div>
+                                  )) : <div className="text-sm text-slate-500 py-4 bg-slate-50 rounded-lg text-center border border-slate-200">No additional documents uploaded</div>}
+                                </div>
                               </div>
                             </div>
 
