@@ -22,7 +22,7 @@ const Documents = () => {
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear] = useState('all');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     title: "",
@@ -86,7 +86,7 @@ const Documents = () => {
         if (activeTab === "letters" && r.category !== "CWC Letters") return false;
         if (activeTab === "meeting" && r.category !== "CWC Meeting") return false;
       }
-      if (year && new Date(r.date).getFullYear() !== Number(year)) return false;
+      if (year && year !== 'all' && new Date(r.date).getFullYear() !== Number(year)) return false;
       return (r.title + r.category + r.ref).toLowerCase().includes(query.toLowerCase());
     });
   }, [rows, query, activeTab, year]);
@@ -258,7 +258,8 @@ const Documents = () => {
             className="w-full border rounded px-3 py-2 text-sm"
           />
           <select value={year} onChange={e => setYear(e.target.value)} className="border rounded px-3 py-2">
-            {years.map(y => <option key={y}>{y}</option>)}
+            <option value="all">All</option>
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
 
