@@ -90,6 +90,24 @@ function App() {
               setTimeout(() => setToast(null), 5000);
             }
           }
+        } else {
+          // Handle invalid/expired token or other auth errors by signing the user out
+          console.warn('Failed to refresh user profile, status:', res.status);
+          let errMsg = '';
+          try {
+            const text = await res.text();
+            errMsg = text;
+          } catch (e) {}
+          if (res.status === 401 || res.status === 400) {
+            // Token invalid or expired — clear session and notify user
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            setCurrentUser(null);
+            setToast({ message: 'Session expired, please login again', type: 'info' });
+            setTimeout(() => setToast(null), 4000);
+          } else {
+            console.error('Unexpected profile fetch error:', errMsg || res.status);
+          }
         }
       } catch (err) {
         console.error('Failed to refresh user data:', err);

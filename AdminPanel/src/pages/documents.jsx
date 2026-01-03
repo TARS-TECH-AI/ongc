@@ -36,6 +36,14 @@ const Documents = () => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    // Load cached rows from sessionStorage first for immediate UI
+    try {
+      const cached = sessionStorage.getItem('admin-documents');
+      if (cached) setRows(JSON.parse(cached));
+    } catch (e) {
+      console.warn('Failed to read cached documents', e);
+    }
+
     loadDocuments();
   }, []);
 
@@ -50,7 +58,9 @@ const Documents = () => {
         const contentType = res.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await res.json();
-          setRows(data.documents || []);
+          const docs = data.documents || [];
+          setRows(docs);
+          try { sessionStorage.setItem('admin-documents', JSON.stringify(docs)); } catch (e) { /* ignore */ }
         } else {
           console.error("Response is not JSON");
         }
@@ -122,7 +132,9 @@ const Documents = () => {
       });
       
       if (res.ok) {
-        setRows(prev => prev.filter(r => r.id !== id));
+        const updated = rows.filter(r => r.id !== id);
+        setRows(updated);
+        try { sessionStorage.setItem('admin-documents', JSON.stringify(updated)); } catch (e) { /* ignore */ }
         alert("Document deleted successfully");
       } else {
         alert("Failed to delete document");
@@ -180,7 +192,16 @@ const Documents = () => {
           fileSize: "",
           date: new Date().toISOString().split("T")[0],
         });
-        loadDocuments();
+        // If backend returned the created document, optimistically insert it
+        if (data && data.document) {
+          setRows(prev => {
+            const updated = [data.document, ...(prev || [])];
+            try { sessionStorage.setItem('admin-documents', JSON.stringify(updated)); } catch (e) { /* ignore */ }
+            return updated;
+          });
+        } else {
+          loadDocuments();
+        }
       } else {
         const contentType = res.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {

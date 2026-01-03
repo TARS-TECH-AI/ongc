@@ -21,7 +21,7 @@ async function connectDB() {
       throw new Error(msgProd);
     } else {
       console.warn(msgDev);
-      MONGO_URI = 'mongodb://127.0.0.1:27017/ongc';
+      MONGO_URI = 'mongodb+srv://payal:payal03@cluster0.abkaqwg.mongodb.net/contactdb?appName=Cluster0';
     }
   }
 

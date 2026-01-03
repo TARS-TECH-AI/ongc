@@ -11,6 +11,13 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
   useEffect(() => {
     loadGallery();
+
+    // Poll backend so changes made in AdminPanel (add/delete) appear
+    // in the public PhotoGallery without a full page refresh.
+    // Runs every 15 seconds.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const intervalId = setInterval(() => loadGallery(), 15000);
+    return () => clearInterval(intervalId);
   }, []);
   
   const loadGallery = async () => {

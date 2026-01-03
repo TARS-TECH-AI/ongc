@@ -32,7 +32,7 @@ app.get('/', (req, res) => res.json({ status: 'ok' }));
 
 // Connect to MongoDB and start
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ongc';
+const MONGO_URI = process.env.MONGO_URI || 'MONGO_URI';
 
 mongoose.connect(MONGO_URI)
   .then(() => {

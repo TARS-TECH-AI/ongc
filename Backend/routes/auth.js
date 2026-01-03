@@ -44,7 +44,9 @@ const verifyToken = (req, res, next) => {
     req.userId = verified.id;
     next();
   } catch (err) {
-    res.status(400).json({ message: 'Invalid token' });
+    // Log token verification errors for debugging without leaking token
+    console.error('Token verification failed:', err && err.message ? err.message : err);
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
 

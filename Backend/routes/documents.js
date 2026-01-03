@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
     const documents = await Document.find(query).sort({ date: -1, createdAt: -1 });
     
     const formattedDocs = documents.map(doc => ({
-      id: doc._id,
+      id: doc._id.toString(),
       title: doc.title,
       category: doc.category,
       ref: doc.ref,
@@ -83,7 +83,7 @@ router.post('/', adminAuth, async (req, res) => {
     res.json({
       message: 'Document added successfully',
       document: {
-        id: newDoc._id,
+        id: newDoc._id.toString(),
         title: newDoc.title,
         category: newDoc.category,
         ref: newDoc.ref,
@@ -144,7 +144,7 @@ router.put('/:id', adminAuth, async (req, res) => {
     res.json({
       message: 'Document updated successfully',
       document: {
-        id: doc._id,
+        id: doc._id.toString(),
         title: doc.title,
         category: doc.category,
         ref: doc.ref,
