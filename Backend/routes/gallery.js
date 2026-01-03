@@ -12,17 +12,21 @@ router.get('/', async (req, res) => {
     await connectDB();
     console.log('Gallery GET: Database connected, fetching items...');
     
-    // Fetch without sorting to avoid memory limit, or use lean() for better performance
-    const items = await Gallery.find().lean().limit(100);
+    // Fetch limited items to avoid timeout, use lean() for better performance
+    const items = await Gallery.find()
+      .select('_id title caption createdAt src')
+      .lean()
+      .limit(20); // Limit to 20 images to avoid timeout
+    
     console.log(`Gallery GET: Found ${items.length} items`);
     
     const formattedItems = items.map(item => ({
-      id: item._id,
+      id: item._id.toString(),
       title: item.title,
       caption: item.caption,
       date: item.createdAt,
       src: item.src
-    })).reverse(); // Reverse to show newest first without sorting
+    })).reverse(); // Show newest first
     
     res.json({ items: formattedItems });
   } catch (err) {
