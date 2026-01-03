@@ -4,7 +4,7 @@ import pdfIcon from "../assets/Vector.png";
 
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
-const years = [2025, 2024, 2023, 2022];
+const years = [2026,2025, 2024, 2023, 2022];
 const categories = ["CWC Orders", "CWC Letters", "CWC Meeting"];
 
 const Documents = () => {
@@ -49,6 +49,36 @@ const Documents = () => {
         new Date(doc.date).getFullYear() === Number(year)
     );
   }, [documents, activeTab, year]);
+
+  const handleViewDocument = (fileUrl, title) => {
+    if (!fileUrl) {
+      alert("No document available");
+      return;
+    }
+
+    // Open in new window for base64 or regular URLs
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${title || "Document"}</title>
+            <style>
+              body { margin: 0; padding: 0; background: #f3f4f6; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+              img { max-width: 100%; display: block; margin: 20px auto; }
+            </style>
+          </head>
+          <body>
+            ${fileUrl.startsWith("data:image") 
+              ? `<img src="${fileUrl}" alt="${title || "Document"}" />` 
+              : `<iframe src="${fileUrl}"></iframe>`}
+          </body>
+        </html>
+      `);
+    }
+  };
 
   return (
     <section id="documents" className="w-full bg-white py-10 sm:py-14 lg:py-20 overflow-hidden">
@@ -147,14 +177,12 @@ const Documents = () => {
 
                     {/* Right Buttons */}
                     <div className="flex gap-3 sm:shrink-0">
-                      <a
-                        href={item.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#0C2E50] underline text-sm"
+                      <button
+                        onClick={() => handleViewDocument(item.fileUrl, item.title)}
+                        className="text-[#0C2E50] underline text-sm cursor-pointer hover:text-[#0a1f35]"
                       >
                         View
-                      </a>
+                      </button>
                     </div>
 
                     {/* Divider (mobile only) */}

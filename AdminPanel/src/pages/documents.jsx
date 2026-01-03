@@ -82,10 +82,32 @@ const Documents = () => {
   }, [rows, query, activeTab, year]);
 
   const onView = d => {
-    if (d.fileUrl) {
-      window.open(d.fileUrl, "_blank");
-    } else {
+    if (!d.fileUrl) {
       alert("No file URL available");
+      return;
+    }
+
+    // Open in new window for better viewing of base64 or regular URLs
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${d.title || "Document"}</title>
+            <style>
+              body { margin: 0; padding: 0; background: #f3f4f6; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+              img { max-width: 100%; display: block; margin: 20px auto; }
+            </style>
+          </head>
+          <body>
+            ${d.fileUrl.startsWith("data:image") 
+              ? `<img src="${d.fileUrl}" alt="${d.title || "Document"}" />` 
+              : `<iframe src="${d.fileUrl}"></iframe>`}
+          </body>
+        </html>
+      `);
     }
   };
 
