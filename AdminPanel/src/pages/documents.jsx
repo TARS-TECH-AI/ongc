@@ -1,44 +1,68 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { FileText, Download, Trash2, Eye, Plus } from "lucide-react";
 
-const sample = [
-  { id: 1, title: "PM Meeting Letter - Jan 2024", assigned: "All Members", type: "Letter", date: "5/19/12", status: "Issued" },
-  { id: 2, title: "Welfare Scheme Approval", assigned: "Rajesh Kumar", type: "Approval", date: "5/27/15", status: "Issued" },
-  { id: 3, title: "Minister Meeting Notice", assigned: "Group A", type: "Notice", date: "10/28/12", status: "Pending" },
-  { id: 4, title: "Annual Report 2023", assigned: "All Members", type: "Report", date: "8/2/19", status: "Issued" },
-  { id: 5, title: "Membership Certificate", assigned: "Sunita Devi", type: "Certificate", date: "9/23/16", status: "Pending" },
-];
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
-const StatusPill = ({ s }) => (
-  <span
-    className={`text-sm font-medium ${
-      s === "Issued" ? "text-emerald-700" : s === "Pending" ? "text-rose-600" : "text-slate-700"
-    }`}
-  >
-    {s}
-  </span>
-);
-
-const DocumentRow = ({ d, onView, onDownload, onDelete }) => (
+const DocumentRow = ({ d, onView, onDelete }) => (
   <tr className="bg-white">
     <td className="px-6 py-4 text-sm text-slate-800">{d.title}</td>
-    <td className="px-6 py-4 text-sm text-slate-600">{d.assigned}</td>
-    <td className="px-6 py-4 text-sm text-slate-600">{d.type}</td>
-    <td className="px-6 py-4 text-sm text-slate-600">{d.date}</td>
-    <td className="px-6 py-4"><StatusPill s={d.status} /></td>
+    <td className="px-6 py-4 text-sm text-slate-600">{d.category}</td>
+    <td className="px-6 py-4 text-sm text-slate-600">{d.ref || "N/A"}</td>
+    <td className="px-6 py-4 text-sm text-slate-600">{new Date(d.date).toLocaleDateString()}</td>
+    <td className="px-6 py-4 text-sm text-slate-600">{d.fileSize || "N/A"}</td>
     <td className="px-6 py-4 text-right flex justify-end gap-4">
-      <button onClick={() => onView(d)}><Eye size={16} /></button>
-      <button onClick={() => onDownload(d)}><Download size={16} /></button>
-      <button onClick={() => onDelete(d.id)} className="text-rose-600"><Trash2 size={16} /></button>
+      <button onClick={() => onView(d)} title="View"><Eye size={16} /></button>
+      <button onClick={() => onDelete(d.id)} className="text-rose-600" title="Delete"><Trash2 size={16} /></button>
     </td>
   </tr>
 );
 
 const Documents = () => {
-  const [rows, setRows] = useState(sample);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [year, setYear] = useState(new Date().getFullYear());
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploadForm, setUploadForm] = useState({
+    title: "",
+    category: "CWC Orders",
+    ref: "",
+    fileUrl: "",
+    fileSize: "",
+    date: new Date().toISOString().split("T")[0],
+  });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    loadDocuments();
+  }, []);
+
+  const loadDocuments = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("admin-token");
+      const res = await fetch(`${API}/documents`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setRows(data.documents || []);
+        } else {
+          console.error("Response is not JSON");
+        }
+      } else {
+        console.error("Failed to load documents:", res.status);
+      }
+    } catch (err) {
+      console.error("Failed to load documents:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const years = useMemo(() => {
     const y = new Set(rows.map(r => new Date(r.date).getFullYear()));
@@ -48,25 +72,111 @@ const Documents = () => {
   const filtered = useMemo(() => {
     return rows.filter(r => {
       if (activeTab !== "all") {
-        if (activeTab === "orders" && r.type.toLowerCase() !== "approval") return false;
-        if (activeTab === "letters" && r.type.toLowerCase() !== "letter") return false;
-        if (activeTab === "meeting" && r.type.toLowerCase() !== "notice") return false;
+        if (activeTab === "orders" && r.category !== "CWC Orders") return false;
+        if (activeTab === "letters" && r.category !== "CWC Letters") return false;
+        if (activeTab === "meeting" && r.category !== "CWC Meeting") return false;
       }
       if (year && new Date(r.date).getFullYear() !== Number(year)) return false;
-      return (r.title + r.assigned + r.type).toLowerCase().includes(query.toLowerCase());
+      return (r.title + r.category + r.ref).toLowerCase().includes(query.toLowerCase());
     });
   }, [rows, query, activeTab, year]);
 
-  const onView = d => alert(`View: ${d.title}`);
-  const onDownload = d => alert(`Download: ${d.title}`);
-  const onDelete = id => {
-    if (confirm("Delete this document?")) {
-      setRows(prev => prev.filter(r => r.id !== id));
+  const onView = d => {
+    if (d.fileUrl) {
+      window.open(d.fileUrl, "_blank");
+    } else {
+      alert("No file URL available");
     }
   };
 
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const fileInputRef = useRef(null);
+  const onDelete = async (id) => {
+    if (!confirm("Delete this document?")) return;
+    
+    try {
+      const token = localStorage.getItem("admin-token");
+      const res = await fetch(`${API}/documents/${id}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      
+      if (res.ok) {
+        setRows(prev => prev.filter(r => r.id !== id));
+        alert("Document deleted successfully");
+      } else {
+        alert("Failed to delete document");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Error deleting document");
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result;
+      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+      setUploadForm(prev => ({
+        ...prev,
+        fileUrl: base64,
+        fileSize: `PDF • ${sizeInMB} MB`,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUpload = async () => {
+    if (!uploadForm.title || !uploadForm.fileUrl) {
+      alert("Please provide a title and select a file");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const token = localStorage.getItem("admin-token");
+      const res = await fetch(`${API}/documents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(uploadForm),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert("Document uploaded successfully!");
+        setIsUploadOpen(false);
+        setUploadForm({
+          title: "",
+          category: "CWC Orders",
+          ref: "",
+          fileUrl: "",
+          fileSize: "",
+          date: new Date().toISOString().split("T")[0],
+        });
+        loadDocuments();
+      } else {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const error = await res.json();
+          alert(error.message || "Failed to upload document");
+        } else {
+          const text = await res.text();
+          console.error("Server response:", text);
+          alert(`Server error: ${res.status} - Please check if the backend is running`);
+        }
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert(`Error uploading document: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-6">
@@ -75,8 +185,8 @@ const Documents = () => {
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <StatCard title="Total Documents" value={rows.length} icon={<FileText />} />
-          <StatCard title="Issued" value={rows.filter(r => r.status === "Issued").length} />
-          <StatCard title="Pending" value={rows.filter(r => r.status === "Pending").length} />
+          <StatCard title="CWC Orders" value={rows.filter(r => r.category === "CWC Orders").length} />
+          <StatCard title="CWC Letters" value={rows.filter(r => r.category === "CWC Letters").length} />
         </div>
 
         {/* TABS + BUTTON */}
@@ -111,55 +221,131 @@ const Documents = () => {
 
         {/* TABLE */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="border-b">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm">Document</th>
-                  <th className="px-6 py-3 text-left text-sm">Assigned</th>
-                  <th className="px-6 py-3 text-left text-sm">Type</th>
-                  <th className="px-6 py-3 text-left text-sm">Date</th>
-                  <th className="px-6 py-3 text-left text-sm">Status</th>
-                  <th className="px-6 py-3 text-right text-sm">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filtered.map(d => (
-                  <DocumentRow key={d.id} d={d} onView={onView} onDownload={onDownload} onDelete={onDelete} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* MOBILE */}
-          <div className="md:hidden p-4 space-y-4">
-            {filtered.map(d => (
-              <div key={d.id} className="bg-white rounded-lg shadow p-4 space-y-2">
-                <div className="font-medium">{d.title}</div>
-                <div className="text-xs text-slate-500">{d.assigned} • {d.date}</div>
-                <StatusPill s={d.status} />
-                <div className="flex gap-4 pt-2">
-                  <Eye size={18} onClick={() => onView(d)} />
-                  <Download size={18} onClick={() => onDownload(d)} />
-                  <Trash2 size={18} className="text-rose-600" onClick={() => onDelete(d.id)} />
-                </div>
+          {loading ? (
+            <div className="p-8 text-center text-slate-600">Loading documents...</div>
+          ) : (
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm">Document</th>
+                      <th className="px-6 py-3 text-left text-sm">Category</th>
+                      <th className="px-6 py-3 text-left text-sm">Ref</th>
+                      <th className="px-6 py-3 text-left text-sm">Date</th>
+                      <th className="px-6 py-3 text-left text-sm">Size</th>
+                      <th className="px-6 py-3 text-right text-sm">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {filtered.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
+                          No documents found
+                        </td>
+                      </tr>
+                    ) : (
+                      filtered.map(d => (
+                        <DocumentRow key={d.id} d={d} onView={onView} onDelete={onDelete} />
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+
+              {/* MOBILE */}
+              <div className="md:hidden p-4 space-y-4">
+                {filtered.length === 0 ? (
+                  <div className="text-center text-slate-500 py-8">No documents found</div>
+                ) : (
+                  filtered.map(d => (
+                    <div key={d.id} className="bg-white rounded-lg shadow p-4 space-y-2">
+                      <div className="font-medium">{d.title}</div>
+                      <div className="text-xs text-slate-500">{d.category} • {new Date(d.date).toLocaleDateString()}</div>
+                      <div className="text-xs text-slate-500">{d.ref || "No ref"}</div>
+                      <div className="flex gap-4 pt-2">
+                        <Eye size={18} onClick={() => onView(d)} />
+                        <Trash2 size={18} className="text-rose-600" onClick={() => onDelete(d.id)} />
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* MODAL */}
       {isUploadOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setIsUploadOpen(false)} />
+          <div className="absolute inset-0 bg-black/50" onClick={() => !uploading && setIsUploadOpen(false)} />
           <div className="relative bg-white rounded-lg w-full max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">Upload Document</h2>
-            <input placeholder="Document Name" className="w-full border rounded px-3 py-2 mb-3" />
-            <input type="file" ref={fileInputRef} className="w-full" />
+            
+            <div className="space-y-3">
+              <input
+                placeholder="Document Title *"
+                value={uploadForm.title}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full border rounded px-3 py-2"
+              />
+              
+              <select
+                value={uploadForm.category}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="CWC Orders">CWC Orders</option>
+                <option value="CWC Letters">CWC Letters</option>
+                <option value="CWC Meeting">CWC Meeting</option>
+                <option value="Other">Other</option>
+              </select>
+              
+              <input
+                placeholder="Reference Number"
+                value={uploadForm.ref}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, ref: e.target.value }))}
+                className="w-full border rounded px-3 py-2"
+              />
+              
+              <input
+                type="date"
+                value={uploadForm.date}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full border rounded px-3 py-2"
+              />
+              
+              <div>
+                <label className="block text-sm mb-1">Select File *</label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx"
+                  className="w-full"
+                />
+                {uploadForm.fileUrl && (
+                  <p className="text-xs text-green-600 mt-1">File selected ({uploadForm.fileSize})</p>
+                )}
+              </div>
+            </div>
+            
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setIsUploadOpen(false)} className="border px-4 py-2 rounded">Cancel</button>
-              <button className="bg-slate-900 text-white px-4 py-2 rounded">Upload</button>
+              <button
+                onClick={() => setIsUploadOpen(false)}
+                disabled={uploading}
+                className="border px-4 py-2 rounded disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="bg-slate-900 text-white px-4 py-2 rounded disabled:opacity-50"
+              >
+                {uploading ? "Uploading..." : "Upload"}
+              </button>
             </div>
           </div>
         </div>

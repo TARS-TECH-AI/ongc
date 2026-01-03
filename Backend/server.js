@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contact');
 const galleryRoutes = require('./routes/gallery');
+const documentsRoutes = require('./routes/documents');
 const path = require('path');
 const connectDB = require('./utils/db');
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/documents', documentsRoutes);
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminApprovalsRoutes = require('./routes/adminApprovals');
 app.use('/api/admin', adminAuthRoutes);
@@ -28,22 +30,19 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Health
 app.get('/', (req, res) => res.json({ status: 'ok' }));
 
-// For serverless (Vercel) - export handler
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
-  // For local development
-  const PORT = process.env.PORT || 5000;
-  connectDB()
-    .then(() => {
-      console.log('MongoDB connected');
-      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    })
-    .catch((err) => {
-      console.error('Failed to connect to MongoDB', err);
-      process.exit(1);
-    });
-}
+// Connect to MongoDB and start
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ongc';
+
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB', err);
+    process.exit(1);
+  });
 
 // Global error handler to ensure JSON responses
 app.use((err, req, res, next) => {

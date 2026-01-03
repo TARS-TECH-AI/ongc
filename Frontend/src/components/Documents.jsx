@@ -1,36 +1,54 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import pdfIcon from "../assets/Vector.png";
 
-const data = {
-  "CWC Orders": [
-    { title: "CWC Order regarding Annual General Meeting", date: "2024-10-15", ref: "CWC/2024/AGM/001", size: "PDF • 1.2 MB" },
-    { title: "Order on Reservation Policy Implementation", date: "2024-08-20", ref: "CWC/2024/RES/012", size: "PDF • 0.8 MB" },
-    { title: "CWC Order on Branch Formation Guidelines", date: "2024-08-20", ref: "CWC/2024/RES/012", size: "PDF • 0.9 MB" },
-    { title: "CWC Order on Branch Formation Guidelines", date: "2023-06-11", ref: "CWC/2023/RES/009", size: "PDF • 1.1 MB" },
-  ],
-  "CWC Letters": [
-    { title: "Letter to ONGC Management regarding Grievances", date: "2025-02-10", ref: "CWC/2025/LTR/001", size: "PDF • 0.5 MB" },
-    { title: "Letter on Policy Changes", date: "2024-05-18", ref: "CWC/2024/LTR/007", size: "PDF • 0.6 MB" },
-  ],
-  "CWC Meeting": [
-    { title: "Minutes of CWC Meeting - July 2024", date: "2024-07-05", ref: "CWC/2024/MTG/004", size: "PDF • 1.4 MB" },
-    { title: "CWC Meeting Agenda - Jan 2024", date: "2024-01-20", ref: "CWC/2024/MTG/001", size: "PDF • 0.7 MB" },
-  ],
-};
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
 const years = [2025, 2024, 2023, 2022];
+const categories = ["CWC Orders", "CWC Letters", "CWC Meeting"];
 
 const Documents = () => {
   const [activeTab, setActiveTab] = useState("CWC Orders");
   const [year, setYear] = useState(2025);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadDocuments();
+  }, []);
+
+  const loadDocuments = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/documents`);
+      if (res.ok) {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setDocuments(data.documents || []);
+        } else {
+          console.error('Response is not JSON, using empty array');
+          setDocuments([]);
+        }
+      } else {
+        console.error('Failed to load documents:', res.status);
+        setDocuments([]);
+      }
+    } catch (err) {
+      console.error('Failed to load documents:', err);
+      setDocuments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const list = useMemo(() => {
-    const items = data[activeTab] || [];
-    return items.filter(
-      (it) => new Date(it.date).getFullYear() === Number(year)
+    return documents.filter(
+      (doc) => 
+        doc.category === activeTab &&
+        new Date(doc.date).getFullYear() === Number(year)
     );
-  }, [activeTab, year]);
+  }, [documents, activeTab, year]);
 
   return (
     <section id="documents" className="w-full bg-white py-10 sm:py-14 lg:py-20 overflow-hidden">
@@ -68,7 +86,7 @@ const Documents = () => {
         {/* Tabs */}
         <div className="mt-8">
           <nav className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 ">
-            {Object.keys(data).map((tab) => (
+            {categories.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -88,7 +106,11 @@ const Documents = () => {
 
           {/* Documents List */}
           <div className="mt-6">
-            {list.length === 0 ? (
+            {loading ? (
+              <p className="text-center text-slate-500 py-10">
+                Loading documents...
+              </p>
+            ) : list.length === 0 ? (
               <p className="text-center text-slate-500 py-10">
                 No documents found for {year} in "{activeTab}".
               </p>
@@ -118,7 +140,7 @@ const Documents = () => {
                               year: "numeric",
                             })}
                           </span>
-                          <span className="break-all">Ref: {item.ref}</span>
+                          {item.ref && <span className="break-all">Ref: {item.ref}</span>}
                         </div>
                       </div>
                     </div>
@@ -126,7 +148,9 @@ const Documents = () => {
                     {/* Right Buttons */}
                     <div className="flex gap-3 sm:shrink-0">
                       <a
-                        href="#"
+                        href={item.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-[#0C2E50] underline text-sm"
                       >
                         View
