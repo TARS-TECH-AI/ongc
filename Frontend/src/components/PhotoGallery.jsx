@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
@@ -8,7 +8,7 @@ const PhotoGallery = () => {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [showAll, setShowAll] = useState(false);
+  const [showFullGallery, setShowFullGallery] = useState(false);
 
   useEffect(() => {
     loadGallery();
@@ -16,20 +16,34 @@ const PhotoGallery = () => {
   
   const loadGallery = async () => {
     try {
+      console.log('Fetching gallery from:', `${API}/gallery`);
       const res = await fetch(`${API}/gallery`);
-      if (!res.ok) throw new Error('Failed to load gallery');
+      console.log('Gallery response status:', res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Gallery fetch failed:', res.status, errorText);
+        throw new Error('Failed to load gallery');
+      }
+      
       const data = await res.json();
-      setImages(data.items?.map(item => item.src) || []);
+      console.log('Gallery data received:', data);
+      
+      const imageList = data.items?.map(item => item.src) || [];
+      console.log('Total images loaded:', imageList.length);
+      
+      setImages(imageList);
     } catch (err) {
       console.error('Error loading gallery:', err);
+      setImages([]);
     } finally {
       setLoading(false);
     }
   };
   
-  const VISIBLE_IMAGES = 6; // Two rows with 3 columns
-  const visibleImages = showAll ? images : images.slice(0, VISIBLE_IMAGES - 1);
-  const remainingCount = images.length - VISIBLE_IMAGES + 1;
+  const VISIBLE_IMAGES = 6;
+  const visibleImages = images.slice(0, VISIBLE_IMAGES);
+  const remainingCount = images.length - VISIBLE_IMAGES;
 
   const open = (i) => {
     setIndex(i);
@@ -37,8 +51,13 @@ const PhotoGallery = () => {
     document.body.style.overflow = "hidden";
   };
   
-  const showAllPhotos = () => {
-    setShowAll(true);
+  const openFullGallery = () => {
+    setShowFullGallery(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const closeFullGallery = () => {
+    setShowFullGallery(false);
   };
 
   const close = () => {
@@ -68,15 +87,106 @@ const PhotoGallery = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen]);
 
-  // cleanup if component unmounts while modal is open
   useEffect(() => {
     return () => {
       document.body.style.overflow = "";
     };
   }, []);
 
+  // Full Gallery Page
+  if (showFullGallery) {
+    return (
+      <section className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Back Button */}
+          <button
+            onClick={closeFullGallery}
+            className="flex items-center gap-2 mb-6 px-4 py-2 bg-white hover:bg-gray-100 rounded-lg shadow-md transition"
+          >
+            <ArrowLeft size={20} />
+            <span className="font-semibold">Back to Gallery</span>
+          </button>
+
+          {/* Heading */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900">
+              Complete Photo Gallery
+            </h2>
+            <div className="w-28 h-1 bg-orange-500 mx-auto mt-3"></div>
+            <p className="text-slate-600 mt-2">Total {images.length} Images</p>
+          </div>
+
+          {/* All Images Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => open(i)}
+                className="block overflow-hidden rounded-xl shadow-lg focus:outline-none group"
+              >
+                <img
+                  src={img}
+                  alt={`Gallery image ${i + 1}`}
+                  className="w-full h-[240px] object-cover transform group-hover:scale-110 transition duration-300"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Lightbox Modal */}
+        {isOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            onClick={close}
+          >
+            <div
+              className="relative max-w-[90%] max-h-[90%] w-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={prev}
+                className="absolute left-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition"
+                aria-label="Previous image"
+              >
+                <ChevronLeft size={28} />
+              </button>
+
+              <img
+                src={images[index]}
+                alt={`Gallery image ${index + 1}`}
+                className="max-h-[85vh] max-w-full object-contain rounded-lg"
+              />
+
+              <button
+                onClick={next}
+                className="absolute right-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition"
+                aria-label="Next image"
+              >
+                <ChevronRight size={28} />
+              </button>
+
+              <button
+                onClick={close}
+                className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition"
+                aria-label="Close lightbox"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium">
+                {index + 1} / {images.length}
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  // Main Gallery Preview (6 images)
   return (
-    <section id="gallery" className="py-12 sm:py-16 lg:py-0 mb-20 bg-white overflow-hidden">
+    <section id="gallery" className="py-12 sm:py-16 lg:py-20 bg-white overflow-hidden">
       {/* Heading */}
       <div className="text-center mb-8 sm:mb-12 px-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
@@ -95,34 +205,53 @@ const PhotoGallery = () => {
             No images in gallery yet
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visibleImages.map((img, i) => (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* First Row - 2 large images */}
+            {visibleImages.slice(0, 2).map((img, i) => (
               <button
                 key={i}
                 onClick={() => open(i)}
-                className="block overflow-hidden rounded-xl focus:outline-none"
+                className="col-span-1 overflow-hidden rounded-2xl shadow-lg focus:outline-none group"
               >
                 <img
                   src={img}
                   alt={`Gallery image ${i + 1}`}
-                  className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl transform hover:scale-105 transition"
+                  className="w-full h-[200px] sm:h-[280px] lg:h-[320px] object-cover transform group-hover:scale-105 transition duration-300"
                 />
               </button>
             ))}
-            
-            {/* Last image with remaining count */}
-            {!showAll && remainingCount > 0 && (
+
+            {/* Second Row - 4 smaller images (or 3 + remaining count) */}
+            {visibleImages.slice(2, remainingCount > 0 ? 5 : 6).map((img, i) => {
+              const actualIndex = i + 2;
+              return (
+                <button
+                  key={actualIndex}
+                  onClick={() => open(actualIndex)}
+                  className="overflow-hidden rounded-2xl shadow-lg focus:outline-none group"
+                >
+                  <img
+                    src={img}
+                    alt={`Gallery image ${actualIndex + 1}`}
+                    className="w-full h-[160px] sm:h-[200px] lg:h-[240px] object-cover transform group-hover:scale-105 transition duration-300"
+                  />
+                </button>
+              );
+            })}
+
+            {/* Last image with remaining count overlay */}
+            {remainingCount > 0 && visibleImages[5] && (
               <button
-                onClick={showAllPhotos}
-                className="relative block overflow-hidden rounded-xl focus:outline-none group"
+                onClick={openFullGallery}
+                className="relative overflow-hidden rounded-2xl shadow-lg focus:outline-none group"
               >
                 <img
-                  src={images[VISIBLE_IMAGES - 1]}
-                  alt={`Gallery image ${VISIBLE_IMAGES}`}
-                  className="w-full h-[220px] sm:h-[240px] lg:h-[260px] object-cover rounded-xl"
+                  src={visibleImages[5]}
+                  alt={`Gallery image 6`}
+                  className="w-full h-[160px] sm:h-[200px] lg:h-[240px] object-cover"
                 />
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl group-hover:bg-black/70 transition">
-                  <span className="text-white text-3xl sm:text-4xl font-bold">
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center group-hover:bg-black/80 transition">
+                  <span className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold">
                     +{remainingCount}
                   </span>
                 </div>
@@ -132,51 +261,47 @@ const PhotoGallery = () => {
         )}
       </div>
 
+      {/* Lightbox Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           onClick={close}
         >
           <div
             className="relative max-w-[90%] max-h-[90%] w-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Prev */}
             <button
               onClick={prev}
-              className="absolute left-3 text-white p-2 rounded-full bg-black/40 hover:bg-black/60"
+              className="absolute left-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition"
               aria-label="Previous image"
             >
-              <ChevronLeft />
+              <ChevronLeft size={28} />
             </button>
 
-            {/* Image */}
             <img
               src={images[index]}
               alt={`Gallery image ${index + 1}`}
-              className="max-h-[80vh] max-w-full object-contain rounded-lg"
+              className="max-h-[85vh] max-w-full object-contain rounded-lg"
             />
 
-            {/* Next */}
             <button
               onClick={next}
-              className="absolute right-3 text-white p-2 rounded-full bg-black/40 hover:bg-black/60"
+              className="absolute right-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition"
               aria-label="Next image"
             >
-              <ChevronRight />
+              <ChevronRight size={28} />
             </button>
 
-            {/* Close */}
             <button
               onClick={close}
-              className="absolute top-4 right-4 bg-black/40 text-white p-2 rounded-full"
+              className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition"
               aria-label="Close lightbox"
             >
-              <X />
+              <X size={24} />
             </button>
 
-            {/* Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/40 px-3 py-1 rounded-full text-sm">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium">
               {index + 1} / {images.length}
             </div>
           </div>
