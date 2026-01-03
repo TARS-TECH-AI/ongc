@@ -5,7 +5,7 @@ const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
 const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
   const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [index, setIndex] = useState(0);
 
@@ -126,21 +126,35 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
           </div>
 
           {/* All Images Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => open(i)}
-                className="block overflow-hidden rounded-xl shadow-lg focus:outline-none group"
-              >
-                <img
-                  src={img}
-                  alt={`Gallery image ${i + 1}`}
-                  className="w-full h-[240px] object-cover transform group-hover:scale-110 transition duration-300"
-                />
-              </button>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-xl shadow-lg bg-gray-200 animate-pulse">
+                  <div className="w-full h-[240px]"></div>
+                </div>
+              ))}
+            </div>
+          ) : images.length === 0 ? (
+            <div className="text-center py-12 text-slate-500">
+              No images in gallery yet
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => open(i)}
+                  className="block overflow-hidden rounded-xl shadow-lg focus:outline-none group"
+                >
+                  <img
+                    src={img}
+                    alt={`Gallery image ${i + 1}`}
+                    className="w-full h-[240px] object-cover transform group-hover:scale-110 transition duration-300"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Lightbox Modal */}
@@ -206,8 +220,16 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
       <div className="max-w-7xl mx-auto px-4">
         {loading ? (
-          <div className="text-center py-12 text-slate-600">
-            Loading gallery...
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Skeleton loaders */}
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className={`${i < 2 ? 'col-span-1' : ''} overflow-hidden rounded-2xl shadow-lg bg-gray-200 animate-pulse`}
+              >
+                <div className={`w-full ${i < 2 ? 'h-[200px] sm:h-[280px] lg:h-[320px]' : 'h-[160px] sm:h-[200px] lg:h-[240px]'}`}></div>
+              </div>
+            ))}
           </div>
         ) : images.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
