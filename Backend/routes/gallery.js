@@ -12,7 +12,8 @@ router.get('/', async (req, res) => {
     await connectDB();
     console.log('Gallery GET: Database connected, fetching items...');
     
-    const items = await Gallery.find().sort({ createdAt: -1 });
+    // Fetch without sorting to avoid memory limit, or use lean() for better performance
+    const items = await Gallery.find().lean().limit(100);
     console.log(`Gallery GET: Found ${items.length} items`);
     
     const formattedItems = items.map(item => ({
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
       caption: item.caption,
       date: item.createdAt,
       src: item.src
-    }));
+    })).reverse(); // Reverse to show newest first without sorting
     
     res.json({ items: formattedItems });
   } catch (err) {

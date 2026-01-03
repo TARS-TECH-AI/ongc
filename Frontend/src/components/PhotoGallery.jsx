@@ -27,9 +27,15 @@ const PhotoGallery = () => {
       }
       
       const data = await res.json();
-      console.log('Gallery data received:', data);
+      console.log('Full API response:', data);
+      console.log('data.items:', data.items);
       
-      const imageList = data.items?.map(item => item.src) || [];
+      const imageList = data.items?.map(item => {
+        console.log('Processing item:', item);
+        return item.src;
+      }) || [];
+      
+      console.log('Final image list:', imageList);
       console.log('Total images loaded:', imageList.length);
       
       setImages(imageList);

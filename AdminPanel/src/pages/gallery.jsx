@@ -34,40 +34,12 @@ const Gallery = () => {
             src: item.src
           }));
           setItems(backendItems);
-          localStorage.setItem('gallery-items', JSON.stringify(backendItems));
           return;
         }
       }
     } catch (err) {
-      console.log('Backend gallery load failed, using localStorage');
-    }
-
-    // Fallback to localStorage
-    try {
-      const saved = localStorage.getItem('gallery-items');
-      if (saved) {
-        const localItems = JSON.parse(saved);
-        setItems(localItems);
-        
-        // Sync localStorage items to backend
-        for (const item of localItems) {
-          try {
-            await fetch(`${API}/gallery`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                title: item.title,
-                caption: item.caption,
-                image: item.src
-              })
-            });
-          } catch (err) {
-            console.log('Failed to sync item to backend:', err);
-          }
-        }
-      }
-    } catch (err) {
-      console.log('localStorage load failed');
+      console.error('Backend gallery load failed:', err);
+      setItems([]);
     }
   };
 
@@ -143,7 +115,6 @@ const Gallery = () => {
       };
       const updated = [newItem, ...items];
       setItems(updated);
-      localStorage.setItem('gallery-items', JSON.stringify(updated));
       
       // Reset form and close modal
       resetForm();
@@ -166,11 +137,29 @@ const Gallery = () => {
     }
   };
 
-  const onDelete = (id) => {
+  const onDelete = async (id) => {
     if (!confirm("Delete image?")) return;
-    const updated = items.filter((i) => i.id !== id);
-    setItems(updated);
-    try { localStorage.setItem('gallery-items', JSON.stringify(updated)); } catch {}
+    
+    try {
+      const API = import.meta.env.VITE_API_URL || 
+        import.meta.env.VITE_API_BASE || 
+        "https://ongc-q48j.vercel.app/api";
+      
+      const res = await fetch(`${API}/gallery/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (res.ok) {
+        const updated = items.filter((i) => i.id !== id);
+        setItems(updated);
+      } else {
+        console.error('Delete failed:', await res.text());
+        alert('Failed to delete image');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to delete image');
+    }
   };
   const onDownload = (item) => {
     const a = document.createElement("a");
