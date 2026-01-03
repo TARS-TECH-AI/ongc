@@ -2,12 +2,14 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
+const connectDB = require('../utils/db');
 
 const router = express.Router();
 
 // Admin register
 router.post('/register', async (req, res) => {
   try {
+    await connectDB();
     const { name, email, password } = req.body;
     if (!name || !email || !password) return res.status(400).json({ message: 'Missing fields' });
 
@@ -32,6 +34,7 @@ router.post('/register', async (req, res) => {
 // Admin login
 router.post('/login', async (req, res) => {
   try {
+    await connectDB();
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 

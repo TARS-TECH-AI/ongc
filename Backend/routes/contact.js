@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Contact = require('../models/Contact');
 const User = require('../models/User');
+const connectDB = require('../utils/db');
 const router = express.Router();
 
 // Admin middleware - matches the one used in adminApprovals.js
@@ -22,6 +23,7 @@ const adminAuth = (req, res, next) => {
 // Admin: Get all contact enquiries
 router.get('/admin/enquiries', adminAuth, async (req, res) => {
   try {
+    await connectDB();
     const contacts = await Contact.find()
       .populate('user', 'name email mobile employeeId')
       .sort({ createdAt: -1 });
@@ -36,6 +38,7 @@ router.get('/admin/enquiries', adminAuth, async (req, res) => {
 // Require auth for contact submissions
 router.post('/', async (req, res) => {
   try {
+    await connectDB();
     const auth = req.headers.authorization;
     if (!auth) return res.status(401).json({ message: 'Unauthorized' });
     const token = auth.split(' ')[1];

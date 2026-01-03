@@ -1,10 +1,15 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Gallery = require('../models/Gallery');
+const connectDB = require('../utils/db');
 const router = express.Router();
 
 // Public endpoint: Get all gallery items
 router.get('/', async (req, res) => {
   try {
+    // Ensure database connection
+    await connectDB();
+    
     const items = await Gallery.find().sort({ createdAt: -1 });
     const formattedItems = items.map(item => ({
       id: item._id,
@@ -15,14 +20,17 @@ router.get('/', async (req, res) => {
     }));
     res.json({ items: formattedItems });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Gallery GET error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
 // Admin endpoint: Add gallery item
 router.post('/', async (req, res) => {
   try {
+    // Ensure database connection
+    await connectDB();
+    
     const { title, caption, image } = req.body;
     
     const newItem = new Gallery({
@@ -41,14 +49,17 @@ router.post('/', async (req, res) => {
       url: newItem.src
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Gallery POST error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
 // Admin endpoint: Delete gallery item
 router.delete('/:id', async (req, res) => {
   try {
+    // Ensure database connection
+    await connectDB();
+    
     const { id } = req.params;
     const item = await Gallery.findByIdAndDelete(id);
     
@@ -58,8 +69,8 @@ router.delete('/:id', async (req, res) => {
     
     res.json({ message: 'Item deleted' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Gallery DELETE error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

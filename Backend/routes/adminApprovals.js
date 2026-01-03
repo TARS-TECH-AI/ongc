@@ -4,6 +4,7 @@ const User = require('../models/User');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const connectDB = require('../utils/db');
 
 const router = express.Router();
 
@@ -37,6 +38,7 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 // GET / - list users (optional ?status=Pending)
 router.get('/', adminAuth, async (req, res) => {
   try {
+    await connectDB();
     const { status } = req.query;
     const q = status ? { status } : {};
     const users = await User.find(q).select('-passwordHash -idProofDocument');
@@ -50,6 +52,7 @@ router.get('/', adminAuth, async (req, res) => {
 // GET /:id - get user details
 router.get('/:id', adminAuth, async (req, res) => {
   try {
+    await connectDB();
     const u = await User.findById(req.params.id).select('-passwordHash');
     if (!u) return res.status(404).json({ message: 'Not found' });
     res.json({ 
@@ -76,6 +79,7 @@ router.get('/:id', adminAuth, async (req, res) => {
 // PATCH /:id/status - update status
 router.patch('/:id/status', adminAuth, async (req, res) => {
   try {
+    await connectDB();
     const { status } = req.body;
     if (!['Pending','Approved','Rejected'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
     const u = await User.findById(req.params.id);
@@ -92,6 +96,7 @@ router.patch('/:id/status', adminAuth, async (req, res) => {
 // POST /:id/documents - upload a document for the user
 router.post('/:id/documents', adminAuth, upload.single('file'), async (req, res) => {
   try {
+    await connectDB();
     const u = await User.findById(req.params.id);
     if (!u) return res.status(404).json({ message: 'Not found' });
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });

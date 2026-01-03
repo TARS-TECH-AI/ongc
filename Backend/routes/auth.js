@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const User = require('../models/User');
+const connectDB = require('../utils/db');
 
 const router = express.Router();
 
@@ -50,6 +51,7 @@ const verifyToken = (req, res, next) => {
 // Register
 router.post('/register', async (req, res) => {
   try {
+    await connectDB();
     console.log('Registration request received');
     console.log('Body keys:', Object.keys(req.body));
     
@@ -119,6 +121,7 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
+    await connectDB();
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 
@@ -152,6 +155,7 @@ router.post('/login', async (req, res) => {
 // Get user profile
 router.get('/profile', verifyToken, async (req, res) => {
   try {
+    await connectDB();
     const user = await User.findById(req.userId).select('-passwordHash');
     if (!user) return res.status(404).json({ message: 'User not found' });
     
@@ -165,6 +169,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 // Update user profile
 router.put('/profile', verifyToken, async (req, res) => {
   try {
+    await connectDB();
     const { name, mobile, employeeId, idProofDocument, idProofFileName, idProofFileType } = req.body;
     
     const user = await User.findById(req.userId);
