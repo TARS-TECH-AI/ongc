@@ -17,29 +17,23 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
     try {
       console.log('Fetching gallery from:', `${API}/gallery`);
       const res = await fetch(`${API}/gallery`);
-      console.log('Gallery response status:', res.status);
       
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Gallery fetch failed:', res.status, errorText);
-        throw new Error('Failed to load gallery');
+        console.warn('Gallery API returned error:', res.status);
+        setImages([]);
+        setLoading(false);
+        return;
       }
       
       const data = await res.json();
       console.log('Full API response:', data);
-      console.log('data.items:', data.items);
       
-      const imageList = data.items?.map(item => {
-        console.log('Processing item:', item);
-        return item.src;
-      }) || [];
-      
-      console.log('Final image list:', imageList);
+      const imageList = data.items?.map(item => item.src) || [];
       console.log('Total images loaded:', imageList.length);
       
       setImages(imageList);
     } catch (err) {
-      console.error('Error loading gallery:', err);
+      console.warn('Gallery API error (showing empty):', err.message);
       setImages([]);
     } finally {
       setLoading(false);
