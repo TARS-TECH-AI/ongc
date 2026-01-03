@@ -441,7 +441,7 @@ const Profile = ({ onBack }) => {
                       </span>
                       <input
                         type="file"
-                        accept=".jpg,.jpeg,.png,.pdf"
+                        accept=".jpg,.jpeg,.png,.pdf,.docx"
                         onChange={handleFileChange}
                         className="hidden"
                       />
@@ -457,14 +457,14 @@ const Profile = ({ onBack }) => {
                     <button
                       onClick={handleViewDocument}
                       title="View Document"
-                      className="p-2 bg-green-400 hover:bg-green-300 text-white font-semibold rounded-lg inline-flex items-center justify-center transition"
+                      className="p-2  text-black font-semibold rounded-lg inline-flex items-center justify-center transition"
                     >
                       <Eye className="w-5 h-5" />
                     </button>
                     <a
                       href={user.idProofDocument}
                       download={user.idProofFileName || "id-proof"}
-                      className="px-4 py-2 bg-[#0C2E50] hover:bg-[#0b2948] text-white font-semibold rounded-lg inline-flex items-center gap-2 transition"
+                      className="px-4 py-2  text-black font-semibold rounded-lg inline-flex items-center gap-2 transition"
                     >
                       <svg
                         className="w-4 h-4"

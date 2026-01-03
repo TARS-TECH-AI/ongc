@@ -14,7 +14,7 @@ const MarqueeItem = () => (
       of our community.
     </span>
     &nbsp;
-    <span className="font-bold">AISCSSTEWA–CWC</span>
+    <span className="font-bold">AISCSTEWA–CWC</span>
   </span>
 );
 
@@ -120,7 +120,7 @@ const HeroSection = ({ onOpenAuth }) => {
         {images.map((src, i) => (
           <div
             key={i}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
+            className={`absolute inset-0 duration-1000 ${
               i === index ? "opacity-100" : "opacity-0"
             }`}
             style={{
@@ -131,38 +131,38 @@ const HeroSection = ({ onOpenAuth }) => {
             }}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent" />
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 md:pt-44 pb-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-32">
         <div className="max-w-3xl text-white">
-          <h1 className="font-extrabold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-6xl">
+          <h1 className="font-extrabold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl drop-shadow-2xl">
             <span className="block">All India SC & ST Employees</span>
             <span className="block text-orange-400 mt-2">
               Welfare Association
             </span>
           </h1>
 
-          <p className="italic text-orange-300 text-base sm:text-lg mt-5">
+          <p className="italic text-orange-300 text-base sm:text-lg mt-4 drop-shadow-lg">
             "Educate • Agitate • Organise"
           </p>
 
-          <p className="mt-6 text-white/90 text-sm sm:text-base md:text-lg lg:text-xl max-w-4xl">
+          <p className="mt-5 text-white/95 text-sm sm:text-base md:text-lg max-w-2xl drop-shadow-lg">
             Committed to safeguarding the constitutional rights and welfare of
             SC/ST employees across all ONGC establishments nationwide.
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+          <div className="mt-18 flex flex-col sm:flex-row gap-4">
             <button
               onClick={scrollToAbout}
-              className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition"
+              className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition shadow-xl cursor-pointer"
             >
               Learn More
             </button>
             <button
               onClick={handleJoinCommunity}
-              className="px-8 py-3 rounded-2xl border border-white text-white hover:bg-white/10 transition"
+              className="px-8 py-3 rounded-2xl border-2 border-white text-white hover:bg-white/10 transition shadow-xl backdrop-blur-sm cursor-pointer"
             >
               Join Community
             </button>
