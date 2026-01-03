@@ -131,13 +131,6 @@ const Documents = () => {
                       >
                         View
                       </a>
-                      <a
-                        href="#"
-                        download
-                        className="px-4 py-2 bg-[#0C2E50] text-white rounded-md text-sm hover:bg-[#09345c] transition"
-                      >
-                        Download
-                      </a>
                     </div>
 
                     {/* Divider (mobile only) */}

@@ -5,29 +5,42 @@ import Hero3 from "../assets/Img/3.png";
 import Hero4 from "../assets/Img/4.png";
 import Hero5 from "../assets/Img/5.png";
 
+/* ===== MARQUEE ITEM ===== */
+const MarqueeItem = () => (
+  <span className="flex items-center whitespace-nowrap px-8 sm:px-12">
+    Committee Coordinator CWC:
+    <span className="text-white">
+      &nbsp; Working tirelessly for the constitutional rights and social justice
+      of our community.
+    </span>
+    &nbsp;
+    <span className="font-bold">AISCSSTEWA–CWC</span>
+  </span>
+);
+
 const HeroSection = ({ onOpenAuth }) => {
   const wrapperRef = useRef(null);
   const trackRef = useRef(null);
+
   const pausedRef = useRef(false);
   const draggingRef = useRef(false);
   const startXRef = useRef(0);
   const offsetRef = useRef(0);
   const startOffsetRef = useRef(0);
 
+  /* ---------- SCROLL TO ABOUT ---------- */
   const scrollToAbout = () => {
-    const aboutSection = document.getElementById('about');
+    const aboutSection = document.getElementById("about");
     if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      aboutSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   const handleJoinCommunity = () => {
-    if (onOpenAuth) {
-      onOpenAuth('login');
-    }
+    if (onOpenAuth) onOpenAuth("login");
   };
 
-  /* ---------- MARQUEE ---------- */
+  /* ---------- CONTINUOUS MARQUEE ---------- */
   useEffect(() => {
     const wrapper = wrapperRef.current;
     const track = trackRef.current;
@@ -37,10 +50,10 @@ const HeroSection = ({ onOpenAuth }) => {
     let lastTime = null;
     const speed = 40;
 
-    offsetRef.current = wrapper.clientWidth;
-    track.style.transform = `translateX(${offsetRef.current}px)`;
+    offsetRef.current = 0;
+    track.style.transform = "translateX(0px)";
 
-    function step(time) {
+    const step = (time) => {
       if (pausedRef.current || draggingRef.current) {
         lastTime = time;
         rafId = requestAnimationFrame(step);
@@ -53,19 +66,20 @@ const HeroSection = ({ onOpenAuth }) => {
 
       offsetRef.current -= (speed * delta) / 1000;
 
-      if (offsetRef.current <= -track.scrollWidth) {
-        offsetRef.current = wrapper.clientWidth;
+      const halfWidth = track.scrollWidth / 2;
+      if (Math.abs(offsetRef.current) >= halfWidth) {
+        offsetRef.current = 0;
       }
 
       track.style.transform = `translateX(${offsetRef.current}px)`;
       rafId = requestAnimationFrame(step);
-    }
+    };
 
     rafId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafId);
   }, []);
 
-  /* ---------- SLIDESHOW ---------- */
+  /* ---------- BACKGROUND SLIDESHOW ---------- */
   const images = [Hero1, Hero2, Hero3, Hero4, Hero5];
   const [index, setIndex] = useState(0);
 
@@ -75,9 +89,11 @@ const HeroSection = ({ onOpenAuth }) => {
         setIndex((i) => (i + 1) % images.length);
       }
     }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
+  /* ---------- DRAG HANDLERS ---------- */
   const handlePointerDown = (e) => {
     draggingRef.current = true;
     startXRef.current = e.clientX;
@@ -94,15 +110,12 @@ const HeroSection = ({ onOpenAuth }) => {
 
   const handlePointerUp = () => {
     draggingRef.current = false;
-    setTimeout(() => (pausedRef.current = false), 700);
+    setTimeout(() => (pausedRef.current = false), 600);
   };
 
   return (
-    <section
-      id="home"
-      className="relative min-h-[100svh] w-full overflow-hidden"
-    >
-      {/* BACKGROUND IMAGES */}
+    <section id="home" className="relative min-h-[100svh] w-full overflow-hidden">
+      {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0">
         {images.map((src, i) => (
           <div
@@ -113,50 +126,43 @@ const HeroSection = ({ onOpenAuth }) => {
             style={{
               backgroundImage: `url(${src})`,
               backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundPosition: "top center",
+              backgroundRepeat: "no-repeat",
             }}
           />
         ))}
-
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/10" />
       </div>
 
-      {/* CONTENT */}
+      {/* ===== CONTENT ===== */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 md:pt-44 pb-24">
         <div className="max-w-3xl text-white">
-          {/* Heading */}
           <h1 className="font-extrabold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-6xl">
-            <span className="block">
-              All India SC & ST Employees
-            </span>
+            <span className="block">All India SC & ST Employees</span>
             <span className="block text-orange-400 mt-2">
               Welfare Association
             </span>
           </h1>
 
-          {/* Motto */}
           <p className="italic text-orange-300 text-base sm:text-lg mt-5">
             "Educate • Agitate • Organise"
           </p>
 
-          {/* Description */}
           <p className="mt-6 text-white/90 text-sm sm:text-base md:text-lg lg:text-xl max-w-4xl">
             Committed to safeguarding the constitutional rights and welfare of
             SC/ST employees across all ONGC establishments nationwide.
           </p>
 
-          {/* Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
-            <button 
+            <button
               onClick={scrollToAbout}
-              className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold w-full sm:w-auto hover:bg-gray-100 transition"
+              className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition"
             >
               Learn More
             </button>
-            <button 
+            <button
               onClick={handleJoinCommunity}
-              className="px-8 py-3 rounded-2xl border border-white text-white w-full sm:w-auto hover:bg-white/10 transition"
+              className="px-8 py-3 rounded-2xl border border-white text-white hover:bg-white/10 transition"
             >
               Join Community
             </button>
@@ -164,11 +170,11 @@ const HeroSection = ({ onOpenAuth }) => {
         </div>
       </div>
 
-      {/* MARQUEE */}
+      {/* ===== MARQUEE ===== */}
       <div className="absolute bottom-0 w-full bg-[#0C2E50] py-3 sm:py-4">
         <div
           ref={wrapperRef}
-          className="overflow-hidden whitespace-nowrap cursor-grab px-4"
+          className="overflow-hidden cursor-grab px-4"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -176,18 +182,18 @@ const HeroSection = ({ onOpenAuth }) => {
         >
           <div
             ref={trackRef}
-            className="inline-block text-orange-400 text-xs sm:text-sm font-bold"
+            className="flex w-max text-orange-400 text-xs sm:text-sm font-bold"
           >
-            Committee Coordinator CWC:
-            <span className="text-white">
-              &nbsp; Working tirelessly for the constitutional rights and social
-              justice of our community.
-            </span>
-            &nbsp;
-            <span className="font-bold">AISCSSTEWA–CWC</span>
-          </div>
+            {/* FIRST COPY */}
+            <MarqueeItem />
+            <MarqueeItem />
+            <MarqueeItem />
 
-          
+            {/* DUPLICATE COPY */}
+            <MarqueeItem />
+            <MarqueeItem />
+            <MarqueeItem />
+          </div>
         </div>
       </div>
     </section>
