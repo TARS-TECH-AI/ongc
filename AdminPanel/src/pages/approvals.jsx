@@ -40,7 +40,7 @@ const Approvals = () => {
   const loadRows = async (status = '') => {
     setLoadingRows(true);
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const queryParam = status && status !== 'All' ? `?status=${status}` : '';
       const res = await fetch(`${API}/admin/approvals${queryParam}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Failed to fetch');
@@ -60,7 +60,7 @@ const Approvals = () => {
   const openDetails = async (row) => {
     setSelected({ loading: true });
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals/${row.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Not found');
       const data = await res.json().catch(() => ({}));
@@ -90,7 +90,7 @@ const Approvals = () => {
     });
 
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },

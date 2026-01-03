@@ -1,6 +1,5 @@
 import React from "react";
-import about1 from "../assets/about.png";
-// import about2 from "../assets/about2.png";
+import about1 from "../assets/Img/23.png";
 
 const About = () => {
   return (
@@ -15,7 +14,7 @@ const About = () => {
           </h2>
 
           <p className="mt-6 text-gray-600 text-sm sm:text-base leading-relaxed">
-            All India SC & ST Employees Welfare Association (AISCS&STEWA) is a
+            All India SC & ST Employees Welfare Association (AISCSTEWA) is a
             registered organization dedicated to protecting the constitutional
             rights and promoting the welfare of Scheduled Caste and Scheduled
             Tribe employees working in ONGC and its affiliated establishments.
@@ -23,16 +22,16 @@ const About = () => {
         </div>
 
         {/* Content */}
-        <div className="mt-12 lg:mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <div className="mt-12 lg:mt-16 flex flex-col lg:flex-row items-stretch">
 
           {/* Left Cards */}
-          <div className="space-y-6">
+          <div className="flex-1 flex flex-col gap-4 pr-4 lg:pr-6">
             {/* Mission */}
-            <div className="bg-gray-100 rounded-xl p-5 sm:p-6 shadow-sm">
-              <h3 className="text-1xl sm:text-3xl lg:text-4xl flex items-center gap-2 text-base  font-bold text-slate-900">
-                 Our Mission
+            <div className="bg-gray-100 rounded-xl p-5 sm:p-6 shadow-sm flex-1 flex flex-col">
+              <h3 className="text-1xl sm:text-3xl lg:text-4xl text-base font-bold text-slate-900">
+                Our Mission
               </h3>
-              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed">
+              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed flex-1">
                 To create an equitable and inclusive work environment where every
                 SC/ST employee can thrive with dignity, respect, and equal
                 opportunities. We envision a society where constitutional
@@ -42,11 +41,11 @@ const About = () => {
             </div>
 
             {/* Vision */}
-            <div className="bg-gray-100 rounded-xl p-5 sm:p-6 shadow-sm">
-              <h3 className="text-1xl sm:text-3xl lg:text-4xl flex items-center gap-2 text-base font-bold text-slate-900">
-                 Our Vision
+            <div className="bg-gray-100 rounded-xl p-5 sm:p-6 shadow-sm flex-1 flex flex-col">
+              <h3 className="text-1xl sm:text-3xl lg:text-4xl text-base font-bold text-slate-900">
+                Our Vision
               </h3>
-              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed">
+              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed flex-1">
                 To safeguard the interests and rights of SC/ST employees through
                 collective representation, policy advocacy, and continuous
                 engagement with management. We are committed to ensuring proper
@@ -56,25 +55,17 @@ const About = () => {
             </div>
           </div>
 
-          {/* Right Images */}
-          <div className="relative flex justify-center lg:justify-end mt-8 lg:mt-0">
-            <div className="relative w-64 sm:w-72 md:w-80 lg:w-96">
-              
-              {/* First Image */}
-              <div className="relative">
-                <img
-                  src={about1}
-                  alt="Industry"
-                  className="rounded-xl w-full"
-                />
-                {/* Border Outline
-                <div className="absolute -top-2 -left-2 w-full h-full border-2 border-blue-800 rounded-xl pointer-events-none"></div> */}
-              </div>
-
+          {/* Right Image */}
+          <div className="flex-1 flex justify-center lg:justify-end">
+            <div className="relative w-full max-w-md h-full">
+              <img
+                src={about1}
+                alt="Industry"
+                className="rounded-3xl object-cover w-full h-full"
+              />
             </div>
           </div>
-
-        </div>
+          </div>
       </div>
     </section>
   );

@@ -15,7 +15,7 @@ const Enquiry = () => {
   const loadEnquiries = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/contact/admin/enquiries`, {
         headers: {
           'Authorization': `Bearer ${token}`

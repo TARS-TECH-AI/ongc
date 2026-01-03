@@ -31,7 +31,7 @@ const AssociationIdentity = () => {
           {/* RIGHT: Details */}
           <div className="px-2 sm:px-0 mt-4">
             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
-              AISCSSTEWA – CWC
+              AISCSTEWA – CWC
             </h3>
 
             <p className="text-slate-700 text-sm sm:text-base">

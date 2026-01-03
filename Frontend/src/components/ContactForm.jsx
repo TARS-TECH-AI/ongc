@@ -52,7 +52,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
   useEffect(() => {
     // keep form in sync with currentUser and clear auth warning once user logs in
     setForm((s) => ({ ...s, name: currentUser?.name || "", email: currentUser?.email || "" }));
-    if (currentUser || localStorage.getItem('token')) {
+    if (currentUser || sessionStorage.getItem('token')) {
       setAuthWarning(null);
     }
   }, [currentUser]);
@@ -61,7 +61,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const localIsAuth = typeof isAuthenticated !== 'undefined' ? isAuthenticated : Boolean(localStorage.getItem('token'));
+    const localIsAuth = typeof isAuthenticated !== 'undefined' ? isAuthenticated : Boolean(sessionStorage.getItem('token'));
     if (!localIsAuth) {
       setAuthWarning('Please register or login before sending a message.');
       return;
@@ -71,7 +71,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
     setSubmitting(true);
     try {
       const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const res = await fetch(`${API}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

@@ -32,11 +32,11 @@ export const LoginForm = ({onSuccess}) => {
       let json = {};
       try { json = text ? JSON.parse(text) : {}; } catch (err) { json = {}; }
       if (!res.ok) throw new Error(json.message || 'Login failed');
-      if (json.token) localStorage.setItem('token', json.token);
+      if (json.token) sessionStorage.setItem('token', json.token);
       if (json.user) {
-        // Remove large document data before storing in localStorage
+        // Remove large document data before storing in sessionStorage
         const { idProofDocument, idProofFileName, idProofFileType, ...userDataToStore } = json.user;
-        localStorage.setItem('user', JSON.stringify(userDataToStore));
+        sessionStorage.setItem('user', JSON.stringify(userDataToStore));
       }
       console.log('Login success', json);
       onSuccess && onSuccess(json.user, 'login');

@@ -39,7 +39,7 @@ const Settings = () => {
     // try to fetch /admin/system if available
     (async () => {
       try {
-        const token = localStorage.getItem('admin-token');
+        const token = sessionStorage.getItem('admin-token');
         const res = await fetch(`${API}/admin/system`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         if (!res.ok) return;
         const data = await res.json();
@@ -54,24 +54,24 @@ const Settings = () => {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const body = { name: fullName, email, phone, designation };
       // attempt server update
       const res = await fetch(`${API}/admin/profile`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(body) });
       if (res.ok) {
         const updated = await res.json();
         // update local admin info
-        login(localStorage.getItem('admin-token'), updated);
+        login(sessionStorage.getItem('admin-token'), updated);
         alert('Profile updated');
       } else {
         // fallback to local update
         const updated = { ...(admin || {}), name: fullName, email, phone, designation };
-        login(localStorage.getItem('admin-token'), updated);
+        login(sessionStorage.getItem('admin-token'), updated);
         alert('Profile updated (local)');
       }
     } catch (err) {
       const updated = { ...(admin || {}), name: fullName, email, phone, designation };
-      login(localStorage.getItem('admin-token'), updated);
+      login(sessionStorage.getItem('admin-token'), updated);
       alert('Profile updated (local)');
     } finally {
       setSavingProfile(false);
@@ -83,7 +83,7 @@ const Settings = () => {
     if (!currentPassword || !newPassword || newPassword !== confirmPassword) return alert('Please check passwords');
     setChangingPwd(true);
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/change-password`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ currentPassword, newPassword }) });
       if (res.ok) {
         alert('Password changed');
@@ -102,7 +102,7 @@ const Settings = () => {
     if (!uEmail || !uNew || uNew !== uConfirm) return alert('Please check inputs');
     setUpdatingUserPwd(true);
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/users/update-password`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ email: uEmail, newPassword: uNew }) });
       if (res.ok) {
         alert('User password updated');

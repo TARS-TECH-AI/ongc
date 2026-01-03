@@ -88,7 +88,7 @@ const Profile = ({ onBack }) => {
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       if (!token) {
         setError("Please login to view profile");
         setLoading(false);
@@ -116,11 +116,11 @@ const Profile = ({ onBack }) => {
       // Check if we should show approval message (only once)
       if (data.user.status === 'Approved') {
         const approvalShownKey = `approval_shown_${data.user._id}`;
-        const hasShownApproval = localStorage.getItem(approvalShownKey);
+        const hasShownApproval = sessionStorage.getItem(approvalShownKey);
         
         if (!hasShownApproval) {
           setShowApprovalMessage(true);
-          localStorage.setItem(approvalShownKey, 'true');
+          sessionStorage.setItem(approvalShownKey, 'true');
           
           // Auto-hide message after 10 seconds
           setTimeout(() => {
@@ -156,7 +156,7 @@ const Profile = ({ onBack }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const updateData = { ...editedData };
 
       // Add new ID proof if uploaded
@@ -194,14 +194,14 @@ const Profile = ({ onBack }) => {
       setNewIdProof(null);
       setNewIdProofPreview("");
 
-      // Update localStorage without large document data
+      // Update sessionStorage without large document data
       const {
         idProofDocument,
         idProofFileName,
         idProofFileType,
         ...userDataToStore
       } = data.user;
-      localStorage.setItem("user", JSON.stringify(userDataToStore));
+      sessionStorage.setItem("user", JSON.stringify(userDataToStore));
     } catch (err) {
       setError(err.message);
     } finally {

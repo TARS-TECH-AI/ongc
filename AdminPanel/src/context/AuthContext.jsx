@@ -7,8 +7,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('admin-token');
-    const user = localStorage.getItem('admin-user');
+    // Use sessionStorage for auto-logout on tab/window close
+    const token = sessionStorage.getItem('admin-token');
+    const user = sessionStorage.getItem('admin-user');
     if (token && user) {
       try {
         setAdmin(JSON.parse(user));
@@ -20,14 +21,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token, adminData) => {
-    if (token) localStorage.setItem('admin-token', token);
-    if (adminData) localStorage.setItem('admin-user', JSON.stringify(adminData));
+    if (token) sessionStorage.setItem('admin-token', token);
+    if (adminData) sessionStorage.setItem('admin-user', JSON.stringify(adminData));
     setAdmin(adminData);
   };
 
   const logout = () => {
-    localStorage.removeItem('admin-token');
-    localStorage.removeItem('admin-user');
+    sessionStorage.removeItem('admin-token');
+    sessionStorage.removeItem('admin-user');
     setAdmin(null);
   };
 

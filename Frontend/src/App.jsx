@@ -28,7 +28,7 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("user") || "null");
+      return JSON.parse(sessionStorage.getItem("user") || "null");
     } catch {
       return null;
     }
@@ -37,7 +37,7 @@ function App() {
   const [toast, setToast] = useState(null);
 
   const isAuthenticated = Boolean(
-    currentUser && localStorage.getItem("token")
+    currentUser && sessionStorage.getItem("token")
   );
 
   const isApprovedUser = Boolean(
@@ -47,7 +47,7 @@ function App() {
   // Fetch fresh user data on mount to get latest status
   useEffect(() => {
     const refreshUserData = async () => {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       if (!token || !isAuthenticated) return;
 
       try {
@@ -79,7 +79,7 @@ function App() {
           // Only update if status has changed
           if (currentUser?.status !== updatedUser.status) {
             setCurrentUser(updatedUser);
-            localStorage.setItem("user", JSON.stringify(updatedUser));
+            sessionStorage.setItem("user", JSON.stringify(updatedUser));
             
             // Show notification if status changed to Approved
             if (updatedUser.status === 'Approved' && currentUser?.status === 'Pending') {
@@ -117,7 +117,7 @@ function App() {
 
   const handleAuthSuccess = (user, action) => {
     setCurrentUser(user);
-    localStorage.setItem("user", JSON.stringify(user));
+    sessionStorage.setItem("user", JSON.stringify(user));
 
     setToast({
       message:
@@ -131,8 +131,8 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     setCurrentUser(null);
 
     setToast({ message: "Logged out", type: "info" });
@@ -143,7 +143,7 @@ function App() {
   useEffect(() => {
     console.log("Auth state changed", {
       currentUser,
-      token: localStorage.getItem("token"),
+      token: sessionStorage.getItem("token"),
       isAuthenticated,
       isApprovedUser,
       userStatus: currentUser?.status

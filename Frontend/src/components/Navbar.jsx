@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
-import ProfileImg from "../assets/Profile.png";
+
 
 const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate, currentView }) => {
   const [open, setOpen] = useState(false);
@@ -151,7 +151,9 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                   onClick={() => setShowProfileMenu((s) => !s)}
                   className="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer"
                 >
-                  <img src={currentUser.profileUrl || ProfileImg} alt="Profile" className="w-9 h-9 rounded-full object-cover" />
+                  <div className="w-9 h-9 rounded-full bg-[#0C2E50] flex items-center justify-center text-white font-bold text-sm">
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                   <div className="hidden md:block text-base font-semibold text-slate-900">
                     {currentUser.name}
                   </div>
@@ -272,10 +274,12 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             {currentUser && (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
-                  <img src={currentUser.profileUrl || ProfileImg} alt="Profile" className="w-9 h-9 rounded-full object-cover" />
+                  {/* <div className="w-9 h-9 rounded-full bg-gradient-to-br bg-[#0C2E50] flex items-center justify-center text-white font-bold text-sm">
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                   <div className="text-sm font-semibold">
                     {currentUser.name}
-                  </div>
+                  </div> */}
                 </div>
                 <button
                   onClick={() => {

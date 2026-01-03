@@ -42,7 +42,7 @@ const Documents = () => {
   const loadDocuments = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("admin-token");
+      const token = sessionStorage.getItem("admin-token");
       const res = await fetch(`${API}/documents`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -115,7 +115,7 @@ const Documents = () => {
     if (!confirm("Delete this document?")) return;
     
     try {
-      const token = localStorage.getItem("admin-token");
+      const token = sessionStorage.getItem("admin-token");
       const res = await fetch(`${API}/documents/${id}`, {
         method: "DELETE",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -158,7 +158,7 @@ const Documents = () => {
 
     setUploading(true);
     try {
-      const token = localStorage.getItem("admin-token");
+      const token = sessionStorage.getItem("admin-token");
       const res = await fetch(`${API}/documents`, {
         method: "POST",
         headers: {

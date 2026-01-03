@@ -100,7 +100,7 @@ const Dashboard = () => {
     setShowUserModal(true);
     setUserDetails({ loading: true });
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Not found');
       const data = await res.json();
