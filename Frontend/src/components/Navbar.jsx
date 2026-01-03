@@ -222,7 +222,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
               key={i}
               className={`pb-2 cursor-pointer transition ${
                 activeSection === item.id 
-                  ? 'text-orange-500 font-semibold border-b-2 border-orange-500' 
+                  ? 'text-orange-500 font-semibold  border-orange-500' 
                   : 'hover:text-orange-500'
               }`}
               onClick={() => {

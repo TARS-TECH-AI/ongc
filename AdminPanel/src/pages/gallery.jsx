@@ -92,34 +92,70 @@ const Gallery = () => {
         import.meta.env.VITE_API_BASE ||
         "https://ongc-q48j.vercel.app/api";
 
-      const res = await fetch(`${API}/gallery`, { 
-        method: "POST", 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: form.title || file.name,
-          caption: form.caption || "",
-          image: filePreview
-        })
-      });
-      
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json().catch(() => ({}));
-      const newItem = {
-        id: data.id || Date.now(),
-        title: data.title || form.title || file.name,
-        caption: data.caption || form.caption || "",
-        date: data.date || new Date().toLocaleDateString(),
-        src: data.url || filePreview,
-      };
-      const updated = [newItem, ...items];
-      setItems(updated);
-      
-      // Reset form and close modal
-      resetForm();
+      const maxAttempts = 2;
+      let attempt = 0;
+      let lastErr = null;
+      let res;
+
+      while (attempt < maxAttempts) {
+        attempt += 1;
+        try {
+          console.log(`Gallery upload attempt ${attempt} -> ${API}/gallery`);
+          // Use AbortController with longer timeout and clear timeout on completion
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
+          try {
+            res = await fetch(`${API}/gallery`, {
+              method: "POST",
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: form.title || file.name,
+                caption: form.caption || "",
+                image: filePreview,
+              }),
+              signal: controller.signal,
+            });
+          } finally {
+            clearTimeout(timeoutId);
+          }
+
+          console.log('Upload response status:', res && res.status);
+          if (!res || !res.ok) {
+            const text = res ? await res.text().catch(() => '') : '';
+            console.warn('Upload failed response:', res ? res.status : 'no-response', text);
+            throw new Error(text || `Upload failed (${res ? res.status : 'no-response'})`);
+          }
+
+          const data = await res.json().catch(() => ({}));
+          const newItem = {
+            id: data.id || Date.now(),
+            title: data.title || form.title || file.name,
+            caption: data.caption || form.caption || "",
+            date: data.date || new Date().toLocaleDateString(),
+            src: data.url || filePreview,
+          };
+          const updated = [newItem, ...items];
+          setItems(updated);
+          // Reset form and close modal
+          resetForm();
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          console.error(`Upload attempt ${attempt} error:`, err && err.message ? err.message : err);
+          // small backoff
+          await new Promise((r) => setTimeout(r, 500 * attempt));
+        }
+      }
+
+      if (lastErr) {
+        // Surface useful message if available
+        const msg = lastErr && lastErr.message ? lastErr.message : 'Failed to upload image';
+        setError(msg.includes('AbortError') ? 'Upload timed out' : `Upload failed: ${msg}`);
+      }
     } catch (err) {
-      console.error('Upload error:', err);
+      console.error('Unexpected upload error:', err);
       setError('Failed to upload image');
     } finally {
       setUploading(false);
