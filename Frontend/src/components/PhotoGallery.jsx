@@ -3,12 +3,11 @@ import { ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
-const PhotoGallery = () => {
+const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
   const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [showFullGallery, setShowFullGallery] = useState(false);
 
   useEffect(() => {
     loadGallery();
@@ -58,12 +57,16 @@ const PhotoGallery = () => {
   };
   
   const openFullGallery = () => {
-    setShowFullGallery(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (onNavigate) {
+      onNavigate("gallery");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const closeFullGallery = () => {
-    setShowFullGallery(false);
+    if (onBack) {
+      onBack();
+    }
   };
 
   const close = () => {
@@ -100,7 +103,7 @@ const PhotoGallery = () => {
   }, []);
 
   // Full Gallery Page
-  if (showFullGallery) {
+  if (viewMode === "full") {
     return (
       <section className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4">

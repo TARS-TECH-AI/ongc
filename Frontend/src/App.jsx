@@ -185,6 +185,8 @@ function App() {
 
       {currentView === "profile" ? (
         <Profile onBack={() => setCurrentView("home")} />
+      ) : currentView === "gallery" ? (
+        <PhotoGraphy viewMode="full" onBack={() => setCurrentView("home")} />
       ) : (
         <>
           <HeroSection onOpenAuth={openAuth} />
@@ -204,7 +206,7 @@ function App() {
             </>
           )}
           <AISCSSTEWAUnits />
-          <PhotoGraphy />
+          <PhotoGraphy viewMode="preview" onNavigate={setCurrentView} />
           <Association />
           <ImportantLinks />
           <ContactForm />
