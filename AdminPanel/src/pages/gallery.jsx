@@ -14,6 +14,16 @@ const Gallery = () => {
   const fileRef = useRef(null);
 
   useEffect(() => {
+    // Load cached items from sessionStorage immediately so UI is responsive
+    try {
+      const cached = sessionStorage.getItem('admin-gallery-items');
+      if (cached) {
+        setItems(JSON.parse(cached));
+      }
+    } catch (e) {
+      console.warn('Failed to read cached gallery items', e);
+    }
+
     loadGallery();
   }, []);
 
@@ -25,7 +35,7 @@ const Gallery = () => {
       const res = await fetch(`${API}/gallery`);
       if (res.ok) {
         const data = await res.json();
-        if (data.items && data.items.length > 0) {
+          if (data.items && data.items.length > 0) {
           const backendItems = data.items.map(item => ({
             id: item.id,
             title: item.title,
@@ -34,6 +44,7 @@ const Gallery = () => {
             src: item.src
           }));
           setItems(backendItems);
+          try { sessionStorage.setItem('admin-gallery-items', JSON.stringify(backendItems)); } catch (e) { /* ignore */ }
           return;
         }
       }
@@ -137,6 +148,7 @@ const Gallery = () => {
           };
           const updated = [newItem, ...items];
           setItems(updated);
+          try { sessionStorage.setItem('admin-gallery-items', JSON.stringify(updated)); } catch (e) { /* ignore */ }
           // Reset form and close modal
           resetForm();
           lastErr = null;
@@ -185,9 +197,10 @@ const Gallery = () => {
         method: 'DELETE'
       });
       
-      if (res.ok) {
+        if (res.ok) {
         const updated = items.filter((i) => i.id !== id);
         setItems(updated);
+        try { sessionStorage.setItem('admin-gallery-items', JSON.stringify(updated)); } catch (e) { /* ignore */ }
       } else {
         console.error('Delete failed:', await res.text());
         alert('Failed to delete image');

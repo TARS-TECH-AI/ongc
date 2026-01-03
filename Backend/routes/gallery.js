@@ -47,6 +47,15 @@ router.post('/', async (req, res) => {
     await connectDB();
     
     const { title, caption, image } = req.body;
+    console.log('Gallery POST: received payload keys ->', Object.keys(req.body));
+    if (typeof image === 'string') {
+      console.log('Gallery POST: image length:', image.length, 'startsWithData:', image.startsWith && image.startsWith('data:'));
+      // Warn if very large base64 payload
+      const approxBytes = Math.floor((image.length * 3) / 4);
+      if (approxBytes > 5 * 1024 * 1024) {
+        console.warn('Gallery POST: image appears large (~' + Math.round(approxBytes / 1024) + ' KB). Consider using external storage.');
+      }
+    }
     
     const newItem = new Gallery({
       title: title || 'Untitled',
@@ -54,10 +63,12 @@ router.post('/', async (req, res) => {
       src: image
     });
 
+    console.log('Gallery POST: saving new item to DB...');
     await newItem.save();
+    console.log('Gallery POST: saved item id=', newItem._id.toString());
     
     res.json({ 
-      id: newItem._id, 
+      id: newItem._id.toString(), 
       title: newItem.title, 
       caption: newItem.caption,
       date: new Date(newItem.createdAt).toLocaleDateString(),
