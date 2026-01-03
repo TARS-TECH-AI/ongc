@@ -8,9 +8,13 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     // Ensure database connection
+    console.log('Gallery GET: Attempting to connect to database...');
     await connectDB();
+    console.log('Gallery GET: Database connected, fetching items...');
     
     const items = await Gallery.find().sort({ createdAt: -1 });
+    console.log(`Gallery GET: Found ${items.length} items`);
+    
     const formattedItems = items.map(item => ({
       id: item._id,
       title: item.title,
@@ -18,10 +22,16 @@ router.get('/', async (req, res) => {
       date: item.createdAt,
       src: item.src
     }));
+    
     res.json({ items: formattedItems });
   } catch (err) {
     console.error('Gallery GET error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error('Error stack:', err.stack);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: err.message,
+      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 });
 

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contact');
 const galleryRoutes = require('./routes/gallery');
 const path = require('path');
+const connectDB = require('./utils/db');
 
 const app = express();
 app.use(cors());
@@ -27,23 +28,26 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Health
 app.get('/', (req, res) => res.json({ status: 'ok' }));
 
-// Connect to MongoDB and start
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ongc';
-
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
-  });
+// For serverless (Vercel) - export handler
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // For local development
+  const PORT = process.env.PORT || 5000;
+  connectDB()
+    .then(() => {
+      console.log('MongoDB connected');
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch((err) => {
+      console.error('Failed to connect to MongoDB', err);
+      process.exit(1);
+    });
+}
 
 // Global error handler to ensure JSON responses
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   if (res.headersSent) return next(err);
-  res.status(500).json({ message: 'Internal server error' });
+  res.status(500).json({ message: 'Internal server error', error: err.message });
 });
