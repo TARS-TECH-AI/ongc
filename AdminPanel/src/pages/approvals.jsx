@@ -404,13 +404,13 @@ const Approvals = () => {
                                 <Eye size={16} />
                                 View
                               </button>
-                              <a 
+                              {/* <a 
                                 href={selected.idProofDocument} 
                                 download={selected.idProofFileName || 'id-proof'}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                               >
                                 Download
-                              </a>
+                              </a> */}
                             </div>
                           </div>
                         </div>
@@ -456,10 +456,10 @@ const Approvals = () => {
                     </div>
 
                     {/* Raw JSON for debugging */}
-                    <div className="mt-6">
+                    {/* <div className="mt-6">
                       <h4 className="text-md font-semibold mb-3 text-slate-800">Full Record (raw)</h4>
                       <pre className="text-xs bg-slate-50 p-3 rounded overflow-auto border border-slate-200">{JSON.stringify(selected, null, 2)}</pre>
-                    </div>
+                    </div> */}
                   </div>
                 </>
               )}

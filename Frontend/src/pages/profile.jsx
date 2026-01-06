@@ -457,7 +457,7 @@ const Profile = ({ onBack }) => {
                     <button
                       onClick={handleViewDocument}
                       title="View Document"
-                      className="p-2  text-black font-semibold rounded-lg inline-flex items-center justify-center transition"
+                      className="p-2  text-black font-semibold rounded-lg inline-flex items-center justify-center transition cursor-pointer"
                     >
                       <Eye className="w-5 h-5" />
                     </button>

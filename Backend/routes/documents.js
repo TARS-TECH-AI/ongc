@@ -22,7 +22,9 @@ const adminAuth = (req, res, next) => {
 // Public: Get all documents (with optional filters)
 router.get('/', async (req, res) => {
   try {
+    console.log('Documents GET: Connecting to DB...');
     await connectDB();
+    console.log('Documents GET: DB connected, fetching documents...');
     
     const { category, year } = req.query;
     const query = {};
@@ -38,6 +40,7 @@ router.get('/', async (req, res) => {
     }
     
     const documents = await Document.find(query).sort({ date: -1, createdAt: -1 });
+    console.log(`Documents GET: Found ${documents.length} documents`);
     
     const formattedDocs = documents.map(doc => ({
       id: doc._id.toString(),
@@ -53,6 +56,9 @@ router.get('/', async (req, res) => {
     res.json({ documents: formattedDocs });
   } catch (err) {
     console.error('Documents GET error:', err);
+    if (err.name === 'MongoConnectionError') {
+      return res.status(503).json({ message: 'Database connection error', error: err.message });
+    }
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });

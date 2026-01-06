@@ -114,7 +114,7 @@ const HeroSection = ({ onOpenAuth }) => {
   };
 
   return (
-    <section id="home" className="relative min-h-[100svh] w-full overflow-hidden">
+    <section id="home" className="relative min-h-[100svh] w-full overflow-hidden ">
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0">
         {images.map((src, i) => (
