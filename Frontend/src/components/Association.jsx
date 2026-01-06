@@ -1,5 +1,6 @@
 import React from "react";
 import AmbedkarImg from "../assets/ambedkar.png";
+import constitutionPDF from "../assets/constitution.pdf"
 
 const AssociationIdentity = () => {
   return (
@@ -37,7 +38,7 @@ const AssociationIdentity = () => {
                 {/* Download button visible only when user is authenticated */}
                 {typeof window !== 'undefined' && (sessionStorage.getItem('token') || sessionStorage.getItem('user')) && (
                   <a
-                    href="/public/constitution.pdf"
+                    href={constitutionPDF}
                     download
                     className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0C2E50] text-white rounded-md text-sm hover:bg-[#0a2440]"
                   >
