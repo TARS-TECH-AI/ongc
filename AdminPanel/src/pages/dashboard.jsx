@@ -225,7 +225,7 @@ const Dashboard = () => {
               ) : (
                 <>
                   {displayRegs.map((r) => (
-                    <div key={r.id} className="flex items-center justify-between gap-4 p-3 rounded-md hover:bg-slate-50">
+                    <div key={r.id} className="flex flex-row flex-wrap items-center justify-between gap-4 p-3 rounded-md hover:bg-slate-50">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold">{r.name ? r.name.charAt(0) : 'U'}</div>
                         <div>
