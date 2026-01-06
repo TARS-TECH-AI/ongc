@@ -34,7 +34,18 @@ router.post('/register', async (req, res) => {
 // Admin login
 router.post('/login', async (req, res) => {
   try {
-    await connectDB();
+    // Ensure DB is reachable with explicit error handling
+    try {
+      await connectDB();
+    } catch (dbErr) {
+      console.error('Admin login: failed to connect to DB:', dbErr && dbErr.message ? dbErr.message : dbErr);
+      // Distinguish network/timeouts
+      if (dbErr.name && dbErr.name.includes('Mongo')) {
+        return res.status(503).json({ message: 'Database connection error', error: dbErr.message });
+      }
+      return res.status(500).json({ message: 'Database connection failed' });
+    }
+
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 
@@ -48,7 +59,11 @@ router.post('/login', async (req, res) => {
 
     res.json({ message: 'Logged in', token, admin: { id: admin._id, name: admin.name, email: admin.email } });
   } catch (err) {
-    console.error(err);
+    console.error('Admin login error:', err && err.stack ? err.stack : err);
+    // If Mongo network timeout, return 503
+    if (err && err.name && err.name.includes('Mongo')) {
+      return res.status(503).json({ message: 'Database error', error: err.message });
+    }
     res.status(500).json({ message: 'Server error' });
   }
 });

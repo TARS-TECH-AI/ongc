@@ -11,15 +11,22 @@ const router = express.Router();
 // simple admin auth middleware
 const adminAuth = (req, res, next) => {
   const auth = req.headers.authorization;
-  if (!auth) return res.status(401).json({ message: 'Unauthorized' });
+  if (!auth) {
+    console.warn('Admin auth failed: missing Authorization header');
+    return res.status(401).json({ message: 'Missing Authorization header' });
+  }
   const token = auth.split(' ')[1];
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    if (payload.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+    if (payload.role !== 'admin') {
+      console.warn('Admin auth failed: user missing admin role', payload && payload.role);
+      return res.status(403).json({ message: 'Forbidden: admin role required' });
+    }
     req.admin = payload;
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
+    console.warn('Admin auth failed: token invalid or expired:', err && err.message ? err.message : err);
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
 

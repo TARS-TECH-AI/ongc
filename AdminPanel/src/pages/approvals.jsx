@@ -1,24 +1,7 @@
 import React, { useState } from 'react';
 import { Download, Eye, FileText, Search, Filter } from 'lucide-react';
 
-const sample = [
-  { id: 1, name: 'Rajesh Kumar', category: 'SC', date: '5/19/12', status: 'Rejected' },
-  { id: 2, name: 'Sunita Devi', category: 'SC', date: '5/27/15', status: 'Approved' },
-  { id: 3, name: 'Priya Sharma', category: 'ST', date: '10/28/12', status: 'Approved' },
-  { id: 4, name: 'Sunita Devi', category: 'SC', date: '8/2/19', status: 'Pending' },
-  { id: 5, name: 'Rajesh Kumar', category: 'SC', date: '9/23/16', status: 'Rejected' },
-  { id: 6, name: 'Rajesh Kumar', category: 'ST', date: '6/21/19', status: 'Approved' },
-  { id: 7, name: 'Rajesh Kumar', category: 'ST', date: '6/21/19', status: 'Pending' },
-  { id: 8, name: 'Rajesh Kumar', category: 'ST', date: '6/21/19', status: 'Pending' },
-  { id: 9, name: 'Rajesh Kumar', category: 'ST', date: '6/21/19', status: 'Approved' },
-  { id: 10, name: 'Sunita Devi', category: 'ST', date: '6/21/19', status: 'Rejected' },
-];
 
-const docsMap = {
-  1: [ { id: 'a1', name: 'SC Certificate', file: null }, { id: 'a2', name: 'Aadhar Card', file: null } ],
-  4: [ { id: 'd1', name: 'ID Proof.pdf', file: null } ],
-  7: [ { id: 'd2', name: 'Residence.pdf', file: null } ],
-};
 
 const StatusBadge = ({ status }) => {
   const base = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium';
@@ -28,28 +11,42 @@ const StatusBadge = ({ status }) => {
 };
 
 const Approvals = () => {
-  const [rows, setRows] = useState(sample);
+  const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loadingRows, setLoadingRows] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [loadError, setLoadError] = useState(null);
 
   const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
 
   // load users (all users, not just pending)
+  const handleAdminUnauthorized = () => {
+    // clear admin session and prompt login
+    sessionStorage.removeItem('admin-token');
+    alert('Admin session expired or unauthorized. Please login again.');
+    // reload to show login UI or navigate to admin login route
+    window.location.reload();
+  };
+
   const loadRows = async (status = '') => {
     setLoadingRows(true);
     try {
       const token = sessionStorage.getItem('admin-token');
       const queryParam = status && status !== 'All' ? `?status=${status}` : '';
       const res = await fetch(`${API}/admin/approvals${queryParam}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) {
+        if (res.status === 401) return handleAdminUnauthorized();
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `Failed to fetch (${res.status})`);
+      }
       const data = await res.json();
       const mapped = data.map(u => ({ id: u.id || u._id, name: u.name, email: u.email, mobile: u.mobile, employeeId: u.employeeId, date: new Date(u.date || u.createdAt).toLocaleDateString(), status: u.status }));
       setRows(mapped);
     } catch (err) {
-      // keep sample as fallback
       console.warn('Failed to load approvals', err.message || err);
+      setRows([]);
+      setLoadError(err.message || 'Failed to load approvals');
     } finally {
       setLoadingRows(false);
     }
@@ -62,17 +59,21 @@ const Approvals = () => {
     try {
       const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals/${row.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      if (!res.ok) throw new Error('Not found');
+      if (!res.ok) {
+        if (res.status === 401) return handleAdminUnauthorized();
+        throw new Error(`Not found (${res.status})`);
+      }
       const data = await res.json().catch(() => ({}));
       // expect comprehensive data: id, name, email, mobile, employeeId, status, date, createdAt, idProofDocument, idProofFileName, idProofFileType, docs
       setSelected({ 
         ...data, 
-        docs: data.docs || docsMap[row.id] || [],
-        loading: false
+        docs: data.docs || [],
+        loading: false,
+        error: null
       });
     } catch (err) {
-      // fallback to local sample data
-      setSelected({ ...row, docs: docsMap[row.id] || [], loading: false });
+      // show available row info and error message
+      setSelected({ ...row, docs: [], loading: false, error: err.message || 'Failed to load details' });
     }
   };
 
@@ -97,8 +98,9 @@ const Approvals = () => {
         body: JSON.stringify({ status: newStatus })
       });
       if (!res.ok) {
+        if (res.status === 401) return handleAdminUnauthorized();
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Status update failed');
+        throw new Error(data.message || `Status update failed (${res.status})`);
       }
       // refresh list from server
       await loadRows();
@@ -215,6 +217,15 @@ const Approvals = () => {
           <div className="mt-3 text-sm text-slate-600">
             Showing {filteredRows.length} of {rows.length} users
           </div>
+
+          {loadError && (
+            <div className="mt-4 p-3 bg-rose-50 border border-rose-100 text-rose-700 rounded flex items-center justify-between">
+              <div>Failed to load users: {loadError}</div>
+              <div>
+                <button onClick={() => { setLoadError(null); loadRows(); }} className="px-3 py-1 bg-white border rounded">Retry</button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Desktop table */}
@@ -285,6 +296,10 @@ const Approvals = () => {
                 <div className="py-8 text-center text-sm text-slate-600">Loading details…</div>
               ) : (
                 <>
+                  {selected.error && (
+                    <div className="mb-4 p-3 bg-rose-50 border border-rose-100 text-rose-700 rounded">Failed to load full details: {selected.error}</div>
+                  )}
+
                   {/* Personal Information */}
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-4 text-slate-900 border-b pb-2">Personal Information</h3>
@@ -303,6 +318,11 @@ const Approvals = () => {
                         <div>
                           <div className="text-sm text-slate-500 mb-1">Mobile Number</div>
                           <div className="font-medium text-slate-900">{selected.mobile || selected.phone || '—'}</div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Address</div>
+                          <div className="font-medium text-slate-900 break-words">{selected.address || '—'}</div>
                         </div>
                       </div>
 
@@ -347,6 +367,15 @@ const Approvals = () => {
                           <div className="font-medium text-slate-900">{selected.category}</div>
                         </div>
                       )}
+
+                      <div className="ml-auto flex gap-2">
+                        {selected.status !== 'Approved' && (
+                          <button onClick={() => approve(selected.id || selected._id)} className="px-3 py-2 bg-green-600 text-white rounded">Approve</button>
+                        )}
+                        {selected.status !== 'Rejected' && (
+                          <button onClick={() => reject(selected.id || selected._id)} className="px-3 py-2 bg-rose-600 text-white rounded">Reject</button>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -424,6 +453,12 @@ const Approvals = () => {
                           </div>
                         )) : <div className="text-sm text-slate-500 py-4 bg-slate-50 rounded-lg text-center border border-slate-200">No additional documents uploaded</div>}
                       </div>
+                    </div>
+
+                    {/* Raw JSON for debugging */}
+                    <div className="mt-6">
+                      <h4 className="text-md font-semibold mb-3 text-slate-800">Full Record (raw)</h4>
+                      <pre className="text-xs bg-slate-50 p-3 rounded overflow-auto border border-slate-200">{JSON.stringify(selected, null, 2)}</pre>
                     </div>
                   </div>
                 </>

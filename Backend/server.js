@@ -32,16 +32,18 @@ app.get('/', (req, res) => res.json({ status: 'ok' }));
 
 // Connect to MongoDB and start
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'MONGO_URI';
 
-mongoose.connect(MONGO_URI)
+// Try an initial connection but do NOT exit on failure - serverless environments
+// should return controlled errors per-request rather than crash on cold start.
+connectDB()
   .then(() => {
-    console.log('MongoDB connected');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    console.log('MongoDB connected (initial)');
   })
   .catch((err) => {
-    console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
+    console.error('Initial MongoDB connection failed (continuing):', err && err.message ? err.message : err);
+  })
+  .finally(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   });
 
 // Global error handler to ensure JSON responses
