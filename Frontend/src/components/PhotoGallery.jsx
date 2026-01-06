@@ -131,7 +131,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(12)].map((_, i) => (
                 <div key={i} className="overflow-hidden rounded-xl shadow-lg bg-gray-200 animate-pulse">
-                  <div className="w-full h-[240px]"></div>
+                  <div className="w-full h-48 sm:h-56 md:h-64"></div>
                 </div>
               ))}
             </div>
@@ -150,7 +150,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
                   <img
                     src={img}
                     alt={`Gallery image ${i + 1}`}
-                    className="w-full h-[240px] object-cover transform group-hover:scale-110 transition duration-300"
+                    className="w-full h-48 sm:h-56 md:h-64 object-cover transform group-hover:scale-110 transition duration-300"
                   />
                 </button>
               ))}
@@ -248,7 +248,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
                 <img
                   src={img}
                   alt={`Gallery image ${i + 1}`}
-                  className="w-full h-[200px] sm:h-[280px] lg:h-[320px] object-cover transform group-hover:scale-105 transition duration-300"
+                  className="w-full h-48 sm:h-56 md:h-64 object-cover transform group-hover:scale-105 transition duration-300"
                 />
               </button>
             ))}
@@ -265,7 +265,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
                   <img
                     src={img}
                     alt={`Gallery image ${actualIndex + 1}`}
-                    className="w-full h-[160px] sm:h-[200px] lg:h-[240px] object-cover transform group-hover:scale-105 transition duration-300"
+                    className="w-full h-48 sm:h-56 md:h-64 object-cover transform group-hover:scale-105 transition duration-300"
                   />
                 </button>
               );
@@ -280,7 +280,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
                 <img
                   src={visibleImages[5]}
                   alt={`Gallery image 6`}
-                  className="w-full h-[160px] sm:h-[200px] lg:h-[240px] object-cover"
+                  className="w-full h-48 sm:h-56 md:h-64 object-cover"
                 />
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center group-hover:bg-black/80 transition">
                   <span className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold">

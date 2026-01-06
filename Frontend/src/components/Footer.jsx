@@ -100,13 +100,13 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
                 href="tel:+911123456789"
                 className="block hover:underline"
               >
-                +91-11-23456789
+                +91-1352792624
               </a>
               <br/>
-              ONGC Bhawan,<br />
-              Jeevan Bharti-II,<br />
-              124 Connaught Circus,<br />
-              New Delhi – 110001
+              Deendayal Urja Bhavan ,5 Nelson Mandela Road,
+            <br />
+           Vasant Kunj
+            , New Delhi -11007
             </p>
           </div>
         </div>
