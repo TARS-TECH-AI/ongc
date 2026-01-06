@@ -30,6 +30,17 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Health
 app.get('/', (req, res) => res.json({ status: 'ok' }));
 
+// DB health check
+app.get('/health', async (req, res) => {
+  try {
+    await connectDB();
+    return res.json({ status: 'ok', db: 'connected' });
+  } catch (err) {
+    // Do not include secrets in the response; include only short error message
+    return res.status(503).json({ status: 'db-unavailable', error: err.name || 'DB_ERROR' });
+  }
+});
+
 // Connect to MongoDB and start
 const PORT = process.env.PORT || 5000;
 
