@@ -2,7 +2,13 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Document = require('../models/Document');
 const connectDB = require('../utils/db');
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 const router = express.Router();
+
+// Configure Multer for memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Admin middleware
 const adminAuth = (req, res, next) => {
@@ -64,14 +70,38 @@ router.get('/', async (req, res) => {
 });
 
 // Admin: Add new document
-router.post('/', adminAuth, async (req, res) => {
+router.post('/', adminAuth, upload.single('file'), async (req, res) => {
   try {
     await connectDB();
     
-    const { title, category, ref, fileUrl, fileSize, fileType, date } = req.body;
+    const { title, category, ref, date } = req.body;
     
-    if (!title || !category || !fileUrl) {
-      return res.status(400).json({ message: 'Title, category, and fileUrl are required' });
+    if (!title || !category) {
+      return res.status(400).json({ message: 'Title and category are required' });
+    }
+
+    let fileUrl = '';
+    let fileSize = '';
+    let fileType = 'PDF';
+
+    if (req.file) {
+      // Upload to Cloudinary
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { resource_type: 'raw', folder: 'documents' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+
+      fileUrl = result.secure_url;
+      fileSize = `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`;
+      fileType = req.file.mimetype || 'PDF';
+    } else {
+      return res.status(400).json({ message: 'File is required' });
     }
     
     const newDoc = new Document({
@@ -79,8 +109,8 @@ router.post('/', adminAuth, async (req, res) => {
       category,
       ref: ref || '',
       fileUrl,
-      fileSize: fileSize || '',
-      fileType: fileType || 'PDF',
+      fileSize,
+      fileType,
       date: date ? new Date(date) : new Date(),
     });
     

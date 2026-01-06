@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { FileText, Download, Trash2, Eye, Plus } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
 const DocumentRow = ({ d, onView, onDelete }) => (
   <tr className="bg-white">
@@ -28,8 +28,6 @@ const Documents = () => {
     title: "",
     category: "CWC Orders",
     ref: "",
-    fileUrl: "",
-    fileSize: "",
     date: new Date().toISOString().split("T")[0],
   });
   const [uploading, setUploading] = useState(false);
@@ -48,16 +46,20 @@ const Documents = () => {
   }, []);
 
   const loadDocuments = async () => {
+    console.log('AdminPanel: Loading documents...');
     setLoading(true);
     try {
       const token = sessionStorage.getItem("admin-token");
+      console.log('AdminPanel: Token present:', !!token);
       const res = await fetch(`${API}/documents`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+      console.log('AdminPanel: Fetch response status:', res.status);
       if (res.ok) {
         const contentType = res.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await res.json();
+          console.log('AdminPanel: Fetched documents:', data.documents?.length || 0);
           const docs = data.documents || [];
           setRows(docs);
           try { sessionStorage.setItem('admin-documents', JSON.stringify(docs)); } catch (e) { /* ignore */ }
@@ -66,6 +68,8 @@ const Documents = () => {
         }
       } else {
         console.error("Failed to load documents:", res.status);
+        const errorText = await res.text();
+        console.error("Error response:", errorText);
       }
     } catch (err) {
       console.error("Failed to load documents:", err);
@@ -145,25 +149,8 @@ const Documents = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result;
-      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-      setUploadForm(prev => ({
-        ...prev,
-        fileUrl: base64,
-        fileSize: `PDF • ${sizeInMB} MB`,
-      }));
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleUpload = async () => {
-    if (!uploadForm.title || !uploadForm.fileUrl) {
+    if (!uploadForm.title || !fileInputRef.current?.files[0]) {
       alert("Please provide a title and select a file");
       return;
     }
@@ -171,13 +158,19 @@ const Documents = () => {
     setUploading(true);
     try {
       const token = sessionStorage.getItem("admin-token");
+      const formData = new FormData();
+      formData.append('title', uploadForm.title);
+      formData.append('category', uploadForm.category);
+      formData.append('ref', uploadForm.ref);
+      formData.append('date', uploadForm.date);
+      formData.append('file', fileInputRef.current.files[0]);
+
       const res = await fetch(`${API}/documents`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(uploadForm),
+        body: formData,
       });
 
       if (res.ok) {
@@ -188,10 +181,9 @@ const Documents = () => {
           title: "",
           category: "CWC Orders",
           ref: "",
-          fileUrl: "",
-          fileSize: "",
           date: new Date().toISOString().split("T")[0],
         });
+        if (fileInputRef.current) fileInputRef.current.value = '';
         // If backend returned the created document, optimistically insert it
         if (data && data.document) {
           setRows(prev => {
@@ -364,13 +356,9 @@ const Documents = () => {
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={handleFileChange}
                   accept=".pdf,.doc,.docx"
                   className="w-full"
                 />
-                {uploadForm.fileUrl && (
-                  <p className="text-xs text-green-600 mt-1">File selected ({uploadForm.fileSize})</p>
-                )}
               </div>
             </div>
             
