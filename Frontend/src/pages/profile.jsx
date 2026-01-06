@@ -29,7 +29,7 @@ const Profile = ({ onBack }) => {
   const [showApprovalMessage, setShowApprovalMessage] = useState(false);
 
   const API =
-    import.meta.env.VITE_API_URL || "https://ongc-q48j.vercel.app/api";
+    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -159,22 +159,31 @@ const Profile = ({ onBack }) => {
       const token = sessionStorage.getItem("token");
       const updateData = { ...editedData };
 
-      // Add new ID proof if uploaded
+      let res;
       if (newIdProof) {
-        const base64File = await fileToBase64(newIdProof);
-        updateData.idProofDocument = base64File;
-        updateData.idProofFileName = newIdProof.name;
-        updateData.idProofFileType = newIdProof.type;
-      }
+        const form = new FormData();
+        form.append('name', updateData.name || '');
+        form.append('mobile', updateData.mobile || '');
+        form.append('employeeId', updateData.employeeId || '');
+        form.append('idProof', newIdProof, newIdProof.name);
 
-      const res = await fetch(`${API}/auth/profile`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
+        res = await fetch(`${API}/auth/profile`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: form,
+        });
+      } else {
+        res = await fetch(`${API}/auth/profile`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        });
+      }
 
       const contentType = res.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {

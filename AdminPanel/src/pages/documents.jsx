@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { FileText, Download, Trash2, Eye, Plus } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
 const DocumentRow = ({ d, onView, onDelete }) => (
   <tr className="bg-white">
@@ -90,40 +90,13 @@ const Documents = () => {
         if (activeTab === "letters" && r.category !== "CWC Letters") return false;
         if (activeTab === "meeting" && r.category !== "CWC Meeting") return false;
       }
-      if (year && new Date(r.date).getFullYear() !== Number(year)) return false;
+      // Only filter by year when a specific year is selected (not 'all')
+      if (year && year !== 'all' && new Date(r.date).getFullYear() !== Number(year)) return false;
       return (r.title + r.category + r.ref).toLowerCase().includes(query.toLowerCase());
     });
   }, [rows, query, activeTab, year]);
 
-  const onView = d => {
-    if (!d.fileUrl) {
-      alert("No file URL available");
-      return;
-    }
-
-    // Open in new window for better viewing of base64 or regular URLs
-    const newWindow = window.open("", "_blank");
-    if (newWindow) {
-      newWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>${d.title || "Document"}</title>
-            <style>
-              body { margin: 0; padding: 0; background: #f3f4f6; }
-              iframe { width: 100vw; height: 100vh; border: none; }
-              img { max-width: 100%; display: block; margin: 20px auto; }
-            </style>
-          </head>
-          <body>
-            ${d.fileUrl.startsWith("data:image") 
-              ? `<img src="${d.fileUrl}" alt="${d.title || "Document"}" />` 
-              : `<iframe src="${d.fileUrl}"></iframe>`}
-          </body>
-        </html>
-      `);
-    }
-  };
+  
 
   const onDelete = async (id) => {
     if (!confirm("Delete this document?")) return;
@@ -213,6 +186,104 @@ const Documents = () => {
     }
   };
 
+  const onView = async (d) => {
+    if (!d.fileUrl) {
+      alert("No file URL available");
+      return;
+    }
+
+    // Resolve absolute URL when backend returns local paths
+    const fullUrl = d.fileUrl && d.fileUrl.startsWith('/') ? API.replace(/\/api\/?$/, '') + d.fileUrl : d.fileUrl;
+
+    // If it's an inline data URL (image), just show it directly
+    if (d.fileUrl.startsWith('data:')) {
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${d.title || 'Document'}</title>
+              <meta name="viewport" content="width=device-width,initial-scale=1" />
+              <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}</style>
+            </head>
+            <body>
+              <div class="viewer"><img src="${d.fileUrl}" alt="${d.title || 'Document'}" style="max-width:100%;max-height:100%"/></div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      }
+      return;
+    }
+
+    // Try to fetch the file as a blob first to avoid browser auto-downloads (and to normalize headers)
+    try {
+      const token = sessionStorage.getItem('admin-token');
+      const fetchHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch(fullUrl, { method: 'GET', headers: fetchHeaders });
+      if (!res.ok) throw new Error('Failed to fetch document');
+
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const newWindow = window.open('', '_blank');
+      if (!newWindow) {
+        URL.revokeObjectURL(blobUrl);
+        alert('Popup blocked. Please allow popups for this site.');
+        return;
+      }
+
+      // Clean up blob URL when the window is closed
+      newWindow.addEventListener('beforeunload', () => {
+        try { URL.revokeObjectURL(blobUrl); } catch (e) { /* ignore */ }
+      });
+
+      // Show as iframe (PDF or other embeddable types) or image fallback
+      const isImage = blob.type.startsWith('image/');
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${d.title || 'Document'}</title>
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}iframe{width:100%;height:100%;border:0}img{max-width:100%;max-height:100%;display:block}</style>
+          </head>
+          <body>
+            <div class="viewer">
+              ${isImage ? `<img src="${blobUrl}" alt="${d.title || 'Document'}" />` : `<iframe src="${blobUrl}"></iframe>`}
+            </div>
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+      return;
+    } catch (err) {
+      // If fetch fails (CORS or network), fallback to direct embed which may still trigger download
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${d.title || 'Document'}</title>
+              <meta name="viewport" content="width=device-width,initial-scale=1" />
+              <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}iframe{width:100%;height:100%;border:0}img{max-width:100%;max-height:100%;display:block}</style>
+            </head>
+            <body>
+              <div class="viewer">
+                <iframe src="${fullUrl}"></iframe>
+              </div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      } else {
+        alert('Popup blocked. Please allow popups for this site.');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-6">
       <div className="max-w-7xl mx-auto px-4">
@@ -250,7 +321,8 @@ const Documents = () => {
             className="w-full border rounded px-3 py-2 text-sm"
           />
           <select value={year} onChange={e => setYear(e.target.value)} className="border rounded px-3 py-2">
-            {years.map(y => <option key={y}>{y}</option>)}
+            <option value="all">All</option>
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
 

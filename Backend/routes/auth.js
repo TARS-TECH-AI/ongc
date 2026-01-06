@@ -3,24 +3,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
 const User = require('../models/User');
 const connectDB = require('../utils/db');
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'idproof-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Configure multer to use memory storage for direct uploads to Cloudinary
+const storage = multer.memoryStorage();
 const upload = multer({
-  storage: storage,
+  storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|pdf/;
@@ -51,13 +43,13 @@ const verifyToken = (req, res, next) => {
 };
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', upload.single('idProof'), async (req, res) => {
   try {
     await connectDB();
     console.log('Registration request received');
-    console.log('Body keys:', Object.keys(req.body));
-    
-    const { name, email, password, mobile, employeeId, idProofDocument, idProofFileName, idProofFileType } = req.body;
+
+    // Accept fields from multipart/form-data or JSON body
+    const { name, email, password, mobile, employeeId } = req.body;
 
     if (!name || !email || !password || !mobile || !employeeId) {
       const missing = [];
@@ -89,11 +81,31 @@ router.post('/register', async (req, res) => {
       status: 'Pending'
     };
 
-    // Store base64 document if provided
-    if (idProofDocument) {
-      userData.idProofDocument = idProofDocument; // Store base64 string
-      userData.idProofFileName = idProofFileName;
-      userData.idProofFileType = idProofFileType;
+    // If a file was uploaded, send to Cloudinary
+    if (req.file) {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ resource_type: 'auto', folder: 'idproofs' }, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          });
+          stream.end(req.file.buffer);
+        });
+        userData.idProofDocument = result.secure_url;
+        userData.idProofFileName = req.file.originalname;
+        userData.idProofFileType = req.file.mimetype;
+        userData.idProofPublicId = result.public_id || '';
+      } catch (uploadErr) {
+        console.error('Cloudinary upload failed:', uploadErr);
+        return res.status(500).json({ message: 'File upload failed' });
+      }
+    }
+
+    // Backward compatible: accept base64 in body if present
+    if (req.body.idProofDocument && !userData.idProofDocument) {
+      userData.idProofDocument = req.body.idProofDocument;
+      userData.idProofFileName = req.body.idProofFileName;
+      userData.idProofFileType = req.body.idProofFileType;
     }
 
     const user = new User(userData);
@@ -169,10 +181,10 @@ router.get('/profile', verifyToken, async (req, res) => {
 });
 
 // Update user profile
-router.put('/profile', verifyToken, async (req, res) => {
+router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) => {
   try {
     await connectDB();
-    const { name, mobile, employeeId, idProofDocument, idProofFileName, idProofFileType } = req.body;
+    const { name, mobile, employeeId } = req.body;
     
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -182,11 +194,31 @@ router.put('/profile', verifyToken, async (req, res) => {
     if (mobile) user.mobile = mobile;
     if (employeeId) user.employeeId = employeeId;
     
-    // Update ID proof if provided
-    if (idProofDocument) {
-      user.idProofDocument = idProofDocument;
-      user.idProofFileName = idProofFileName;
-      user.idProofFileType = idProofFileType;
+    // If file uploaded, upload to Cloudinary
+    if (req.file) {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ resource_type: 'auto', folder: 'idproofs' }, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          });
+          stream.end(req.file.buffer);
+        });
+        user.idProofDocument = result.secure_url;
+        user.idProofFileName = req.file.originalname;
+        user.idProofFileType = req.file.mimetype;
+        user.idProofPublicId = result.public_id || '';
+      } catch (uploadErr) {
+        console.error('Cloudinary upload failed:', uploadErr);
+        return res.status(500).json({ message: 'File upload failed' });
+      }
+    }
+    
+    // Backward compatible: accept base64 if provided
+    if (req.body.idProofDocument && !user.idProofDocument) {
+      user.idProofDocument = req.body.idProofDocument;
+      user.idProofFileName = req.body.idProofFileName;
+      user.idProofFileType = req.body.idProofFileType;
     }
     
     await user.save();

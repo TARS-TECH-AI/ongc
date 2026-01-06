@@ -5,9 +5,10 @@ import HeroSection from "./components/HeroSection";
 import About from "./components/About";
 import Footer from "./components/Footer";
 import CoreValues from "./components/CoreValues";
+import President from "./components/President"
 import MembersSection from "./components/MembersSection";
 import PhotoGraphy from "./components/PhotoGallery";
-import Constitution from "./components/Constitution";
+// import Constitution from "./components/Constitution";
 import Documents from "./components/Documents";
 import ImportantUpdates from "./components/ImportantUpdates";
 import AISCSSTEWAUnits from "./components/AISCSSTEWAUnits";
@@ -51,7 +52,7 @@ function App() {
       if (!token || !isAuthenticated) return;
 
       try {
-        const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
+        const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         const res = await fetch(`${API}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -210,6 +211,7 @@ function App() {
           <HeroSection onOpenAuth={openAuth} />
           <About />
           <CoreValues />
+          <President/>
           <MembersSection />
           {/* Protected Content - Only for Approved Users */}
           {isApprovedUser && (
@@ -225,7 +227,7 @@ function App() {
           )}
           <AISCSSTEWAUnits />
           <PhotoGraphy viewMode="preview" onNavigate={setCurrentView} />
-          <Association />
+          <Association isAuthenticated={isAuthenticated} currentUser={currentUser} />
           <ImportantLinks />
           <ContactForm />
           <Footer onOpenAuth={openAuth} isAuthenticated={isAuthenticated} />

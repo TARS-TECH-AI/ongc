@@ -73,9 +73,9 @@ router.get('/', async (req, res) => {
 router.post('/', adminAuth, upload.single('file'), async (req, res) => {
   try {
     await connectDB();
-    
+
     const { title, category, ref, date } = req.body;
-    
+
     if (!title || !category) {
       return res.status(400).json({ message: 'Title and category are required' });
     }
@@ -84,11 +84,12 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
     let fileSize = '';
     let fileType = 'PDF';
 
+    // Support either multipart file upload (req.file) or base64/raw data in req.body.file
     if (req.file) {
-      // Upload to Cloudinary
+      // Upload buffer via upload_stream (raw resource)
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { resource_type: 'raw', folder: 'documents' },
+          { resource_type: 'raw', folder: 'ONGC/documents' },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
@@ -98,12 +99,21 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
       });
 
       fileUrl = result.secure_url;
+      var cloudinaryPublicId = result.public_id || '';
       fileSize = `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`;
       fileType = req.file.mimetype || 'PDF';
+    } else if (typeof req.body.file === 'string' && (req.body.file.startsWith('data:') || req.body.file.includes('base64')) ) {
+      // Upload base64/raw data URL directly
+      const uploadResult = await cloudinary.uploader.upload(req.body.file, { resource_type: 'raw', folder: 'ONGC/documents' });
+      fileUrl = uploadResult.secure_url;
+      var cloudinaryPublicId = uploadResult.public_id || '';
+      // Cloudinary may return bytes; use it when available
+      fileSize = uploadResult.bytes ? `${(uploadResult.bytes / (1024 * 1024)).toFixed(2)} MB` : (req.body.fileSize || 'unknown');
+      fileType = req.body.fileType || (uploadResult.format ? uploadResult.format.toUpperCase() : 'RAW');
     } else {
       return res.status(400).json({ message: 'File is required' });
     }
-    
+
     const newDoc = new Document({
       title,
       category,
@@ -111,11 +121,12 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
       fileUrl,
       fileSize,
       fileType,
+      cloudinaryPublicId: cloudinaryPublicId || '',
       date: date ? new Date(date) : new Date(),
     });
-    
+
     await newDoc.save();
-    
+
     res.json({
       message: 'Document added successfully',
       document: {
@@ -141,12 +152,25 @@ router.delete('/:id', adminAuth, async (req, res) => {
     await connectDB();
     
     const { id } = req.params;
-    const doc = await Document.findByIdAndDelete(id);
-    
+    const doc = await Document.findById(id);
+
     if (!doc) {
       return res.status(404).json({ message: 'Document not found' });
     }
-    
+
+    // Attempt to delete the underlying Cloudinary resource if we have the public id
+    if (doc.cloudinaryPublicId) {
+      try {
+        await cloudinary.uploader.destroy(doc.cloudinaryPublicId, { resource_type: 'raw' });
+        console.log('Deleted Cloudinary resource:', doc.cloudinaryPublicId);
+      } catch (cloudErr) {
+        console.error('Failed to delete Cloudinary resource:', cloudErr);
+        // do not block deletion from DB for cloud deletion failure
+      }
+    }
+
+    await Document.findByIdAndDelete(id);
+
     res.json({ message: 'Document deleted successfully' });
   } catch (err) {
     console.error('Documents DELETE error:', err);

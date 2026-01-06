@@ -19,7 +19,7 @@ const AdminLogin = () => {
     setError('');
     setLoading(true);
     try {
-      const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
+      const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
       const res = await fetch(`${API}/admin/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
       });
@@ -49,7 +49,7 @@ const AdminLogin = () => {
                 value={form.email}
                 onChange={(e) => update('email', e.target.value)}
                 className="w-full pl-10 py-2 border rounded-md"
-                placeholder="admin@email.com"
+                placeholder="admin@gmail.com"
               />
             </div>
           </div>

@@ -15,7 +15,7 @@ export const LoginForm = ({onSuccess}) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
+  const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

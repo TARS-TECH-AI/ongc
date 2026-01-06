@@ -33,7 +33,7 @@ const stats = [
 ];
 
 const pageSize = 10;
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 const recentUpdates = [
   { id: 1, title: "Annual General Meeting Notice", date: "2024-01-15" },
@@ -63,7 +63,7 @@ const Dashboard = () => {
     setLoadingRecent(true);
     setLoadingStats(true);
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Failed to fetch users');
       const data = await res.json();
@@ -111,6 +111,24 @@ const Dashboard = () => {
     }
   };
 
+  // Fetch ID proof on demand to avoid sending large payloads in the main details call
+  const fetchAndViewIdProof = async (user) => {
+    try {
+      const id = user.id || user._id;
+      if (!id) throw new Error('Missing user id');
+      const token = sessionStorage.getItem('admin-token');
+      const res = await fetch(`${API}/admin/approvals/${id}/idproof`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.message || 'Failed to fetch document');
+      }
+      const d = await res.json();
+      if (d.idProofDocument) viewDocument(d.idProofDocument, d.idProofFileName || 'ID Proof');
+    } catch (err) {
+      alert(err.message || 'Failed to load document');
+    }
+  };
+
   const closeDetails = () => {
     setShowUserModal(false);
     setUserDetails(null);
@@ -118,7 +136,7 @@ const Dashboard = () => {
 
   const changeStatus = async (id, newStatus) => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = sessionStorage.getItem('admin-token');
       const res = await fetch(`${API}/admin/approvals/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
@@ -350,7 +368,14 @@ const Dashboard = () => {
                                       </div>
                                       <div className="flex gap-2">
                                         <button
-                                          onClick={() => viewDocument(userDetails.idProofDocument, userDetails.idProofFileName || 'ID Proof')}
+                                          onClick={() => {
+                                            // If the id proof was omitted from the details (inline), fetch it on demand
+                                            if (!userDetails.idProofDocument && userDetails.idProofInline) {
+                                              fetchAndViewIdProof(userDetails);
+                                            } else {
+                                              viewDocument(userDetails.idProofDocument, userDetails.idProofFileName || 'ID Proof');
+                                            }
+                                          }}
                                           className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
                                         >
                                           <Eye size={16} />

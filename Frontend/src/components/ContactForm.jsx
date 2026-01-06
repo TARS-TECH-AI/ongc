@@ -11,13 +11,12 @@ const ContactCard = () => (
       <div className="flex items-start gap-4">
         <MapPin className="w-5 h-5 mt-1" />
         <div>
-          <p className="font-semibold">AISCS&STEWA – CWC</p>
+          <p className="font-semibold">AISCSTEWA – CWC</p>
           <p className="text-sm leading-relaxed mt-2 text-slate-700">
-            ONGC Bhawan, Jeevan Bharti Building, Tower II, 3rd Floor,
+         Deendayal Urja Bhavan , 5 Nelson Mandela Road,
             <br />
-            124, Connaught Circus,
-            <br />
-            New Delhi – 110001
+           Vasant Kunj
+            , New Delhi -11007
           </p>
         </div>
       </div>
@@ -25,7 +24,7 @@ const ContactCard = () => (
       <div className="flex items-start gap-4">
         <Phone className="w-5 h-5 mt-1" />
         <div>
-          <p className="font-semibold">+91-11-23456789</p>
+          <p className="font-semibold">+91-1352792624</p>
           <p className="text-sm text-slate-600">Mon–Fri, 10 AM – 5 PM</p>
         </div>
       </div>
@@ -70,7 +69,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
     setAuthWarning(null);
     setSubmitting(true);
     try {
-      const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
+      const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const token = sessionStorage.getItem('token');
       const res = await fetch(`${API}/contact`, {
         method: 'POST',

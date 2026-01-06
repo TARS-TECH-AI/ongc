@@ -126,22 +126,19 @@ const HeroSection = ({ onOpenAuth }) => {
             style={{
               backgroundImage: `url(${src})`,
               backgroundSize: "cover",
-              backgroundPosition: "top center",
+              backgroundPosition: "center 25%",
               backgroundRepeat: "no-repeat",
             }}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-transparent pointer-events-none" />
       </div>
 
       {/* ===== CONTENT ===== */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-32">
-        <div className="max-w-3xl text-white">
-          <h1 className="font-extrabold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl drop-shadow-2xl">
-            <span className="block">All India SC & ST Employees</span>
-            <span className="block text-orange-400 mt-2">
-              Welfare Association
-            </span>
+        <div className="max-w-2xl text-white text-left ml-2 sm:ml-4 md:ml-8 lg:ml-12">
+          <h1 className="font-extrabold leading-tight text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-lg">
+            <span className="inline">All India SC & ST Employees Welfare Association</span>
           </h1>
 
           <p className="italic text-orange-300 text-base sm:text-lg mt-4 drop-shadow-lg">
@@ -153,7 +150,7 @@ const HeroSection = ({ onOpenAuth }) => {
             SC/ST employees across all ONGC establishments nationwide.
           </p>
 
-          <div className="mt-18 flex flex-col sm:flex-row gap-4">
+          <div className="mt-12 sm:mt-16 md:mt-20 lg:mt-24 flex flex-col sm:flex-row gap-4">
             <button
               onClick={scrollToAbout}
               className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition shadow-xl cursor-pointer"

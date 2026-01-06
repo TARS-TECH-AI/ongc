@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
+import Logo2 from "../assets/ongc.jpeg";
 
 
 const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate, currentView }) => {
@@ -72,22 +73,26 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
         {/* NAVBAR ROW */}
         <div className="flex items-center justify-between py-2 md:py-3">
           {/* LOGO */}
-          <img
-            src={Logo}
-            alt="logo"
+          <div
+            className="flex items-center gap-3 cursor-pointer"
             onClick={() => {
               onNavigate && onNavigate('home');
               setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
             }}
-            className="
-              w-20 h-20
-              sm:w-24 sm:h-24
-              md:w-28 md:h-28
-              lg:w-32 lg:h-32
-              object-contain
-              cursor-pointer
-            "
-          />
+            role="button"
+            aria-label="Go to home"
+          >
+            <img
+              src={Logo2}
+              alt="ONGC Emblem"
+              className="h-12 sm:h-16 md:h-20 lg:h-24 object-contain"
+            />
+            <img
+              src={Logo}
+              alt="ONGC Logo"
+              className="h-12 sm:h-16 md:h-20 lg:h-24 object-contain"
+            />
+          </div>
 
           {/* DESKTOP MENU */}
           <ul className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-700">

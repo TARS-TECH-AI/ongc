@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Gallery = require('../models/Gallery');
 const connectDB = require('../utils/db');
+const cloudinary = require('cloudinary').v2;
 const router = express.Router();
 
 // Public endpoint: Get all gallery items
@@ -45,28 +46,42 @@ router.post('/', async (req, res) => {
   try {
     // Ensure database connection
     await connectDB();
-    
+
     const { title, caption, image } = req.body;
     console.log('Gallery POST: received payload keys ->', Object.keys(req.body));
-    if (typeof image === 'string') {
-      console.log('Gallery POST: image length:', image.length, 'startsWithData:', image.startsWith && image.startsWith('data:'));
-      // Warn if very large base64 payload
-      const approxBytes = Math.floor((image.length * 3) / 4);
-      if (approxBytes > 5 * 1024 * 1024) {
-        console.warn('Gallery POST: image appears large (~' + Math.round(approxBytes / 1024) + ' KB). Consider using external storage.');
+
+    let srcUrl = image;
+
+    // If client sent a base64 data URL, upload to Cloudinary and store the secure URL
+    if (typeof image === 'string' && (image.startsWith('data:') || image.includes('base64'))) {
+      try {
+        console.log('Gallery POST: uploading image to Cloudinary...');
+        const uploadResult = await cloudinary.uploader.upload(image, { folder: 'ONGC/gallery' });
+        srcUrl = uploadResult.secure_url;
+        var cloudinaryPublicId = uploadResult.public_id || '';
+        console.log('Gallery POST: Cloudinary upload complete, url=', srcUrl);
+      } catch (uploadErr) {
+        console.error('Gallery POST: Cloudinary upload failed:', uploadErr);
+        return res.status(502).json({ message: 'Failed to upload image', error: uploadErr.message });
       }
     }
-    
+
+    // Small sanity check for resulting src
+    if (!srcUrl || typeof srcUrl !== 'string') {
+      return res.status(400).json({ message: 'Invalid image data' });
+    }
+
     const newItem = new Gallery({
       title: title || 'Untitled',
       caption: caption || '',
-      src: image
+      src: srcUrl
+      , cloudinaryPublicId: cloudinaryPublicId || ''
     });
 
     console.log('Gallery POST: saving new item to DB...');
     await newItem.save();
     console.log('Gallery POST: saved item id=', newItem._id.toString());
-    
+
     res.json({ 
       id: newItem._id.toString(), 
       title: newItem.title, 
@@ -87,12 +102,24 @@ router.delete('/:id', async (req, res) => {
     await connectDB();
     
     const { id } = req.params;
-    const item = await Gallery.findByIdAndDelete(id);
-    
+    const item = await Gallery.findById(id);
+
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
     }
-    
+
+    // If we have a stored Cloudinary public id, attempt to delete remote resource
+    if (item.cloudinaryPublicId) {
+      try {
+        await cloudinary.uploader.destroy(item.cloudinaryPublicId, { resource_type: 'image' });
+        console.log('Gallery DELETE: removed cloudinary resource', item.cloudinaryPublicId);
+      } catch (cloudErr) {
+        console.error('Gallery DELETE: failed to remove cloudinary resource', cloudErr);
+      }
+    }
+
+    await Gallery.findByIdAndDelete(id);
+
     res.json({ message: 'Item deleted' });
   } catch (err) {
     console.error('Gallery DELETE error:', err);

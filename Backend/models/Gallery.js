@@ -5,6 +5,7 @@ const gallerySchema = new mongoose.Schema({
   caption: { type: String, default: '' },
   src: { type: String, required: true }, // base64 image data
   createdAt: { type: Date, default: Date.now },
+  cloudinaryPublicId: { type: String, default: '' },
 });
 
 module.exports = mongoose.models.Gallery || mongoose.model('Gallery', gallerySchema);

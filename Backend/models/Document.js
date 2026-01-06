@@ -13,6 +13,7 @@ const documentSchema = new mongoose.Schema({
   fileType: { type: String, default: 'PDF' },
   date: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
+  cloudinaryPublicId: { type: String, default: '' },
 });
 
 module.exports = mongoose.models.Document || mongoose.model('Document', documentSchema);

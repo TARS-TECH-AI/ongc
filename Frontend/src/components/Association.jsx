@@ -29,10 +29,22 @@ const AssociationIdentity = () => {
           </div>
 
           {/* RIGHT: Details */}
-          <div className="px-2 sm:px-0 mt-4">
-            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
-              AISCSTEWA – CWC
-            </h3>
+            <div className="px-2 sm:px-0 mt-4">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
+                  AISCSTEWA – CWC
+                </h3>
+                {/* Download button visible only when user is authenticated */}
+                {typeof window !== 'undefined' && (sessionStorage.getItem('token') || sessionStorage.getItem('user')) && (
+                  <a
+                    href="/public/constitution.pdf"
+                    download
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0C2E50] text-white rounded-md text-sm hover:bg-[#0a2440]"
+                  >
+                    Download
+                  </a>
+                )}
+              </div>
 
             <p className="text-slate-700 text-sm sm:text-base">
               All India SC & ST Employees Welfare Association

@@ -47,7 +47,7 @@ export const RegisterForm = ({onSuccess}) => {
     });
   };
 
-  const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
+  const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,24 +81,23 @@ export const RegisterForm = ({onSuccess}) => {
       };
       
       // Add document if uploaded
+      // Prepare payload as FormData so file is uploaded directly
+      const form = new FormData();
+      form.append('name', registrationData.name);
+      form.append('email', registrationData.email);
+      form.append('mobile', registrationData.mobile);
+      form.append('employeeId', registrationData.employeeId);
+      form.append('password', registrationData.password);
+
       if (idProof) {
-        const base64File = await fileToBase64(idProof);
-        registrationData.idProofDocument = base64File;
-        registrationData.idProofFileName = idProof.name;
-        registrationData.idProofFileType = idProof.type;
+        form.append('idProof', idProof, idProof.name);
       }
 
-      console.log('Sending registration data:', {
-        ...registrationData,
-        idProofDocument: idProof ? 'base64 data (' + idProof.name + ')' : 'not provided'
-      });
+      console.log('Sending registration data (FormData)');
 
       const res = await fetch(`${API}/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registrationData),
+        body: form,
       });
 
       const text = await res.text();

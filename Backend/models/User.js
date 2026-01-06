@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   idProofDocument: { type: String }, // Base64 encoded document
   idProofFileName: { type: String }, // Original file name
   idProofFileType: { type: String }, // File MIME type
+  idProofPublicId: { type: String, default: '' },
   status: { type: String, enum: ['Pending','Approved','Rejected'], default: 'Pending' },
   documents: [
     {

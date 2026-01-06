@@ -1,82 +1,47 @@
 const mongoose = require('mongoose');
 
-let cachedDb = null;
+function maskUriForLog(uri) {
+  try {
+    return uri.replace(/\/\/(.*?):(.*?)@/, '//****:****@');
+  } catch (e) {
+    return 'mongodb uri';
+  }
+}
 
+/**
+ * connectDB - connects to MongoDB with simple retry/backoff logic.
+ * Returns the mongoose instance when connected.
+ */
 async function connectDB() {
-  // If already connected, return cached connection
-  if (cachedDb && mongoose.connection.readyState === 1) {
-    return cachedDb;
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    return mongoose;
   }
 
-  // Prefer environment variables, support common names
-  let MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.MONGO_URL || null;
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  if (!uri) throw new Error('MONGODB_URI environment variable is not set');
 
-  // If not provided, in development fall back to localhost; in production fail fast
-  if (!MONGO_URI) {
-    const msgDev = 'MONGO_URI not set. Falling back to local mongodb://127.0.0.1:27017/ongc for development.';
-    const msgProd = 'MONGO_URI is not set in environment; please set it in your deployment (e.g., Vercel ENV VARS)';
+  const maxAttempts = parseInt(process.env.DB_CONNECT_ATTEMPTS || '5', 10);
+  const baseDelay = parseInt(process.env.DB_RETRY_BASE_MS || '500', 10);
 
-    if (process.env.NODE_ENV === 'production') {
-      console.error(msgProd);
-      const e = new Error(msgProd);
-      e.name = 'MongoConnectionError';
-      throw e;
-    } else {
-      console.warn(msgDev);
-      MONGO_URI = 'mongodb+srv://payal:payal03@cluster0.abkaqwg.mongodb.net/contactdb?appName=Cluster0';
-    }
-  }
-
-  // basic validation
-  if (!/^mongodb(?:\+srv)?:\/\//.test(MONGO_URI)) {
-    const msg = 'MONGO_URI does not look like a valid MongoDB connection string';
-    console.error(msg, MONGO_URI);
-    const e = new Error(msg);
-    e.name = 'MongoConnectionError';
-    throw e;
-  }
-
-  // Helper to mask credentials when logging
-  const maskUri = (uri) => {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      return uri.replace(/(mongodb(?:\+srv)?:\/\/)(.*:.*@)?(.*)/, (m, p1, p2, p3) => `${p1}${p2 ? '****:****@' : ''}${p3}`);
-    } catch { return '***'; }
-  };
-
-  const maxAttempts = 3;
-  let attempt = 0;
-  let lastErr = null;
-
-  while (attempt < maxAttempts) {
-    attempt += 1;
-    try {
-      console.log(`MongoDB: connecting (attempt ${attempt}) to ${maskUri(MONGO_URI)}`);
-      const db = await mongoose.connect(MONGO_URI, {
-        // Increase timeouts for serverless cold starts and network latency
-        serverSelectionTimeoutMS: 20000,
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        // Connection pooling
-        maxPoolSize: 20,
-        minPoolSize: 2,
+      console.log(`MongoDB: connecting (attempt ${attempt}) to ${maskUriForLog(uri)}`);
+      await mongoose.connect(uri, {
+        // keep options minimal and compatible with modern mongoose
+        family: 4,
+        serverSelectionTimeoutMS: 5000
       });
-      console.log('MongoDB connected successfully');
-      return db;
-    } catch (error) {
-      lastErr = error;
-      console.error(`MongoDB connection attempt ${attempt} failed:`, error.message);
-      // don't reveal credentials in logs
-      if (attempt < maxAttempts) {
-        const wait = 500 * attempt; // exponential-ish backoff
-        console.log(`Retrying MongoDB connection in ${wait}ms...`);
-        await new Promise((r) => setTimeout(r, wait));
-      }
+      console.log('MongoDB connected');
+      return mongoose;
+    } catch (err) {
+      console.error(`MongoDB connection attempt ${attempt} failed:`, err && err.message ? err.message : err);
+      // If last attempt, rethrow so caller can handle
+      if (attempt === maxAttempts) throw err;
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`Retrying MongoDB connection in ${delay}ms...`);
+      await new Promise((res) => setTimeout(res, delay));
     }
   }
-
-  // All attempts failed
-  console.error('MongoDB connection failed after attempts:', lastErr && lastErr.stack);
-  throw lastErr;
 }
 
 module.exports = connectDB;
