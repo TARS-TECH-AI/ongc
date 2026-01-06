@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import pdfIcon from "../assets/Vector.png";
 
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
 const years = [2026,2025, 2024, 2023, 2022];
 const categories = ["CWC Orders", "CWC Letters", "CWC Meeting"];

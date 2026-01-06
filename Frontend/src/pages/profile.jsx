@@ -29,7 +29,7 @@ const Profile = ({ onBack }) => {
   const [showApprovalMessage, setShowApprovalMessage] = useState(false);
 
   const API =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    import.meta.env.VITE_API_URL || "https://ongc-q48j.vercel.app/api";
 
   const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {

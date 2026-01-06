@@ -28,7 +28,7 @@ const Gallery = () => {
   }, []);
 
   const loadGallery = async () => {
-    const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+    const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
     
     try {
       // Try to load from backend first
@@ -101,7 +101,7 @@ const Gallery = () => {
       const API =
         import.meta.env.VITE_API_URL ||
         import.meta.env.VITE_API_BASE ||
-        "http://localhost:5000/api";
+        "https://ongc-q48j.vercel.app/api";
 
       const maxAttempts = 2;
       let attempt = 0;
@@ -191,7 +191,7 @@ const Gallery = () => {
     try {
       const API = import.meta.env.VITE_API_URL || 
         import.meta.env.VITE_API_BASE || 
-        "http://localhost:5000/api";
+        "https://ongc-q48j.vercel.app/api";
       
       const res = await fetch(`${API}/gallery/${id}`, {
         method: 'DELETE'

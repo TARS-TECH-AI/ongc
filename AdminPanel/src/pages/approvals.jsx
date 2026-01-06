@@ -18,7 +18,7 @@ const Approvals = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [loadError, setLoadError] = useState(null);
 
-  const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+  const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
 
   // load users (all users, not just pending)
   const handleAdminUnauthorized = () => {

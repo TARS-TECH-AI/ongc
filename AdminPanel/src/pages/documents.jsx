@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { FileText, Download, Trash2, Eye, Plus } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
 const DocumentRow = ({ d, onView, onDelete }) => (
   <tr className="bg-white">

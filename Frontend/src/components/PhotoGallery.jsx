@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
 const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
   const [images, setImages] = useState([]);

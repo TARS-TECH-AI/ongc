@@ -33,7 +33,7 @@ const stats = [
 ];
 
 const pageSize = 10;
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
 
 const recentUpdates = [
   { id: 1, title: "Annual General Meeting Notice", date: "2024-01-15" },

@@ -52,7 +52,7 @@ function App() {
       if (!token || !isAuthenticated) return;
 
       try {
-        const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
         const res = await fetch(`${API}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
