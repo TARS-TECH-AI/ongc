@@ -18,7 +18,9 @@ async function connectDB() {
 
     if (process.env.NODE_ENV === 'production') {
       console.error(msgProd);
-      throw new Error(msgProd);
+      const e = new Error(msgProd);
+      e.name = 'MongoConnectionError';
+      throw e;
     } else {
       console.warn(msgDev);
       MONGO_URI = 'mongodb+srv://payal:payal03@cluster0.abkaqwg.mongodb.net/contactdb?appName=Cluster0';
@@ -29,7 +31,9 @@ async function connectDB() {
   if (!/^mongodb(?:\+srv)?:\/\//.test(MONGO_URI)) {
     const msg = 'MONGO_URI does not look like a valid MongoDB connection string';
     console.error(msg, MONGO_URI);
-    throw new Error(msg);
+    const e = new Error(msg);
+    e.name = 'MongoConnectionError';
+    throw e;
   }
 
   // Helper to mask credentials when logging
@@ -55,12 +59,7 @@ async function connectDB() {
         // Connection pooling
         maxPoolSize: 20,
         minPoolSize: 2,
-        // Keep the driver modern
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       });
-
-      cachedDb = db;
       console.log('MongoDB connected successfully');
       return db;
     } catch (error) {
