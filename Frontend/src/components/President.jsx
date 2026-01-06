@@ -35,10 +35,8 @@ const MemberCard = ({ member }) => (
         src={member.image}
         alt={`${member.role} ${member.name}`}
         className="w-full h-full object-cover"
-        loading="lazy"
-        onError={(e) => {
-          e.currentTarget.src = 'https://via.placeholder.com/300';
-        }}
+        // loading="lazy"
+        
       />
     </div>
 

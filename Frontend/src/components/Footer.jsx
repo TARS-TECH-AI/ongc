@@ -105,8 +105,8 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
               <br/>
               Deendayal Urja Bhavan ,5 Nelson Mandela Road,
             <br />
-           Vasant Kunj
-            , New Delhi -11007
+           Vasant Kunj,<br/>
+             New Delhi -11007
             </p>
           </div>
         </div>

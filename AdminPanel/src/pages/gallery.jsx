@@ -219,25 +219,40 @@ const Gallery = () => {
     a.remove();
   };
   const onView = (item) => {
-    const newWindow = window.open("", "_blank");
-    if (newWindow) {
-      newWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>${item.title || 'Gallery Image'}</title>
-            <style>
-              body { margin: 0; padding: 20px; background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-              img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-            </style>
-          </head>
-          <body>
-            <img src="${item.src}" alt="${item.title || 'Gallery Image'}" />
-          </body>
-        </html>
-      `);
-      newWindow.document.close();
+    if (!item || !item.src) return;
+
+    // If it's a data URL image, open simple viewer
+    if (item.src.startsWith('data:image')) {
+      const w = window.open('', '_blank');
+      if (!w) return alert('Popup blocked. Please allow popups for this site.');
+      w.document.write(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>${item.title || 'Gallery Image'}</title><style>body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh}img{max-width:100%;max-height:100%;object-fit:contain}</style></head><body><img src="${item.src}" alt="${item.title || 'Gallery Image'}"/></body></html>`);
+      w.document.close();
+      return;
     }
+
+    // Otherwise fetch as blob and embed to avoid forced downloads
+    (async () => {
+      try {
+        const res = await fetch(item.src, { method: 'GET' });
+        if (!res.ok) throw new Error('Failed to fetch image');
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const isImage = blob.type.startsWith('image/');
+
+        const w = window.open('', '_blank');
+        if (!w) { URL.revokeObjectURL(blobUrl); return alert('Popup blocked. Please allow popups for this site.'); }
+
+        const safeTitle = (item.title || 'Gallery Image').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh}img{max-width:100%;max-height:100%;object-fit:contain}iframe,embed{width:100%;height:100%;border:0}</style></head><body>${isImage?`<img src="${blobUrl}" alt="${safeTitle}"/>`:`<iframe src="${blobUrl}"></iframe>`}</body></html>`;
+
+        try { w.document.open(); w.document.write(html); w.document.close(); }
+        catch (e) { w.location.href = blobUrl; }
+
+        setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch (e) {} }, 1000 * 60 * 5);
+      } catch (err) {
+        alert('Unable to preview image.');
+      }
+    })();
   };
 
   return (
