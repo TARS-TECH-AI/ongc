@@ -1,7 +1,5 @@
 import React from 'react';
-
-// ✅ IMPORT IMAGES (VERY IMPORTANT)
-import presidentImg from '../assets/President.jpeg';
+import presidentImg from 'src/assets/President.jpeg';
 import secretaryImg from '../assets/Secretery.jpeg';
 import coordinatorImg from '../assets/coordinator.jpeg';
 
