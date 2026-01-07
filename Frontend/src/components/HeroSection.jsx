@@ -135,9 +135,9 @@ const HeroSection = ({ onOpenAuth }) => {
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-32">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-32 ">
         <div className="max-w-2xl text-white text-left ml-2 sm:ml-4 md:ml-8 lg:ml-12">
-          <h1 className="font-extrabold leading-tight text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-lg">
+          <h1 className="font-extrabold leading-tight text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-lg mt-40">
             <span className="inline">All India SC & ST Employees Welfare Association</span>
           </h1>
 
@@ -150,7 +150,7 @@ const HeroSection = ({ onOpenAuth }) => {
             SC/ST employees across all ONGC establishments nationwide.
           </p>
 
-          <div className="mt-12 sm:mt-16 md:mt-20 lg:mt-24 flex flex-col sm:flex-row gap-4">
+          <div className="mt-5 sm:mt-16 md:mt-20 lg:mt-24 flex flex-col sm:flex-row gap-4">
             <button
               onClick={scrollToAbout}
               className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition shadow-xl cursor-pointer"
