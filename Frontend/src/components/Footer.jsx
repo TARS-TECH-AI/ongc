@@ -100,13 +100,14 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
                 href="tel:+911123456789"
                 className="block hover:underline"
               >
-                +91-1352792624
+                +91-9435743110
               </a>
               <br/>
-              Deendayal Urja Bhavan ,5 Nelson Mandela Road,
-            <br />
+              Deendayal Urja Bhawan ,5A-5B,
+               Nelson Mandela Marg,
+            
            Vasant Kunj,<br/>
-             New Delhi -11007
+             New Delhi -110070
             </p>
           </div>
         </div>

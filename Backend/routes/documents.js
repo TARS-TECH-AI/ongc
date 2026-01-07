@@ -220,4 +220,73 @@ router.put('/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Public proxy to stream a document inline (avoids browser download behavior and CORS issues)
+router.get('/:id/view', async (req, res) => {
+  try {
+    await connectDB();
+    const { id } = req.params;
+    const doc = await Document.findById(id);
+    if (!doc) return res.status(404).send('Document not found');
+
+    const fileUrl = doc.fileUrl;
+    if (!fileUrl) return res.status(404).send('File not available');
+
+    // Follow redirects up to a limit and stream the final response
+    const maxRedirects = 5;
+
+    const streamUrl = (url, redirectsLeft) => {
+      try {
+        const parsed = new URL(url);
+        const httpModule = parsed.protocol === 'https:' ? require('https') : require('http');
+
+        const request = httpModule.get(url, { headers: { 'User-Agent': 'ONGC-Proxy/1.0' } }, (upRes) => {
+          const status = upRes.statusCode || 0;
+
+          // Handle redirects (3xx)
+          if (status >= 300 && status < 400 && upRes.headers.location && redirectsLeft > 0) {
+            const nextUrl = new URL(upRes.headers.location, url).toString();
+            upRes.resume(); // discard this response
+            return streamUrl(nextUrl, redirectsLeft - 1);
+          }
+
+          if (status < 200 || status >= 400) {
+            // Propagate error details to client
+            console.error('Upstream returned status', status, 'for', url);
+            res.status(502).send('Failed to fetch document (upstream status ' + status + ')');
+            upRes.resume();
+            return;
+          }
+
+          // Set content type (fallback to stored fileType)
+          const contentType = upRes.headers['content-type'] || doc.fileType || 'application/octet-stream';
+          res.setHeader('Content-Type', contentType);
+
+          // Force inline so browsers render instead of download
+          res.setHeader('Content-Disposition', 'inline');
+
+          // Forward content-length if available
+          if (upRes.headers['content-length']) res.setHeader('Content-Length', upRes.headers['content-length']);
+
+          // Pipe the response stream
+          res.statusCode = upRes.statusCode || 200;
+          upRes.pipe(res);
+        });
+
+        request.on('error', (err) => {
+          console.error('Proxy GET error:', err);
+          if (!res.headersSent) res.status(502).send('Failed to fetch document');
+        });
+      } catch (err) {
+        console.error('Proxy stream error:', err);
+        if (!res.headersSent) res.status(500).send('Server error');
+      }
+    };
+
+    streamUrl(fileUrl, maxRedirects);
+  } catch (err) {
+    console.error('Documents VIEW error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
 module.exports = router;

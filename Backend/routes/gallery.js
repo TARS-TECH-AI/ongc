@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
     const items = await Gallery.find()
       .select('_id title caption createdAt src')
       .lean()
-      .limit(20); // Limit to 20 images to avoid timeout
+      .limit(" "); // Limit to 20 images to avoid timeout
     
     console.log(`Gallery GET: Found ${items.length} items`);
     

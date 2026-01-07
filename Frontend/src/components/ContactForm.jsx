@@ -13,10 +13,12 @@ const ContactCard = () => (
         <div>
           <p className="font-semibold">AISCSTEWA – CWC</p>
           <p className="text-sm leading-relaxed mt-2 text-slate-700">
-         Deendayal Urja Bhavan , 5 Nelson Mandela Road,
-            <br />
-           Vasant Kunj
-            , New Delhi -11007
+         Deendayal Urja Bhawan , 5A-5B,
+          Nelson Mandela Marg,
+           
+           Vasant Kunj,
+             <br />
+             New Delhi -110070
           </p>
         </div>
       </div>
@@ -24,7 +26,7 @@ const ContactCard = () => (
       <div className="flex items-start gap-4">
         <Phone className="w-5 h-5 mt-1" />
         <div>
-          <p className="font-semibold">+91-1352792624</p>
+          <p className="font-semibold">+91-9435743110</p>
           <p className="text-sm text-slate-600">Mon–Fri, 10 AM – 5 PM</p>
         </div>
       </div>

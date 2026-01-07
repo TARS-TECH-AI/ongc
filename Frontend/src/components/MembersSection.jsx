@@ -1,11 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
+import cecMembers from "../data/cecMembers";
+import cwcMembers from "../data/cwcMember";
 
 const membersData = [
-  { name: "Rajesh Kumar", designation: "President", unit: "ONGC Delhi" },
-  { name: "Sunita Devi", designation: "Vice President", unit: "ONGC Mumbai" },
-  { name: "Priya Sharma", designation: "General Secretary", unit: "ONGC Dehradun" },
-  { name: "Sunita Devi", designation: "Joint Secretary", unit: "ONGC Ahmedabad" },
-  { name: "Rajesh Kumar", designation: "Member", unit: "ONGC Kolkata" },
+  
 ];
 
 const TableCard = () => (
@@ -52,6 +50,68 @@ const TableCard = () => (
   </div>
 );
 
+// Generic Lazy Member List (used for CEC and CWC)
+const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
+  const [visible, setVisible] = useState(initialVisible);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+        setVisible((v) => Math.min(v + batch, items.length));
+      }
+    };
+
+    el.addEventListener("scroll", onScroll);
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [batch, items.length]);
+
+  const get = (member, key) => member[key] ?? member[key.charAt(0).toUpperCase() + key.slice(1)] ?? "";
+
+  return (
+    <div className="w-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+      <div className="hidden sm:block bg-slate-900 text-white">
+        <div className="grid grid-cols-3 px-6 py-4 font-semibold text-sm">
+          <span>Name</span>
+          <span>Designation</span>
+          <span>Unit</span>
+        </div>
+      </div>
+
+      <div ref={containerRef} className="divide-y divide-slate-200 max-h-[320px] overflow-auto">
+        {items.slice(0, visible).map((member, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
+          >
+            <div>
+              <span className="sm:hidden font-semibold text-slate-500">Name</span>
+              <p className="font-medium">{get(member, 'name')}</p>
+            </div>
+
+            <div>
+              <span className="sm:hidden font-semibold text-slate-500">Designation</span>
+              <p>{get(member, 'designation')}</p>
+            </div>
+
+            <div>
+              <span className="sm:hidden font-semibold text-slate-500">Unit</span>
+              <p>{get(member, 'unit')}</p>
+            </div>
+          </div>
+        ))}
+
+        {visible < items.length && (
+          <div className="p-4 text-center text-sm text-slate-500">Scroll to load more…</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const MembersSection = () => {
   return (
     <section id="members" className="w-full px-4 py-12 sm:py-16 lg:py-20 bg-white">
@@ -66,7 +126,7 @@ const MembersSection = () => {
               CWC Members
             </h2>
             <div className="w-16 h-1 bg-orange-500 mb-6"></div>
-            <TableCard />
+            <LazyMemberList items={cwcMembers} />
           </div>
 
           {/* CEC */}
@@ -75,7 +135,7 @@ const MembersSection = () => {
               CEC Members
             </h2>
             <div className="w-16 h-1 bg-orange-500 mb-6"></div>
-            <TableCard />
+            <LazyMemberList items={cecMembers} />
           </div>
 
         </div>

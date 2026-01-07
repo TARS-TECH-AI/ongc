@@ -1,5 +1,5 @@
 import React from "react";
-import AmbedkarImg from "../assets/ambedkar.png";
+import AmbedkarImg from "../assets/ambedkar1.png";
 import constitutionPDF from "../assets/constitution.pdf"
 
 const AssociationIdentity = () => {
@@ -20,12 +20,17 @@ const AssociationIdentity = () => {
 
           {/* LEFT: Image */}
           <div className="flex justify-center">
-            <div className="relative rounded-xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full bg-white ">
+            <div className="relative rounded-xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full bg-white border-2 border-slate-200 shadow-lg">
               <img
                 src={AmbedkarImg}
                 alt="Dr. B. R. Ambedkar"
                 className="w-full h-auto object-contain"
-              />
+              /> 
+                 <h4 className="mt-2 text-1xl font-semibold text-slate-900 text-center">Bharat Ratna DR B.R.Ambedkar</h4>
+                 <p className="text-sm text-slate-600 text-center">Father of Indian Constitution</p>
+{/*               
+              <h3>Bharat Ratna DR B.R. Ambedkar</h3>
+              <p>Father of the Indian Constitution</p> */}
             </div>
           </div>
 

@@ -30,11 +30,7 @@ const units = [
 /* ===== FRAME IMAGE ===== */
 const FrameImage = ({ children }) => (
   <div className="relative w-full h-full">
-    <img
-      src={frameImg}
-      alt="Frame"
-      className="w-full h-full object-contain"
-    />
+    <img src={frameImg} alt="Frame" className="w-full h-full object-contain" />
     <div className="absolute inset-0 flex items-center justify-center px-3">
       <div className="w-[85%] h-[75%] flex items-center justify-center">
         {children}
@@ -44,11 +40,18 @@ const FrameImage = ({ children }) => (
 );
 
 const AISCSSTEWAUnits = () => {
-
-
   return (
     <section id="units" className="w-full bg-white py-12 sm:py-16 lg:py-10">
-
+      <style>
+        {`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-hide {
+            scrollbar-width: none;
+          }
+        `}
+      </style>
       {/* ===== HEADING ===== */}
       <div className="max-w-7xl mx-auto px-4 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0C2E50]">
@@ -85,28 +88,29 @@ const AISCSSTEWAUnits = () => {
       {/* ===== UNITS LIST ===== */}
       <div className="max-w-7xl mx-auto px-4 mt-10">
         <div className="relative max-w-6xl mx-auto">
-
           {/* SCROLL AREA */}
-          <div className="
+          <div
+            className="
               rounded-2xl
               bg-white
+              border-2 border-yellow-500
               px-4 sm:px-8 lg:px-12
               py-4 sm:py-6
-            ">
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-2">
+            "
+          >
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-2 py-2 max-h-64 overflow-y-auto scrollbar-hide cursor-pointer">
               {units.map((unit, index) => (
-                <div key={index} className="p-3 rounded-lg bg-slate-50 border border-orange-100 text-center">
-                  <p className="font-medium text-slate-900">{unit}</p>
+                <div
+                  key={index}
+                  className="p-2 sm:p-3 rounded-lg bg-slate-50 border border-orange-100 text-center"
+                >
+                  <p className="text-xs sm:text-sm md:text-base font-medium text-slate-900 truncate">
+                    {unit}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
-
-
-
-
-
         </div>
       </div>
     </section>

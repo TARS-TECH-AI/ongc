@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
-import Logo2 from "../assets/ongc.jpeg";
+import Logo2 from "../assets/ongc.png";
 
 
 const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate, currentView }) => {
@@ -68,10 +68,10 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-[999] bg-gradient-to-b from-white via-white/90 to-transparent">
+    <nav className="fixed top-0 w-full z-[999] bg-gray-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4">
         {/* NAVBAR ROW */}
-        <div className="flex items-center justify-between py-2 md:py-3">
+        <div className="flex items-center justify-between py-1 md:py-2">
           {/* LOGO */}
           <div
             className="flex items-center gap-3 cursor-pointer"
@@ -85,12 +85,12 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             <img
               src={Logo2}
               alt="ONGC Emblem"
-              className="h-12 sm:h-16 md:h-20 lg:h-24 object-contain"
+              className="h-10 sm:h-14 md:h-16 lg:h-16 object-contain"
             />
             <img
               src={Logo}
               alt="ONGC Logo"
-              className="h-12 sm:h-16 md:h-20 lg:h-24 object-contain"
+              className="h-10 sm:h-14 md:h-16 lg:h-16 object-contain"
             />
           </div>
 

@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
-import Hero1 from "../assets/Img/1.png";
-import Hero2 from "../assets/Img/2.png";
-import Hero3 from "../assets/Img/3.png";
-import Hero4 from "../assets/Img/4.png";
-import Hero5 from "../assets/Img/5.png";
+import Hero1 from "../assets/Img/3.png";
+import Hero2 from "../assets/Img/5.png";
+import Hero3 from "../assets/Img/7.png";
+import Hero4 from "../assets/Img/15.png";
+import Hero5 from "../assets/Img/26.png";
 
 /* ===== MARQUEE ITEM ===== */
 const MarqueeItem = () => (
@@ -83,6 +83,15 @@ const HeroSection = ({ onOpenAuth }) => {
   const images = [Hero1, Hero2, Hero3, Hero4, Hero5];
   const [index, setIndex] = useState(0);
 
+  // Detect small screens so we can use `contain` for background images on mobile
+  const [isSmall, setIsSmall] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  useEffect(() => {
+    const onResize = () => setIsSmall(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (!pausedRef.current && !draggingRef.current) {
@@ -91,6 +100,32 @@ const HeroSection = ({ onOpenAuth }) => {
     }, 5000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Ensure hero starts below the fixed navbar by measuring its height
+  const [navHeight, setNavHeight] = useState(0);
+  useEffect(() => {
+    function updateNavHeight() {
+      const nav = document.querySelector('nav');
+      const h = nav ? nav.getBoundingClientRect().height : 0;
+      setNavHeight(h);
+    }
+
+    updateNavHeight();
+    window.addEventListener('resize', updateNavHeight);
+
+    // Observe for changes to navbar size (in case content changes)
+    const navEl = document.querySelector('nav');
+    let observer;
+    if (navEl && typeof MutationObserver !== 'undefined') {
+      observer = new MutationObserver(updateNavHeight);
+      observer.observe(navEl, { attributes: true, childList: true, subtree: true });
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateNavHeight);
+      if (observer) observer.disconnect();
+    };
   }, []);
 
   /* ---------- DRAG HANDLERS ---------- */
@@ -114,9 +149,9 @@ const HeroSection = ({ onOpenAuth }) => {
   };
 
   return (
-    <section id="home" className="relative min-h-[100svh] w-full overflow-hidden ">
+    <section id="home" className="relative min-h-[100vh] w-full overflow-hidden mt-10" style={{ paddingTop: navHeight ? `${navHeight}px` : undefined }}>
       {/* ===== BACKGROUND ===== */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 lg:mt-10 ">
         {images.map((src, i) => (
           <div
             key={i}
@@ -125,9 +160,10 @@ const HeroSection = ({ onOpenAuth }) => {
             }`}
             style={{
               backgroundImage: `url(${src})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center 25%",
-              backgroundRepeat: "no-repeat",
+              backgroundSize: isSmall ? 'contain' : 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundColor: '#000',
             }}
           />
         ))}
@@ -135,36 +171,15 @@ const HeroSection = ({ onOpenAuth }) => {
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-32 ">
-        <div className="max-w-2xl text-white text-left ml-2 sm:ml-4 md:ml-8 lg:ml-12">
-          <h1 className="font-extrabold leading-tight text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-lg mt-40">
-            <span className="inline">All India SC & ST Employees Welfare Association</span>
+      <div className="absolute bottom-16 left-0 z-10 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-2xl text-white text-left">
+          <h1 className="font-semibold leading-tight text-xs sm:text-sm md:text-base lg:text-lg drop-shadow-lg">
+            <span className="inline text-sm sm:text-base md:text-lg lg:text-xl">All India SC & ST Employees
+              <br/> Welfare Association
+               <br/>Central Working Committee
+               <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span></span>
           </h1>
-
-          <p className="italic text-orange-300 text-base sm:text-lg mt-4 drop-shadow-lg">
-            "Educate • Agitate • Organise"
-          </p>
-
-          <p className="mt-5 text-white/95 text-sm sm:text-base md:text-lg max-w-2xl drop-shadow-lg">
-            Committed to safeguarding the constitutional rights and welfare of
-            SC/ST employees across all ONGC establishments nationwide.
-          </p>
-
-          <div className="mt-5 sm:mt-16 md:mt-20 lg:mt-24 flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={scrollToAbout}
-              className="px-8 py-3 rounded-2xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition shadow-xl cursor-pointer"
-            >
-              Learn More
-            </button>
-            <button
-              onClick={handleJoinCommunity}
-              className="px-8 py-3 rounded-2xl border-2 border-white text-white hover:bg-white/10 transition shadow-xl backdrop-blur-sm cursor-pointer"
-            >
-              Join Community
-            </button>
-          </div>
-        </div>
+ </div>
       </div>
 
       {/* ===== MARQUEE ===== */}

@@ -65,9 +65,9 @@ const UpdateCard = ({ item }) => (
     </div>
 
     {/* Arrow */}
-    <div className="shrink-0 flex items-start">
+    {/* <div className="shrink-0 flex items-start">
       <ChevronDown className="text-slate-500 mt-2" size={18} />
-    </div>
+    </div> */}
   </div>
 );
 
