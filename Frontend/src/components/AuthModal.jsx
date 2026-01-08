@@ -30,22 +30,16 @@ const AuthModal = ({ open, onClose, initialMode = "login", onAuthSuccess }) => {
           <h3 className="text-xl font-semibold">
             {mode === "login" ? "Login" : "Register"}
           </h3>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+           
+
             <button
-              className={`px-3 py-1 rounded-md ${
-                mode === "login" ? "bg-slate-100" : ""
-              }`}
-              onClick={() => setMode("login")}
+              onClick={onClose}
+              aria-label="Close"
+              title="Close"
+              className="ml-2 text-slate-700 hover:text-slate-900 rounded-full p-1 cursor-pointer"
             >
-              Login
-            </button>
-            <button
-              className={`px-3 py-1 rounded-md ${
-                mode === "register" ? "bg-slate-100" : ""
-              }`}
-              onClick={() => setMode("register")}
-            >
-              Register
+              &#10005;
             </button>
           </div>
         </div>
@@ -68,15 +62,7 @@ const AuthModal = ({ open, onClose, initialMode = "login", onAuthSuccess }) => {
           />
         )}
 
-        <div className="mt-3 text-center">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-slate-900 cursor-pointer"
-          >
-            Close
-          </button>
-        </div>
+
       </div>
     </div>
   );

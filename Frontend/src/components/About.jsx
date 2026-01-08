@@ -13,7 +13,7 @@ const About = () => {
             <span className="block h-1 w-16 bg-orange-400 mx-auto mt-3 rounded"></span>
           </h2>
 
-          <p className="mt-6 text-gray-600 text-sm sm:text-base leading-relaxed">
+          <p className="mt-6 text-gray-600 text-sm sm:text-base leading-relaxed ">
             All India SC & ST Employees Welfare Association (AISCSTEWA) is a
             registered organization dedicated to protecting the constitutional
             rights and promoting the welfare of Scheduled Caste and Scheduled

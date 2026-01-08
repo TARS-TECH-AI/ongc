@@ -16,27 +16,26 @@ const AssociationIdentity = () => {
         </div>
 
         {/* Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-12 items-stretch">
 
           {/* LEFT: Image */}
-          <div className="flex justify-center">
-            <div className="relative rounded-xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full bg-white border-2 border-slate-200 shadow-lg">
+          <div className="flex justify-center items-center">
+            <div className="relative rounded-xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full h-full bg-white border-2 border-slate-200 overflow-hidden">
               <img
                 src={AmbedkarImg}
                 alt="Dr. B. R. Ambedkar"
-                className="w-full h-auto object-contain"
+                className="w-full max-h-56 sm:max-h-72 object-contain mx-auto"
               /> 
                  <h4 className="mt-2 text-1xl font-semibold text-slate-900 text-center">Bharat Ratna DR B.R.Ambedkar</h4>
-                 <p className="text-sm text-slate-600 text-center">Father of Indian Constitution</p>
-{/*               
-              <h3>Bharat Ratna DR B.R. Ambedkar</h3>
-              <p>Father of the Indian Constitution</p> */}
-            </div>
+                 <p className="text-sm text-slate-600 text-center">Father of Indian Constitution</p>            
+               </div>
           </div>
 
           {/* RIGHT: Details */}
-            <div className="px-2 sm:px-0 mt-4">
-              <div className="flex items-center gap-3">
+          <div className="px-2 sm:px-0">
+            <div className="flex flex-col justify-between h-full">
+              <div>
+                <div className="flex items-center gap-3">
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
                   AISCSTEWA – CWC
                 </h3>
@@ -47,15 +46,13 @@ const AssociationIdentity = () => {
                     download
                     className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0C2E50] text-white rounded-md text-sm hover:bg-[#0a2440]"
                   >
-                    Download
+                  Download
                   </a>
                 )}
               </div>
-
             <p className="text-slate-700 text-sm sm:text-base">
               All India SC & ST Employees Welfare Association
             </p>
-
             <p className="text-slate-500 text-sm mb-5 sm:mb-6">
               Central Working Committee
             </p>
@@ -80,7 +77,9 @@ const AssociationIdentity = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
   );
 };
 

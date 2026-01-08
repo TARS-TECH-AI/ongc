@@ -106,15 +106,15 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
   // Full Gallery Page
   if (viewMode === "full") {
     return (
-      <section className="min-h-screen bg-gray-50 py-8">
+      <section className="min-h-screen bg-gray-50 py-8 cursor-pointer">
         <div className="max-w-7xl mx-auto px-4">
           {/* Back Button */}
           <button
             onClick={closeFullGallery}
-            className="flex items-center gap-2 mb-6 px-4 py-2 bg-white hover:bg-gray-100 rounded-lg shadow-md transition"
+            className="flex items-center gap-2 mb-6 px-4 py-2 bg-white hover:bg-gray-100 rounded-lg shadow-md transition cursor-pointer"
           >
             <ArrowLeft size={20} />
-            <span className="font-semibold">Back to Gallery</span>
+            <span className="font-semibold cursor-pointer">Back to Gallery</span>
           </button>
 
           {/* Heading */}
@@ -122,16 +122,16 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
             <h2 className="text-3xl font-bold text-slate-900">
               Complete Photo Gallery
             </h2>
-            <div className="w-28 h-1 bg-orange-500 mx-auto mt-3"></div>
-            <p className="text-slate-600 mt-2">Total {images.length} Images</p>
+            <div className="w-28 h-1 bg-orange-500 mx-auto mt-3 cursor-pointer"></div>
+            <p className="text-slate-600 mt-2 cursor-pointer">Total {images.length} Images</p>
           </div>
 
           {/* All Images Grid */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(12)].map((_, i) => (
-                <div key={i} className="overflow-hidden rounded-xl shadow-lg bg-gray-200 animate-pulse">
-                  <div className="w-full h-48 sm:h-56 md:h-64"></div>
+                <div key={i} className="overflow-hidden rounded-xl shadow-lg bg-gray-200 animate-pulse cursor-pointer">
+                  <div className="w-full h-48 sm:h-56 md:h-64 cursor-pointer"></div>
                 </div>
               ))}
             </div>
@@ -140,17 +140,17 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
               No images in gallery yet
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 cursor-pointer">
               {images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => open(i)}
-                  className="block overflow-hidden rounded-xl shadow-lg focus:outline-none group"
+                  className="block overflow-hidden rounded-xl shadow-lg focus:outline-none group cursor-pointer"
                 >
                   <img
                     src={img}
                     alt={`Gallery image ${i + 1}`}
-                    className="w-full h-48 sm:h-56 md:h-64 object-cover transform group-hover:scale-110 transition duration-300"
+                    className="w-full h-48 sm:h-56 md:h-64 object-cover transform group-hover:scale-110 transition duration-300 cursor-pointer"
                   />
                 </button>
               ))}
@@ -161,16 +161,16 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
         {/* Lightbox Modal */}
         {isOpen && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 cursor-pointer"
             onClick={close}
           >
             <div
-              className="relative max-w-[90%] max-h-[90%] w-full flex items-center justify-center"
+              className="relative max-w-[90%] max-h-[90%] w-full flex items-center justify-center cursor-pointer"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={prev}
-                className="absolute left-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition"
+                className="absolute left-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition cursor-pointer"
                 aria-label="Previous image"
               >
                 <ChevronLeft size={28} />
@@ -179,12 +179,12 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
               <img
                 src={images[index]}
                 alt={`Gallery image ${index + 1}`}
-                className="max-h-[85vh] max-w-full object-contain rounded-lg"
+                className="max-h-[85vh] max-w-full object-contain rounded-lg cursor-pointer"
               />
 
               <button
                 onClick={next}
-                className="absolute right-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition"
+                className="absolute right-3 text-white p-3 rounded-full bg-black/60 hover:bg-black/80 transition cursor-pointer"
                 aria-label="Next image"
               >
                 <ChevronRight size={28} />
@@ -192,13 +192,13 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
               <button
                 onClick={close}
-                className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition"
+                className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition cursor-pointer"
                 aria-label="Close lightbox"
               >
                 <X size={24} />
               </button>
 
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium cursor-pointer">
                 {index + 1} / {images.length}
               </div>
             </div>

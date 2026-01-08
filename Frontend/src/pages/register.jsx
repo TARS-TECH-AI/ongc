@@ -7,6 +7,8 @@ export const RegisterForm = ({onSuccess}) => {
     email: "",
     mobile: "",
     employeeId: "",
+    designation: "",
+    category: "",
     password: "",
     confirmPassword: "",
   });
@@ -54,7 +56,7 @@ export const RegisterForm = ({onSuccess}) => {
     setError(null);
     
     // Validate all required fields
-    if (!formData.name || !formData.email || !formData.mobile || !formData.employeeId || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.email || !formData.mobile || !formData.employeeId || !formData.designation || !formData.category || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all required fields');
       return;
     }
@@ -77,6 +79,8 @@ export const RegisterForm = ({onSuccess}) => {
         email: formData.email.trim(),
         mobile: formData.mobile.trim(),
         employeeId: formData.employeeId.trim(),
+        designation: formData.designation.trim(),
+        category: formData.category,
         password: formData.password
       };
       
@@ -87,6 +91,8 @@ export const RegisterForm = ({onSuccess}) => {
       form.append('email', registrationData.email);
       form.append('mobile', registrationData.mobile);
       form.append('employeeId', registrationData.employeeId);
+      form.append('designation', registrationData.designation);
+      form.append('category', registrationData.category);
       form.append('password', registrationData.password);
 
       if (idProof) {
@@ -135,7 +141,7 @@ export const RegisterForm = ({onSuccess}) => {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
         {/* Full Name */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1">
@@ -198,6 +204,43 @@ export const RegisterForm = ({onSuccess}) => {
             onChange={handleChange}
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
             placeholder="Enter your employee ID"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 block mb-1">
+            Category <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="category"
+            required
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition bg-white"
+          >
+            <option value="">Select category</option>
+            <option value="SC">SC</option>
+            <option value="ST">ST</option>
+            <option value="OBC">OBC</option>
+            <option value="General">General</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        {/* Designation */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 block mb-1">
+            Designation <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="designation"
+            required
+            value={formData.designation}
+            onChange={handleChange}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            placeholder="Enter your designation"
           />
         </div>
 

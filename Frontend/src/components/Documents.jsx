@@ -5,7 +5,7 @@ import pdfIcon from "../assets/Vector.png";
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
 const years = [2026,2025, 2024, 2023, 2022];
-const categories = ["CWC Orders", "CWC Letters", "CWC Meeting"];
+const categories = ["CWC Orders", "CWC Letters", "CWC Meeting","Others"];
 
 const Documents = () => {
   const [activeTab, setActiveTab] = useState("CWC Orders");

@@ -11,10 +11,11 @@ const TableCard = () => (
 
     {/* Table Header (Hidden on Mobile) */}
     <div className="hidden sm:block bg-slate-900 text-white">
-      <div className="grid grid-cols-3 px-6 py-4 font-semibold text-sm">
+      <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm">
         <span>Name</span>
         <span>Designation</span>
         <span>Unit</span>
+        <span>CPF No</span>
       </div>
     </div>
 
@@ -23,7 +24,7 @@ const TableCard = () => (
       {membersData.map((member, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
+          className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
         >
           {/* Name */}
           <div>
@@ -43,6 +44,11 @@ const TableCard = () => (
           <div>
             <span className="sm:hidden font-semibold text-slate-500">Unit</span>
             <p>{member.unit}</p>
+          </div>
+
+          <div>
+            <span className="sm:hidden font-semibold text-slate-500">CPF No</span>
+            <p>{member.cpf}</p>
           </div>
         </div>
       ))}
@@ -69,15 +75,16 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
     return () => el.removeEventListener("scroll", onScroll);
   }, [batch, items.length]);
 
-  const get = (member, key) => member[key] ?? member[key.charAt(0).toUpperCase() + key.slice(1)] ?? "";
+  const get = (member, key) => member[key] ?? member[key.toLowerCase()] ?? member[key.toUpperCase()] ?? member[key.charAt(0).toUpperCase() + key.slice(1)] ?? "";
 
   return (
     <div className="w-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
       <div className="hidden sm:block bg-slate-900 text-white">
-        <div className="grid grid-cols-3 px-6 py-4 font-semibold text-sm">
+        <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm">
           <span>Name</span>
           <span>Designation</span>
           <span>Unit</span>
+          <span>CPF No</span>
         </div>
       </div>
 
@@ -85,7 +92,7 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
         {items.slice(0, visible).map((member, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
+            className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
           >
             <div>
               <span className="sm:hidden font-semibold text-slate-500">Name</span>
@@ -101,6 +108,12 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
               <span className="sm:hidden font-semibold text-slate-500">Unit</span>
               <p>{get(member, 'unit')}</p>
             </div>
+
+            <div>
+              <span className="sm:hidden font-semibold text-slate-500">CPF No</span>
+              <p>{get(member, 'cpf')}</p>
+            </div>
+
           </div>
         ))}
 

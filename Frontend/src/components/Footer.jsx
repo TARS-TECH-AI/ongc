@@ -113,9 +113,9 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
         </div>
 
         {/* Bottom Copyright */}
-        <div className="mt-14 text-slate-900 ">
+        {/* <div className="mt-14 text-slate-900 ">
           © 2025 Oil and Natural Gas Corporation Limited. All rights reserved.
-        </div>
+        </div> */}
         
         {/* Horizontal line */}
         <div className="mt-8 border-t border-slate-300"></div>
