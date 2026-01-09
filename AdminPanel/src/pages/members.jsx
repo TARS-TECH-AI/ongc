@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { XCircle, CheckCircle, Trash2 } from "lucide-react";
+import React, { useMemo, useState, useEffect } from "react";
+import { XCircle, CheckCircle, Trash2, Eye, FileText } from "lucide-react";
 import Member1 from "../assets/Member1.png";
 import Member2 from "../assets/Member2.png";
 import Member3 from "../assets/Member3.png";
@@ -9,17 +9,24 @@ const sampleMembers = [
 ];
 
 const Badge = ({ status }) => {
-  if (status === "Active")
+  const label = status === "Approved" ? "Active" : status === "Pending" ? "Inactive" : status;
+  if (label === "Active")
     return (
       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
         <CheckCircle size={14} className="mr-2" />
-        {status}
+        {label}
       </span>
     );
-  return (
+  if (label === "Rejected") return (
     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-rose-100 text-rose-700">
       <XCircle size={14} className="mr-2" />
-      {status}
+      {label}
+    </span>
+  );
+  return (
+    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-700">
+      <XCircle size={14} className="mr-2" />
+      {label}
     </span>
   );
 };
@@ -53,20 +60,137 @@ const downloadCSV = (rows) => {
 const Members = () => {
   const [q, setQ] = useState("");
   const [members, setMembers] = useState(sampleMembers);
+  const [selected, setSelected] = useState(null);
+  const [loadingSelected, setLoadingSelected] = useState(false);
 
-  const handleDeleteMember = (memberId) => {
-    if (window.confirm('Are you sure you want to remove this member?')) {
-      setMembers(prevMembers => prevMembers.filter(m => m.id !== memberId));
+  const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'https://ongc-q48j.vercel.app/api';
+
+  const handleDeleteMember = async (memberId) => {
+    if (!window.confirm('Are you sure you want to remove this member?')) return;
+    try {
+      const token = sessionStorage.getItem('admin-token');
+      const res = await fetch(`${API}/admin/approvals/${memberId}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!res.ok) throw new Error('Delete failed');
+      setMembers(prev => prev.filter(m => m.id !== memberId));
+      if (selected && (selected.id === memberId || selected._id === memberId)) setSelected(null);
+      alert('Member deleted');
+    } catch (err) {
+      alert(err.message || 'Delete failed');
     }
   };
+
+  const loadMembers = async () => {
+    try {
+      const token = sessionStorage.getItem('admin-token');
+      const res = await fetch(`${API}/admin/approvals`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!res.ok) throw new Error('Failed to load members');
+      const data = await res.json();
+      (data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const mapped = (data || []).map(u => ({
+        id: u.id || u._id,
+        name: u.name,
+        email: u.email,
+        phone: u.mobile || u.phone,
+        category: u.category,
+        designation: u.designation,
+        status: u.status,
+        joined: u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
+        createdAt: u.createdAt,
+        isNew: u.createdAt ? (Date.now() - new Date(u.createdAt).getTime()) <= 7*24*60*60*1000 : false,
+        docs: u.documents || [],
+        online: !!u.online,
+        lastOnline: u.lastOnline || null
+      }));
+      setMembers(mapped);
+    } catch (err) {
+      console.warn('Load members failed', err);
+    }
+  };
+
+  useEffect(() => { loadMembers(); }, []);
 
   const filtered = useMemo(() => {
     const val = q.trim().toLowerCase();
     if (!val) return members;
-    return members.filter((m) =>
-      (m.name + m.email + m.phone + m.category).toLowerCase().includes(val)
-    );
+    return members.filter((m) => (m.name + (m.email||'') + (m.phone||'') + (m.category||'') + (m.designation||'')).toLowerCase().includes(val));
   }, [q, members]);
+
+  const changeMemberStatus = async (id, status) => {
+    if (!window.confirm(`Confirm set status to ${status}?`)) return;
+    const old = members.find(m => m.id === id)?.status;
+    setMembers(prev => prev.map(m => m.id === id ? { ...m, status } : m));
+    try {
+      const token = sessionStorage.getItem('admin-token');
+      const res = await fetch(`${API}/admin/approvals/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ status }) });
+      if (!res.ok) throw new Error('Status update failed');
+      await loadMembers();
+      alert('Status updated');
+    } catch (err) {
+      setMembers(prev => prev.map(m => m.id === id ? { ...m, status: old } : m));
+      alert(err.message || 'Failed to update status');
+    }
+  };
+
+  const openDetails = async (id) => {
+    setSelected({ loading: true }); setLoadingSelected(true);
+    try {
+      const token = sessionStorage.getItem('admin-token');
+      const res = await fetch(`${API}/admin/approvals/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!res.ok) throw new Error('Not found');
+      const data = await res.json();
+      setSelected({ ...data, loading: false });
+    } catch (err) {
+      setSelected({ error: err.message || 'Failed to load', loading: false });
+    } finally { setLoadingSelected(false); }
+  };
+
+  const closeDetails = () => setSelected(null);
+
+  const viewDocument = (docData, fileName) => {
+    if (!docData) return;
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${fileName || "Document"}</title>
+            <style>
+              body { margin: 0; padding: 0; background: #f3f4f6; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+              img { max-width: 100%; display: block; margin: 20px auto; }
+            </style>
+          </head>
+          <body>
+            ${
+              docData.startsWith("data:image")
+                ? `<img src="${docData}" alt="${fileName || "Document"}" />`
+                : `<iframe src="${docData}"></iframe>`
+            }
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
+  };
+
+  const downloadDoc = (doc) => {
+    if (doc.url) {
+      let url = doc.url;
+      if (url.startsWith("/")) {
+        const base = API.replace(/\/api\/?$/, "");
+        url = `${base}${url}`;
+      }
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.name || "document";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } else {
+      alert(`Download ${doc.name || 'document'}`);
+    }
+  };
 
   const total = members.length;
   const active = members.filter((m) => m.status === "Active").length;
@@ -153,7 +277,7 @@ const Members = () => {
                   Members
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-slate-500">
-                  Contact
+                  Designation
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-slate-500">
                   Category
@@ -179,15 +303,16 @@ const Members = () => {
                       </div>
                       <div>
                         <div className="text-sm font-medium text-slate-800">
-                          {m.name}
+                          {m.name} {m.isNew && <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">New</span>}
                         </div>
+                        <div className="text-xs text-slate-400 mt-1">{m.online ? <span className="text-emerald-700">Online</span> : (m.lastOnline ? `Last: ${new Date(m.lastOnline).toLocaleString()}` : 'Offline')}</div>
                       </div>
                     </div>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                    <div>{m.email}</div>
-                    <div className="text-xs text-slate-400 mt-1">{m.phone}</div>
+                    <div>{m.designation}</div>
+                    {/* <div className="text-xs text-slate-400 mt-1">{m.phone}</div> */}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
@@ -204,9 +329,9 @@ const Members = () => {
 
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="text-sky-700 hover:underline">
+                      {/* <button onClick={() => openDetails(m.id)} className="text-sky-700 hover:underline">
                         View Details
-                      </button>
+                      </button> */}
                       <button 
                         onClick={() => handleDeleteMember(m.id)}
                         className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition"
@@ -231,20 +356,15 @@ const Members = () => {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-slate-800">
-                    {m.name}
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    {m.category} • {m.joined}
-                  </div>
-                  <div className="text-xs text-slate-500 mt-2">
-                    {m.email} • {m.phone}
-                  </div>
+                  <div className="text-sm font-medium text-slate-800">{m.name} {m.isNew && <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">New</span>}</div>
+                  <div className="text-xs text-slate-500 mt-1">{m.designation || '—'} • {m.category} • {m.joined}</div>
+                  <div className="text-xs text-slate-500 mt-2">{m.email} • {m.phone}</div>
+                  <div className="text-xs text-slate-500 mt-1">{m.online ? <span className="text-emerald-700">Online</span> : (m.lastOnline ? `Last: ${new Date(m.lastOnline).toLocaleString()}` : 'Offline')}</div>
                 </div>
                 <Badge status={m.status} />
               </div>
               <div className="flex items-center justify-end gap-2">
-                <button className="text-sky-700 text-sm hover:underline">
+                <button onClick={() => openDetails(m.id)} className="text-sky-700 text-sm hover:underline">
                   View Details
                 </button>
                 <button 

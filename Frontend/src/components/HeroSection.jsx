@@ -169,6 +169,8 @@ const HeroSection = ({ onOpenAuth }) => {
         ))}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-transparent pointer-events-none" />
       </div>
+          
+
 
       {/* ===== CONTENT ===== */}
       <div className="absolute bottom-16 left-0 z-10 p-4 sm:p-6 lg:p-8">

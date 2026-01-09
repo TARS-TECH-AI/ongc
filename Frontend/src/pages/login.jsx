@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export const LoginForm = ({onSuccess}) => {
+export const LoginForm = ({onSuccess, onOpenRegister}) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -93,6 +94,13 @@ export const LoginForm = ({onSuccess}) => {
       <button disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-semibold cursor-pointer">
         {loading ? 'Logging in...' : 'Login'}
       </button>
+
+      <p className="text-center text-sm text-black mt-4">
+        Don't have account?{" "}
+        <button type="button" onClick={() => onOpenRegister && onOpenRegister()} className="text-orange-500 cursor-pointer hover:underline">
+          Register
+        </button>
+      </p>
     </form>
   );
 };
@@ -109,14 +117,7 @@ const Login = () => {
           Login to your account
         </p>
 
-        <LoginForm />
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Don’t have an account?{" "}
-          <span className="text-orange-500 cursor-pointer hover:underline">
-            Register
-          </span>
-        </p>
+        <LoginForm onOpenRegister={() => navigate('/register')} />
       </div>
     </div>
   );

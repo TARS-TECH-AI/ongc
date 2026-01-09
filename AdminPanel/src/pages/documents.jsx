@@ -1,18 +1,31 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { FileText, Download, Trash2, Eye, Plus } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
+const API =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE ||
+  "https://ongc-q48j.vercel.app/api";
 
 const DocumentRow = ({ d, onView, onDelete }) => (
   <tr className="bg-white">
     <td className="px-6 py-4 text-sm text-slate-800">{d.title}</td>
     <td className="px-6 py-4 text-sm text-slate-600">{d.category}</td>
     <td className="px-6 py-4 text-sm text-slate-600">{d.ref || "N/A"}</td>
-    <td className="px-6 py-4 text-sm text-slate-600">{new Date(d.date).toLocaleDateString()}</td>
+    <td className="px-6 py-4 text-sm text-slate-600">
+      {new Date(d.date).toLocaleDateString()}
+    </td>
     <td className="px-6 py-4 text-sm text-slate-600">{d.fileSize || "N/A"}</td>
     <td className="px-6 py-4 text-right flex justify-end gap-4">
-      <button onClick={() => onView(d)} title="View"><Eye size={16} /></button>
-      <button onClick={() => onDelete(d.id)} className="text-rose-600" title="Delete"><Trash2 size={16} /></button>
+      <button onClick={() => onView(d)} title="View">
+        <Eye size={16} />
+      </button>
+      <button
+        onClick={() => onDelete(d.id)}
+        className="text-rose-600"
+        title="Delete"
+      >
+        <Trash2 size={16} />
+      </button>
     </td>
   </tr>
 );
@@ -22,7 +35,7 @@ const Documents = () => {
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [year, setYear] = useState('all');
+  const [year, setYear] = useState("all");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     title: "",
@@ -36,33 +49,40 @@ const Documents = () => {
   useEffect(() => {
     // Load cached rows from sessionStorage first for immediate UI
     try {
-      const cached = sessionStorage.getItem('admin-documents');
+      const cached = sessionStorage.getItem("admin-documents");
       if (cached) setRows(JSON.parse(cached));
     } catch (e) {
-      console.warn('Failed to read cached documents', e);
+      console.warn("Failed to read cached documents", e);
     }
 
     loadDocuments();
   }, []);
 
   const loadDocuments = async () => {
-    console.log('AdminPanel: Loading documents...');
+    console.log("AdminPanel: Loading documents...");
     setLoading(true);
     try {
       const token = sessionStorage.getItem("admin-token");
-      console.log('AdminPanel: Token present:', !!token);
+      console.log("AdminPanel: Token present:", !!token);
       const res = await fetch(`${API}/documents`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      console.log('AdminPanel: Fetch response status:', res.status);
+      console.log("AdminPanel: Fetch response status:", res.status);
       if (res.ok) {
         const contentType = res.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await res.json();
-          console.log('AdminPanel: Fetched documents:', data.documents?.length || 0);
+          console.log(
+            "AdminPanel: Fetched documents:",
+            data.documents?.length || 0
+          );
           const docs = data.documents || [];
           setRows(docs);
-          try { sessionStorage.setItem('admin-documents', JSON.stringify(docs)); } catch (e) { /* ignore */ }
+          try {
+            sessionStorage.setItem("admin-documents", JSON.stringify(docs));
+          } catch (e) {
+            /* ignore */
+          }
         } else {
           console.error("Response is not JSON");
         }
@@ -79,39 +99,52 @@ const Documents = () => {
   };
 
   const years = useMemo(() => {
-    const y = new Set(rows.map(r => new Date(r.date).getFullYear()));
+    const y = new Set(rows.map((r) => new Date(r.date).getFullYear()));
     return Array.from(y).sort((a, b) => b - a);
   }, [rows]);
 
   const filtered = useMemo(() => {
-    return rows.filter(r => {
+    return rows.filter((r) => {
       if (activeTab !== "all") {
-        if (activeTab === "orders" && r.category !== "CWC Orders") return false;
-        if (activeTab === "letters" && r.category !== "CWC Letters") return false;
-        if (activeTab === "meeting" && r.category !== "CWC Meeting") return false;
+        if (activeTab === "CWC Orders" && r.category !== "CWC Orders") return false;
+        if (activeTab === "CWC Letters" && r.category !== "CWC Letters")
+          return false;
+        if (activeTab === "CWC Meeting" && r.category !== "CWC Meeting")
+          return false;
+        if (activeTab === "Others" && r.category !== "Others")
+          return false;
       }
       // Only filter by year when a specific year is selected (not 'all')
-      if (year && year !== 'all' && new Date(r.date).getFullYear() !== Number(year)) return false;
-      return (r.title + r.category + r.ref).toLowerCase().includes(query.toLowerCase());
+      if (
+        year &&
+        year !== "all" &&
+        new Date(r.date).getFullYear() !== Number(year)
+      )
+        return false;
+      return (r.title + r.category + r.ref)
+        .toLowerCase()
+        .includes(query.toLowerCase());
     });
   }, [rows, query, activeTab, year]);
 
-  
-
   const onDelete = async (id) => {
     if (!confirm("Delete this document?")) return;
-    
+
     try {
       const token = sessionStorage.getItem("admin-token");
       const res = await fetch(`${API}/documents/${id}`, {
         method: "DELETE",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      
+
       if (res.ok) {
-        const updated = rows.filter(r => r.id !== id);
+        const updated = rows.filter((r) => r.id !== id);
         setRows(updated);
-        try { sessionStorage.setItem('admin-documents', JSON.stringify(updated)); } catch (e) { /* ignore */ }
+        try {
+          sessionStorage.setItem("admin-documents", JSON.stringify(updated));
+        } catch (e) {
+          /* ignore */
+        }
         alert("Document deleted successfully");
       } else {
         alert("Failed to delete document");
@@ -132,11 +165,11 @@ const Documents = () => {
     try {
       const token = sessionStorage.getItem("admin-token");
       const formData = new FormData();
-      formData.append('title', uploadForm.title);
-      formData.append('category', uploadForm.category);
-      formData.append('ref', uploadForm.ref);
-      formData.append('date', uploadForm.date);
-      formData.append('file', fileInputRef.current.files[0]);
+      formData.append("title", uploadForm.title);
+      formData.append("category", uploadForm.category);
+      formData.append("ref", uploadForm.ref);
+      formData.append("date", uploadForm.date);
+      formData.append("file", fileInputRef.current.files[0]);
 
       const res = await fetch(`${API}/documents`, {
         method: "POST",
@@ -156,12 +189,19 @@ const Documents = () => {
           ref: "",
           date: new Date().toISOString().split("T")[0],
         });
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) fileInputRef.current.value = "";
         // If backend returned the created document, optimistically insert it
         if (data && data.document) {
-          setRows(prev => {
+          setRows((prev) => {
             const updated = [data.document, ...(prev || [])];
-            try { sessionStorage.setItem('admin-documents', JSON.stringify(updated)); } catch (e) { /* ignore */ }
+            try {
+              sessionStorage.setItem(
+                "admin-documents",
+                JSON.stringify(updated)
+              );
+            } catch (e) {
+              /* ignore */
+            }
             return updated;
           });
         } else {
@@ -175,7 +215,9 @@ const Documents = () => {
         } else {
           const text = await res.text();
           console.error("Server response:", text);
-          alert(`Server error: ${res.status} - Please check if the backend is running`);
+          alert(
+            `Server error: ${res.status}${text ? ` - ${text}` : ''} - Check backend logs`
+          );
         }
       }
     } catch (err) {
@@ -193,22 +235,27 @@ const Documents = () => {
     }
 
     // Resolve absolute URL when backend returns local paths
-    const fullUrl = d.fileUrl && d.fileUrl.startsWith('/') ? API.replace(/\/api\/?$/, '') + d.fileUrl : d.fileUrl;
+    const fullUrl =
+      d.fileUrl && d.fileUrl.startsWith("/")
+        ? API.replace(/\/api\/?$/, "") + d.fileUrl
+        : d.fileUrl;
 
     // If it's an inline data URL (image), just show it directly
-    if (d.fileUrl.startsWith('data:')) {
-      const newWindow = window.open('', '_blank');
+    if (d.fileUrl.startsWith("data:")) {
+      const newWindow = window.open("", "_blank");
       if (newWindow) {
         newWindow.document.write(`
           <!DOCTYPE html>
           <html>
             <head>
-              <title>${d.title || 'Document'}</title>
+              <title>${d.title || "Document"}</title>
               <meta name="viewport" content="width=device-width,initial-scale=1" />
               <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}</style>
             </head>
             <body>
-              <div class="viewer"><img src="${d.fileUrl}" alt="${d.title || 'Document'}" style="max-width:100%;max-height:100%"/></div>
+              <div class="viewer"><img src="${d.fileUrl}" alt="${
+          d.title || "Document"
+        }" style="max-width:100%;max-height:100%"/></div>
             </body>
           </html>
         `);
@@ -219,39 +266,50 @@ const Documents = () => {
 
     // Try to fetch the file as a blob first to avoid browser auto-downloads (and to normalize headers)
     try {
-      const token = sessionStorage.getItem('admin-token');
+      const token = sessionStorage.getItem("admin-token");
       const fetchHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(fullUrl, { method: 'GET', headers: fetchHeaders });
-      if (!res.ok) throw new Error('Failed to fetch document');
+      const res = await fetch(fullUrl, {
+        method: "GET",
+        headers: fetchHeaders,
+      });
+      if (!res.ok) throw new Error("Failed to fetch document");
 
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      const newWindow = window.open('', '_blank');
+      const newWindow = window.open("", "_blank");
       if (!newWindow) {
         URL.revokeObjectURL(blobUrl);
-        alert('Popup blocked. Please allow popups for this site.');
+        alert("Popup blocked. Please allow popups for this site.");
         return;
       }
 
       // Clean up blob URL when the window is closed
-      newWindow.addEventListener('beforeunload', () => {
-        try { URL.revokeObjectURL(blobUrl); } catch (e) { /* ignore */ }
+      newWindow.addEventListener("beforeunload", () => {
+        try {
+          URL.revokeObjectURL(blobUrl);
+        } catch (e) {
+          /* ignore */
+        }
       });
 
       // Show as iframe (PDF or other embeddable types) or image fallback
-      const isImage = blob.type.startsWith('image/');
+      const isImage = blob.type.startsWith("image/");
       newWindow.document.write(`
         <!DOCTYPE html>
         <html>
           <head>
-            <title>${d.title || 'Document'}</title>
+            <title>${d.title || "Document"}</title>
             <meta name="viewport" content="width=device-width,initial-scale=1" />
             <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}iframe{width:100%;height:100%;border:0}img{max-width:100%;max-height:100%;display:block}</style>
           </head>
           <body>
             <div class="viewer">
-              ${isImage ? `<img src="${blobUrl}" alt="${d.title || 'Document'}" />` : `<iframe src="${blobUrl}"></iframe>`}
+              ${
+                isImage
+                  ? `<img src="${blobUrl}" alt="${d.title || "Document"}" />`
+                  : `<iframe src="${blobUrl}"></iframe>`
+              }
             </div>
           </body>
         </html>
@@ -260,13 +318,13 @@ const Documents = () => {
       return;
     } catch (err) {
       // If fetch fails (CORS or network), fallback to direct embed which may still trigger download
-      const newWindow = window.open('', '_blank');
+      const newWindow = window.open("", "_blank");
       if (newWindow) {
         newWindow.document.write(`
           <!DOCTYPE html>
           <html>
             <head>
-              <title>${d.title || 'Document'}</title>
+              <title>${d.title || "Document"}</title>
               <meta name="viewport" content="width=device-width,initial-scale=1" />
               <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}iframe{width:100%;height:100%;border:0}img{max-width:100%;max-height:100%;display:block}</style>
             </head>
@@ -279,7 +337,7 @@ const Documents = () => {
         `);
         newWindow.document.close();
       } else {
-        alert('Popup blocked. Please allow popups for this site.');
+        alert("Popup blocked. Please allow popups for this site.");
       }
     }
   };
@@ -287,19 +345,32 @@ const Documents = () => {
   return (
     <div className="min-h-screen bg-slate-50 py-6">
       <div className="max-w-7xl mx-auto px-4">
-
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <StatCard title="Total Documents" value={rows.length} icon={<FileText />} />
-          <StatCard title="CWC Orders" value={rows.filter(r => r.category === "CWC Orders").length} />
-          <StatCard title="CWC Letters" value={rows.filter(r => r.category === "CWC Letters").length} />
+          <StatCard
+            title="Total Documents"
+            value={rows.length}
+            icon={<FileText />}
+          />
+          <StatCard
+            title="CWC Orders"
+            value={rows.filter((r) => r.category === "CWC Orders").length}
+          />
+          <StatCard
+            title="CWC Letters"
+            value={rows.filter((r) => r.category === "CWC Letters").length}
+          />
         </div>
 
         {/* TABS + BUTTON */}
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="flex gap-3 overflow-x-auto whitespace-nowrap">
-            {["all", "orders", "letters", "meeting"].map(t => (
-              <Tab key={t} active={activeTab === t} onClick={() => setActiveTab(t)}>
+            {["all", "CWC Orders", "CWC Letters", "CWC Meeting","Others"].map((t) => (
+              <Tab
+                key={t}
+                active={activeTab === t}
+                onClick={() => setActiveTab(t)}
+              >
                 {t === "all" ? "All" : t}
               </Tab>
             ))}
@@ -316,20 +387,30 @@ const Documents = () => {
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <input
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Search documents..."
             className="w-full border rounded px-3 py-2 text-sm"
           />
-          <select value={year} onChange={e => setYear(e.target.value)} className="border rounded px-3 py-2">
+          <select
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className="border rounded px-3 py-2"
+          >
             <option value="all">All</option>
-            {years.map(y => <option key={y} value={y}>{y}</option>)}
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
           </select>
         </div>
 
         {/* TABLE */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-slate-600">Loading documents...</div>
+            <div className="p-8 text-center text-slate-600">
+              Loading documents...
+            </div>
           ) : (
             <>
               <div className="hidden md:block overflow-x-auto">
@@ -347,13 +428,21 @@ const Documents = () => {
                   <tbody className="divide-y">
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
+                        <td
+                          colSpan="6"
+                          className="px-6 py-8 text-center text-slate-500"
+                        >
                           No documents found
                         </td>
                       </tr>
                     ) : (
-                      filtered.map(d => (
-                        <DocumentRow key={d.id} d={d} onView={onView} onDelete={onDelete} />
+                      filtered.map((d) => (
+                        <DocumentRow
+                          key={d.id}
+                          d={d}
+                          onView={onView}
+                          onDelete={onDelete}
+                        />
                       ))
                     )}
                   </tbody>
@@ -363,16 +452,29 @@ const Documents = () => {
               {/* MOBILE */}
               <div className="md:hidden p-4 space-y-4">
                 {filtered.length === 0 ? (
-                  <div className="text-center text-slate-500 py-8">No documents found</div>
+                  <div className="text-center text-slate-500 py-8">
+                    No documents found
+                  </div>
                 ) : (
-                  filtered.map(d => (
-                    <div key={d.id} className="bg-white rounded-lg shadow p-4 space-y-2">
+                  filtered.map((d) => (
+                    <div
+                      key={d.id}
+                      className="bg-white rounded-lg shadow p-4 space-y-2"
+                    >
                       <div className="font-medium">{d.title}</div>
-                      <div className="text-xs text-slate-500">{d.category} • {new Date(d.date).toLocaleDateString()}</div>
-                      <div className="text-xs text-slate-500">{d.ref || "No ref"}</div>
+                      <div className="text-xs text-slate-500">
+                        {d.category} • {new Date(d.date).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {d.ref || "No ref"}
+                      </div>
                       <div className="flex gap-4 pt-2">
                         <Eye size={18} onClick={() => onView(d)} />
-                        <Trash2 size={18} className="text-rose-600" onClick={() => onDelete(d.id)} />
+                        <Trash2
+                          size={18}
+                          className="text-rose-600"
+                          onClick={() => onDelete(d.id)}
+                        />
                       </div>
                     </div>
                   ))
@@ -386,43 +488,57 @@ const Documents = () => {
       {/* MODAL */}
       {isUploadOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => !uploading && setIsUploadOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => !uploading && setIsUploadOpen(false)}
+          />
           <div className="relative bg-white rounded-lg w-full max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">Upload Document</h2>
-            
+
             <div className="space-y-3">
               <input
                 placeholder="Document Title *"
                 value={uploadForm.title}
-                onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setUploadForm((prev) => ({ ...prev, title: e.target.value }))
+                }
                 className="w-full border rounded px-3 py-2"
               />
-              
+
               <select
                 value={uploadForm.category}
-                onChange={(e) => setUploadForm(prev => ({ ...prev, category: e.target.value }))}
+                onChange={(e) =>
+                  setUploadForm((prev) => ({
+                    ...prev,
+                    category: e.target.value,
+                  }))
+                }
                 className="w-full border rounded px-3 py-2"
               >
                 <option value="CWC Orders">CWC Orders</option>
                 <option value="CWC Letters">CWC Letters</option>
                 <option value="CWC Meeting">CWC Meeting</option>
-                <option value="Other">Other</option>
+                <option value="Others">Others</option>
               </select>
-              
+
               <input
                 placeholder="Reference Number"
                 value={uploadForm.ref}
-                onChange={(e) => setUploadForm(prev => ({ ...prev, ref: e.target.value }))}
+                onChange={(e) =>
+                  setUploadForm((prev) => ({ ...prev, ref: e.target.value }))
+                }
                 className="w-full border rounded px-3 py-2"
               />
-              
+
               <input
                 type="date"
                 value={uploadForm.date}
-                onChange={(e) => setUploadForm(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setUploadForm((prev) => ({ ...prev, date: e.target.value }))
+                }
                 className="w-full border rounded px-3 py-2"
               />
-              
+
               <div>
                 <label className="block text-sm mb-1">Select File *</label>
                 <input
@@ -433,7 +549,7 @@ const Documents = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setIsUploadOpen(false)}

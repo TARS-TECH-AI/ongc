@@ -5,7 +5,7 @@ const documentSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['CWC Orders', 'CWC Letters', 'CWC Meeting', 'Other']
+    enum: ['CWC Orders', 'CWC Letters', 'CWC Meeting', 'Others']
   },
   ref: { type: String, default: '' }, // Reference number
   fileUrl: { type: String, required: true }, // URL or base64

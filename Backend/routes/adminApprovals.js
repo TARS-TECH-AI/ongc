@@ -49,7 +49,8 @@ router.get('/', adminAuth, async (req, res) => {
     await connectDB();
     const { status } = req.query;
     const q = status ? { status } : {};
-    const users = await User.find(q).select('-passwordHash -idProofDocument');
+    // Return newest users first
+    const users = await User.find(q).select('-passwordHash -idProofDocument').sort({ createdAt: -1 });
     res.json(users);
   } catch (err) {
     console.error(err);
@@ -75,6 +76,7 @@ router.get('/:id', adminAuth, async (req, res) => {
       mobile: u.mobile,
       employeeId: u.employeeId,
       category: u.category, 
+      designation: u.designation,
       date: u.createdAt, 
       status: u.status, 
       docs: u.documents || [],

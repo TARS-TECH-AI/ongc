@@ -111,6 +111,8 @@ const Profile = ({ onBack }) => {
         name: data.user.name,
         mobile: data.user.mobile,
         employeeId: data.user.employeeId,
+        designation: data.user.designation || '',
+        category: data.user.category || '',
       });
 
       // Check if we should show approval message (only once)
@@ -145,11 +147,13 @@ const Profile = ({ onBack }) => {
       name: user.name,
       mobile: user.mobile,
       employeeId: user.employeeId,
+      designation: user.designation || '',
+      category: user.category || '',
     });
     setNewIdProof(null);
     setNewIdProofPreview("");
     setError(null);
-  };
+  }; 
 
   const handleSave = async () => {
     setUpdateLoading(true);
@@ -157,7 +161,14 @@ const Profile = ({ onBack }) => {
 
     try {
       const token = sessionStorage.getItem("token");
-      const updateData = { ...editedData };
+      const updateData = {
+        name: editedData.name || user?.name || '',
+        mobile: editedData.mobile || user?.mobile || '',
+        employeeId: editedData.employeeId || user?.employeeId || '',
+        designation: editedData.designation || user?.designation || '',
+        category: editedData.category || user?.category || '',
+      };
+      console.log('Sending profile update:', updateData);
 
       let res;
       if (newIdProof) {
@@ -165,6 +176,8 @@ const Profile = ({ onBack }) => {
         form.append('name', updateData.name || '');
         form.append('mobile', updateData.mobile || '');
         form.append('employeeId', updateData.employeeId || '');
+        form.append('designation', updateData.designation || '');
+        form.append('category', updateData.category || '');
         form.append('idProof', newIdProof, newIdProof.name);
 
         res = await fetch(`${API}/auth/profile`, {
@@ -185,17 +198,20 @@ const Profile = ({ onBack }) => {
         });
       }
 
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error(
-          "Profile update feature is not available yet. Please deploy the updated backend."
-        );
+      // Handle non-JSON responses and parse JSON safely
+      const contentType = res.headers.get("content-type") || '';
+      if (!contentType.includes("application/json")) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `Unexpected response (${res.status})`);
       }
 
-      const data = await res.json();
+      const data = await res.json().catch(async (e) => {
+        const txt = await res.text().catch(() => '');
+        throw new Error(txt || 'Failed to parse server response');
+      });
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to update profile");
+        throw new Error(data.message || `Failed to update profile (${res.status})`);
       }
 
       setUser(data.user);
@@ -418,16 +434,59 @@ const Profile = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Emplobutton 
-                      onClick={handleViewDocument}
-                      title="View Document"
-                      className="p-2 bg-green-400 hover:bg-green-300 text-white font-semibold rounded-lg inline-flex items-center justify-center transition"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </buttonssName="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            {/* Employee ID */}
+            <div className="flex items-start gap-3">
+              <IdCard className="w-5 h-5 text-gray-500 mt-1" />
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 font-medium">Employee ID</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="employeeId"
+                    value={editedData.employeeId || ''}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900 font-semibold">{user?.employeeId}</p>
+                  <p className="text-gray-900 font-semibold">{user?.employeeId || '—'}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Designation */}
+            <div className="flex items-start gap-3">
+              <IdCard className="w-5 h-5 text-gray-500 mt-1" />
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 font-medium">Designation</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="designation"
+                    value={editedData.designation || ''}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900 font-semibold">{user?.designation || '—'}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Category */}
+            <div className="flex items-start gap-3">
+              <FileText className="w-5 h-5 text-gray-500 mt-1" />
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 font-medium">Category</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="category"
+                    value={editedData.category || ''}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900 font-semibold">{user?.category || '—'}</p>
                 )}
               </div>
             </div>

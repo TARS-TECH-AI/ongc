@@ -51,6 +51,7 @@ const AuthModal = ({ open, onClose, initialMode = "login", onAuthSuccess }) => {
               onAuthSuccess && onAuthSuccess(user, "login");
               onClose && onClose();
             }}
+            onOpenRegister={() => setMode('register')}
           />
         ) : (
           <RegisterForm

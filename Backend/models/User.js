@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   mobile: { type: String, required: true },
   employeeId: { type: String, required: true },
+  designation: { type: String, required: false }, // Added for user profile updates
   category: { type: String, required: false }, // Made optional for backward compatibility
   idProofDocument: { type: String }, // Base64 encoded document
   idProofFileName: { type: String }, // Original file name

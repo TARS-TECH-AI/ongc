@@ -2,7 +2,31 @@ import React, { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
 import Logo2 from "../assets/ongc.png";
+import nav_babashaheb from "../assets/NavImg/babashaheb.png";
+import nav_chhtrapati from "../assets/NavImg/chhtrapati.png";
+import nav_Gandhi from "../assets/NavImg/Gandhi.png";
+import nav_jyotiba from "../assets/NavImg/jyotiba.png";
+import nav_lokmanya from "../assets/NavImg/lokmanya.png";
+import nav_savitribai from "../assets/NavImg/savitribai.png";
 
+const Carousel = ({ images = [], interval = 2500, className = "w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain" }) => {
+  const [idx, setIdx] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!images || images.length === 0) return;
+    const t = setInterval(() => {
+      setIdx((s) => (s + 1) % images.length);
+    }, interval);
+    return () => clearInterval(t);
+  }, [images, interval]);
+
+  if (!images || images.length === 0) return null;
+
+  return (
+    <img src={images[idx]} alt={`nav-${idx}`} className={className} />
+  );
+
+};
 
 const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate, currentView }) => {
   const [open, setOpen] = useState(false);
@@ -25,6 +49,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
       setActiveSection('');
       return;
     }
+
 
     const handleScroll = () => {
       const sections = ["home", "about", "members", "documents", "updates", "units", "gallery"];
@@ -68,11 +93,16 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-[999] bg-gray-50 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
+    <nav className="fixed top-0 w-full z-[1000] bg-gray-50 shadow-lg">
+      <div className="max-w-full mx-auto px-4">
         {/* NAVBAR ROW */}
         <div className="flex items-center justify-between py-1 md:py-2">
           {/* LOGO */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center mr-3 pl-0 lg:pl-0">
+              <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_Gandhi, nav_jyotiba, nav_lokmanya, nav_savitribai]} className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain" />
+            </div>
+
           <div
             className="flex items-center gap-3 cursor-pointer"
             onClick={() => {
@@ -85,17 +115,24 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             <img
               src={Logo2}
               alt="ONGC Emblem"
-              className="h-10 sm:h-14 md:h-16 lg:h-16 object-contain"
+              className="h-10 sm:h-14 md:h-16 lg:h-12 object-contain"
             />
             <img
               src={Logo}
               alt="ONGC Logo"
-              className="h-10 sm:h-14 md:h-16 lg:h-16 object-contain"
+              className="h-10 sm:h-14 md:h-16 lg:h-18 object-contain"
             />
+            <div className=" text-sm text-black leading-tight max-w-[160px] sm:max-w-xs md:max-w-md truncate font-bold ">
+              <p className="m-0">All India SC&ST Employees</p>
+              <p className="m-0 ">Welfare Association</p>
+              <p className="m-0">Central Working Committee</p>
+              <p className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent">ONGC</p>
+            </div>
+          </div>
           </div>
 
           {/* DESKTOP MENU */}
-          <ul className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-700">
+          <ul className="hidden lg:flex items-center justify-center flex-1 text-sm font-medium text-slate-700">
             {links.map((item, i) => (
               <li
                 key={i}
@@ -120,11 +157,9 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }
                 }}
-                className={`cursor-pointer transition ${
-                  activeSection === item.id 
-                    ? 'text-orange-500 font-semibold' 
-                    : 'hover:text-orange-500'
-                }`}
+                className={`cursor-pointer transition flex-1 text-center px-4  ${
+                  activeSection === item.id ? 'text-orange-500 font-semibold' : 'hover:text-orange-500'
+                } ${item.id === 'units' ? 'whitespace-nowrap' : ''}`}
               >
                 {item.label}
               </li>
@@ -132,22 +167,14 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           </ul>
 
           {/* DESKTOP BUTTONS */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3 ml-6">
             {onOpenAuth && !currentUser && (
-              <>
-                <button
-                  onClick={() => onOpenAuth("register")}
-                  className="px-8 py-2 rounded-md bg-[#0C2E50] hover:bg-[#0b2948] text-white text-sm cursor-pointer"
-                >
-                  Register
-                </button>
-                <button
-                  onClick={() => onOpenAuth("login")}
-                  className="px-8 py-2 rounded-md border text-sm hover:bg-slate-50 cursor-pointer"
-                >
-                  Login
-                </button>
-              </>
+              <button
+                onClick={() => onOpenAuth("login")}
+                className="px-8 py-2 rounded-md border text-sm cursor-pointer bg-[#0C2E50] text-white"
+              >
+                Login
+              </button>
             )}
 
             {currentUser && (
@@ -226,9 +253,9 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             <li
               key={i}
               className={`pb-2 cursor-pointer transition ${
-                activeSection === item.id 
+                (item.id === 'home' ? 'ml-6 ' : '') + (activeSection === item.id 
                   ? 'text-orange-500 font-semibold  border-orange-500' 
-                  : 'hover:text-orange-500'
+                  : 'hover:text-orange-500') + (item.id === 'units' ? ' whitespace-nowrap' : '')
               }`}
               onClick={() => {
                 setOpen(false);
@@ -252,24 +279,15 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             </li>
           ))}
 
-          <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col gap-3 pt-4 ">
             {!currentUser && (
               <>
                 <button
                   onClick={() => {
                     setOpen(false);
-                    onOpenAuth && onOpenAuth("register");
-                  }}
-                  className="bg-[#0C2E50] text-white py-2 rounded-md"
-                >
-                  Register
-                </button>
-                <button
-                  onClick={() => {
-                    setOpen(false);
                     onOpenAuth && onOpenAuth("login");
                   }}
-                  className="border py-2 rounded-md"
+                  className="border py-2 rounded-md bg-[#0C2E50] text-white"
                 >
                   Login
                 </button>

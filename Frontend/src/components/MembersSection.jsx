@@ -82,7 +82,7 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
       <div className="hidden sm:block bg-slate-900 text-white">
         <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm">
           <span>Name</span>
-          <span>Designation</span>
+          <span>Post in the Association</span>
           <span>Unit</span>
           <span>CPF No</span>
         </div>
@@ -100,8 +100,8 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
             </div>
 
             <div>
-              <span className="sm:hidden font-semibold text-slate-500">Designation</span>
-              <p>{get(member, 'designation')}</p>
+              <span className="sm:hidden font-semibold text-slate-500">postInAssociation</span>
+              <p>{get(member, 'postInAssociation')}</p>
             </div>
 
             <div>
@@ -111,10 +111,9 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
 
             <div>
               <span className="sm:hidden font-semibold text-slate-500">CPF No</span>
-              <p>{get(member, 'cpf')}</p>
+              <p>{get(member, 'cpfNo')}</p>
             </div>
-
-          </div>
+         </div>
         ))}
 
         {visible < items.length && (

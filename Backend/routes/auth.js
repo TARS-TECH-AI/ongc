@@ -49,7 +49,7 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
     console.log('Registration request received');
 
     // Accept fields from multipart/form-data or JSON body
-    const { name, email, password, mobile, employeeId } = req.body;
+    const { name, email, password, mobile, employeeId, designation, category } = req.body;
 
     if (!name || !email || !password || !mobile || !employeeId) {
       const missing = [];
@@ -78,10 +78,11 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
       passwordHash,
       mobile,
       employeeId,
-      status: 'Pending'
+      designation,
+      category,
     };
 
-    // If a file was uploaded, send to Cloudinary
+    // Handle ID proof upload if file is provided
     if (req.file) {
       try {
         const result = await new Promise((resolve, reject) => {
@@ -184,7 +185,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) => {
   try {
     await connectDB();
-    const { name, mobile, employeeId } = req.body;
+    const { name, mobile, employeeId, designation, category } = req.body;
     
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -193,6 +194,9 @@ router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) =
     if (name) user.name = name;
     if (mobile) user.mobile = mobile;
     if (employeeId) user.employeeId = employeeId;
+    // Accept designation and category updates (allow empty string)
+    if (designation !== undefined) user.designation = designation;
+    if (category !== undefined) user.category = category;
     
     // If file uploaded, upload to Cloudinary
     if (req.file) {
@@ -214,6 +218,11 @@ router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) =
       }
     }
     
+    // Log incoming update for debugging
+    console.log('Profile update for user', req.userId, 'payload fields:', { name, mobile, employeeId, designation, category, hasFile: !!req.file });
+    // Dump full body for debugging (covers both JSON and multipart)
+    try { console.log('Full request body:', JSON.stringify(req.body)); } catch (e) { console.log('Full request body (raw):', req.body); }
+
     // Backward compatible: accept base64 if provided
     if (req.body.idProofDocument && !user.idProofDocument) {
       user.idProofDocument = req.body.idProofDocument;
@@ -222,6 +231,14 @@ router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) =
     }
     
     await user.save();
+    // Verify saved values
+    try {
+      const updated = await User.findById(req.userId).select('designation category');
+      console.log('Saved designation/category:', { designation: updated && updated.designation, category: updated && updated.category });
+    } catch (e) {
+      console.log('Failed to read back updated user:', e && e.message ? e.message : e);
+    }
+    console.log('Profile saved for', req.userId);
     
     const updatedUser = await User.findById(req.userId).select('-passwordHash');
     res.json({ message: 'Profile updated successfully', user: updatedUser });

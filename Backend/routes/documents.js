@@ -76,47 +76,77 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
 
     const { title, category, ref, date } = req.body;
 
+    console.log('Documents POST: body keys=', Object.keys(req.body));
+    console.log('Documents POST: file present=', !!req.file);
+    if (req.file) {
+      console.log('Documents POST: file meta=', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+      });
+    }
+
     if (!title || !category) {
       return res.status(400).json({ message: 'Title and category are required' });
+    }
+
+    // Normalize common category variants coming from different clients
+    // Model enum now uses 'Others' (not 'Other')
+    let normalizedCategory = category;
+    if (typeof normalizedCategory === 'string') {
+      const c = normalizedCategory.trim();
+      if (c === 'Other') normalizedCategory = 'Others';
+      // future: add more mappings as needed
     }
 
     let fileUrl = '';
     let fileSize = '';
     let fileType = 'PDF';
+    let cloudinaryPublicId = '';
 
     // Support either multipart file upload (req.file) or base64/raw data in req.body.file
     if (req.file) {
       // Upload buffer via upload_stream (raw resource)
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { resource_type: 'raw', folder: 'ONGC/documents' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(req.file.buffer);
-      });
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'raw', folder: 'ONGC/documents' },
+            (error, result) => {
+              if (error) return reject(error);
+              return resolve(result);
+            }
+          );
+          stream.end(req.file.buffer);
+        });
 
-      fileUrl = result.secure_url;
-      var cloudinaryPublicId = result.public_id || '';
-      fileSize = `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`;
-      fileType = req.file.mimetype || 'PDF';
+        fileUrl = result.secure_url;
+        cloudinaryPublicId = result.public_id || '';
+        fileSize = `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`;
+        fileType = req.file.mimetype || 'PDF';
+      } catch (uploadErr) {
+        console.error('Cloudinary upload (stream) failed:', uploadErr && uploadErr.message ? uploadErr.message : uploadErr);
+        return res.status(500).json({ message: 'Cloudinary upload failed', error: uploadErr && uploadErr.message ? uploadErr.message : String(uploadErr) });
+      }
     } else if (typeof req.body.file === 'string' && (req.body.file.startsWith('data:') || req.body.file.includes('base64')) ) {
       // Upload base64/raw data URL directly
-      const uploadResult = await cloudinary.uploader.upload(req.body.file, { resource_type: 'raw', folder: 'ONGC/documents' });
-      fileUrl = uploadResult.secure_url;
-      var cloudinaryPublicId = uploadResult.public_id || '';
-      // Cloudinary may return bytes; use it when available
-      fileSize = uploadResult.bytes ? `${(uploadResult.bytes / (1024 * 1024)).toFixed(2)} MB` : (req.body.fileSize || 'unknown');
-      fileType = req.body.fileType || (uploadResult.format ? uploadResult.format.toUpperCase() : 'RAW');
+      try {
+        const uploadResult = await cloudinary.uploader.upload(req.body.file, { resource_type: 'raw', folder: 'ONGC/documents' });
+        fileUrl = uploadResult.secure_url;
+        cloudinaryPublicId = uploadResult.public_id || '';
+        // Cloudinary may return bytes; use it when available
+        fileSize = uploadResult.bytes ? `${(uploadResult.bytes / (1024 * 1024)).toFixed(2)} MB` : (req.body.fileSize || 'unknown');
+        fileType = req.body.fileType || (uploadResult.format ? uploadResult.format.toUpperCase() : 'RAW');
+      } catch (uploadErr) {
+        console.error('Cloudinary upload (base64) failed:', uploadErr && uploadErr.message ? uploadErr.message : uploadErr);
+        return res.status(500).json({ message: 'Cloudinary upload failed', error: uploadErr && uploadErr.message ? uploadErr.message : String(uploadErr) });
+      }
     } else {
       return res.status(400).json({ message: 'File is required' });
     }
 
     const newDoc = new Document({
       title,
-      category,
+      category: normalizedCategory,
       ref: ref || '',
       fileUrl,
       fileSize,
@@ -142,6 +172,14 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
     });
   } catch (err) {
     console.error('Documents POST error:', err);
+    // If this is a Mongoose validation error, return 400 with details
+    if (err && err.name === 'ValidationError') {
+      const errors = Object.keys(err.errors || {}).reduce((acc, k) => {
+        acc[k] = err.errors[k].message;
+        return acc;
+      }, {});
+      return res.status(400).json({ message: 'Validation failed', errors });
+    }
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });

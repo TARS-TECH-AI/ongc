@@ -59,7 +59,7 @@ const AssociationIdentity = () => {
 
             {/* Details */}
             <div className="space-y-2 sm:space-y-3 text-slate-800 text-sm sm:text-base max-w-md">
-              <p><strong>Established:</strong> 1982</p>
+              <p><strong>Established:</strong> 1966-1967</p>
               <p><strong>Registration:</strong> Registered under Societies Registration Act</p>
               <p><strong>Affiliation:</strong> ONGC Group of Companies</p>
               <p><strong>Headquarters:</strong> ONGC Bhawan, New Delhi</p>
