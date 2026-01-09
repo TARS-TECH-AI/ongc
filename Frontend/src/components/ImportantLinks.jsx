@@ -5,17 +5,13 @@ const leftLinks = [
   { label: "ONGC India (Official Website)", url: "https://www.ongc.co.in" },
   { label: "ONGC Webmail", url: "https://webmail.ongc.co.in" },
   { label: "WebICE Portal", url: "https://webice.ongc.co.in" },
-  { label: "ONGC Annual Reports", url: "https://www.ongcindia.com/" },
-  { label: "ONGC Vigilance", url: "https://ongcvigilance.ongc.co.in" },
 ];
 
 const rightLinks = [
   { label: "Ministry of Petroleum & Natural Gas", url: "https://www.petroleum.nic.in/" },
   { label: "National Commission for Scheduled Castes", url: "https://ncsc.nic.in/" },
   { label: "National Commission for Scheduled Tribes", url: "https://ncst.nic.in/" },
-  { label: "ONGC Annual Reports", url: "https://www.ongcindia.com/" },
-  { label: "ONGC Vigilance", url: "https://ongcvigilance.ongc.co.in" },
-];
+ ];
 
 const LinkColumn = ({ title, items }) => (
   <div className="bg-white rounded-xl border border-slate-300 w-full">

@@ -212,7 +212,7 @@ function App() {
           <About />
           <CoreValues />
           <President/>
-          <MembersSection />
+          <MembersSection onOpenAuth={openAuth} />
           {/* Protected Content - Only for Approved Users */}
           {isApprovedUser && (
             <>

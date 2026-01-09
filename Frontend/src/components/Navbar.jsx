@@ -8,6 +8,8 @@ import nav_Gandhi from "../assets/NavImg/Gandhi.png";
 import nav_jyotiba from "../assets/NavImg/jyotiba.png";
 import nav_lokmanya from "../assets/NavImg/lokmanya.png";
 import nav_savitribai from "../assets/NavImg/savitribai.png";
+import nav_bhimbori from "../assets/NavImg/bhimbori.jpg";
+import nav_bhupen_h from "../assets/NavImg/bhupen_h.png"
 
 const Carousel = ({ images = [], interval = 2500, className = "w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain" }) => {
   const [idx, setIdx] = React.useState(0);
@@ -100,7 +102,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           {/* LOGO */}
           <div className="flex items-center gap-2">
             <div className="flex items-center mr-3 pl-0 lg:pl-0">
-              <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_Gandhi, nav_jyotiba, nav_lokmanya, nav_savitribai]} className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain" />
+              <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_Gandhi, nav_jyotiba, nav_lokmanya, nav_savitribai,nav_bhimbori,nav_bhupen_h]} className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain" />
             </div>
 
           <div
@@ -122,11 +124,10 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
               alt="ONGC Logo"
               className="h-10 sm:h-14 md:h-16 lg:h-18 object-contain"
             />
-            <div className=" text-sm text-black leading-tight max-w-[160px] sm:max-w-xs md:max-w-md truncate font-bold ">
-              <p className="m-0">All India SC&ST Employees</p>
-              <p className="m-0 ">Welfare Association</p>
-              <p className="m-0">Central Working Committee</p>
-              <p className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent">ONGC</p>
+            <div className="text-black leading-tight max-w-[48ch] sm:max-w-[64ch] md:max-w-[80ch] whitespace-nowrap overflow-hidden font-bold">
+              <p className="m-0 text-base sm:text-lg md:text-xl font-bold " style={{fontFamily:"Poppins"}}>All India SC&ST Employees Welfare Association</p>
+              <p className="m-0 text-sm sm:text-base" style={{fontFamily:"Poppins"}}>Central Working Committee
+              <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span></p>
             </div>
           </div>
           </div>

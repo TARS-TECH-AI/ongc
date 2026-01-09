@@ -14,10 +14,10 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
 
       {/* Top horizontal line with margin */}
       <div className="max-w-7xl mx-auto px-6">
-        <div className="border-t border-slate-400"></div>
+        <div className="border-t border-slate-200"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-14">
+      <div className="max-w-6xl mx-auto px-6 py-10">
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
@@ -27,7 +27,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
             <div className="flex items-center gap-5">
               <img
                 src={Logo}
-                alt="AISCS&STEWA Logo"
+                alt="AISCSTEWA Logo"
                 className="w-24 h-24 object-contain"
               />
               <div>

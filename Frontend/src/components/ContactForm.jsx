@@ -2,22 +2,21 @@ import React, { useState, useEffect } from "react";
 import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
 
 const ContactCard = () => (
-  <div className="bg-white rounded-xl border border-[#5b6f8f] p-6 sm:p-8 lg:p-10 h-full">
-    <h3 className="text-2xl sm:text-3xl font-bold text-[#0C2E50] mb-6 sm:mb-8">
+  <div className="bg-white rounded-xl border border-[#5b6f8f] p-4 sm:p-6 lg:p-6 h-80">
+    <h3 className="text-2xl sm:text-3xl font-bold text-[#0C2E50] mb-4 sm:mb-6">
       Central Office
     </h3>
 
-    <div className="space-y-6 sm:space-y-8 text-[#0C2E50]">
+    <div className="space-y-4 sm:space-y-6 text-[#0C2E50]">
       <div className="flex items-start gap-4">
         <MapPin className="w-5 h-5 mt-1" />
         <div>
           <p className="font-semibold">AISCSTEWA – CWC</p>
           <p className="text-sm leading-relaxed mt-2 text-slate-700">
-         Deendayal Urja Bhawan , 5A-5B,
+         Deendayal Urja Bhawan,5A-5B,
           Nelson Mandela Marg,
-           
            Vasant Kunj,
-             <br />
+             <br/>
              New Delhi -110070
           </p>
         </div>
@@ -93,7 +92,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
   };
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-white px-4">
+    <section className="py-8 sm:py-10 lg:py-10 bg-white px-4">
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-12">
@@ -107,7 +106,7 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 items-stretch">
           <ContactCard />
 
-          <div className="w-full">
+          <div className="w-full ">
             {authWarning && (
               <div className="mb-6 max-w-3xl mx-auto p-3 rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 flex items-center justify-between">
                 <span>{authWarning}</span>
@@ -156,34 +155,37 @@ const ContactForm = ({ openAuth, currentUser, isAuthenticated }) => {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block mb-2 font-semibold text-[#0C2E50] text-sm sm:text-base">
-                        Subject
-                      </label>
-                      <input
-                        value={form.subject}
-                        onChange={(e) => update("subject", e.target.value)}
-                        placeholder="Enter Subject"
-                        className="w-full bg-slate-100 px-4 py-3 rounded-md focus:outline-none text-sm sm:text-base"
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block mb-2 font-semibold text-[#0C2E50] text-sm sm:text-base">
+                          Subject
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={form.subject}
+                          onChange={(e) => update("subject", e.target.value)}
+                          placeholder="Enter Subject"
+                          className="w-full bg-slate-100 px-4 py-2 rounded-md focus:outline-none text-sm sm:text-base resize-vertical"
+                        />
+                      </div>
 
-                    <div>
-                      <label className="block mb-2 font-semibold text-[#0C2E50] text-sm sm:text-base">
-                        Your Message
-                      </label>
-                      <textarea
-                        rows={5}
-                        value={form.message}
-                        onChange={(e) => update("message", e.target.value)}
-                        placeholder="Write message here..."
-                        className="w-full bg-slate-100 px-4 py-3 rounded-md resize-none focus:outline-none text-sm sm:text-base"
-                      />
+                      <div>
+                        <label className="block mb-2 font-semibold text-[#0C2E50] text-sm sm:text-base">
+                          Message
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={form.message}
+                          onChange={(e) => update("message", e.target.value)}
+                          placeholder="Write message here..."
+                          className="w-full bg-slate-100 px-4 py-2 rounded-md focus:outline-none text-sm sm:text-base resize-vertical"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Button */}
-                  <div className="flex justify-center  mt-8 sm:mt-10">
+                  <div className="flex justify-center  mt-6 sm:mt-8">
                     <button
                       type="submit"
                       disabled={submitting}

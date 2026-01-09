@@ -80,7 +80,12 @@ const MemberCard = ({ member, bg }) => (
 const President = ({ members = defaultMembers }) => {
   return (
     <section className="py-4">
-      <div className="max-w-7xl mx-auto px-2">
+      <div className="text-center mb-8 sm:mb-12 px-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+          Message From -
+        </h2>
+        <div className="w-20 sm:w-28 h-1 bg-orange-500 mx-auto mt-3"></div>
+      
         <div className="flex flex-col gap-6">
           {(() => {
             const cardColors = [
