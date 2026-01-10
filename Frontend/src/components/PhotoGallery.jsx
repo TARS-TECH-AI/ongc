@@ -55,6 +55,8 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
     setIndex(i);
     setIsOpen(true);
     document.body.style.overflow = "hidden";
+    // keep navbar expanded and avoid hiding title while modal is open
+    document.body.classList.add('modal-open');
   };
   
   const openFullGallery = () => {
@@ -73,6 +75,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
   const close = () => {
     setIsOpen(false);
     document.body.style.overflow = "";
+    document.body.classList.remove('modal-open');
   };
 
   const prev = (e) => {
@@ -161,7 +164,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
         {/* Lightbox Modal */}
         {isOpen && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 cursor-pointer"
+            className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/90 p-4 cursor-pointer"
             onClick={close}
           >
             <div
@@ -192,10 +195,10 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
               <button
                 onClick={close}
-                className="absolute top-20 right-4 bg-black/90 hover:bg-black text-white p-3 rounded-full transition cursor-pointer z-50 shadow-lg"
-                aria-label="Close lightbox"
+                className="absolute top-4 right-3 sm:top-6 sm:right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition cursor-pointer z-50 shadow-lg"
+                aria-label="Close image"
               >
-                <X size={28} />
+                <X size={24} />
               </button>
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium cursor-pointer">
@@ -296,7 +299,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
       {/* Lightbox Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/90 p-4"
           onClick={close}
         >
           <div
@@ -327,10 +330,10 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
             <button
               onClick={close}
-              className="absolute top-20 right-4 bg-black/90 hover:bg-black text-white p-3 rounded-full transition z-50 shadow-lg"
-              aria-label="Close lightbox"
+              className="absolute top-4 right-3 sm:top-6 sm:right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition z-50 shadow-lg"
+              aria-label="Close image"
             >
-              <X size={28} />
+              <X size={24} />
             </button>
 
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium">

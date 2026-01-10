@@ -12,7 +12,7 @@ const TableCard = () => (
 
     {/* Table Header (Hidden on Mobile) */}
     <div className="hidden sm:block bg-slate-900 text-white">
-      <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm" style={{ gridTemplateColumns: '3fr 2fr 1.2fr 0.8fr' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:3fr_2fr_1.2fr_0.8fr] px-6 py-4 font-semibold text-sm">
         <span>Name</span>
         <span>Designation</span>
         <span>Unit</span>
@@ -25,8 +25,7 @@ const TableCard = () => (
       {membersData.map((member, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
-          style={{ gridTemplateColumns: '3fr 2fr 1.2fr 0.8fr' }}
+          className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:3fr_2fr_1.2fr_0.8fr] gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
         >
           {/* Name */}
           <div>
@@ -82,7 +81,7 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
   return (
     <div className="w-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
       <div className="hidden sm:block bg-slate-900 text-white">
-        <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm" style={{ gridTemplateColumns: '2fr 2.5fr 1.2fr 0.8fr' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:2fr_2.5fr_1.2fr_0.8fr] px-6 py-4 font-semibold text-sm">
           <span>Name</span>
           <span>Post in the Association</span>
           <span>Unit</span>
@@ -94,8 +93,7 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
         {items.slice(0, visible).map((member, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
-            style={{ gridTemplateColumns: '2fr 2.5fr 1.2fr 0.8fr' }}
+            className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:2fr_2.5fr_1.2fr_0.8fr] gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
           >
             <div>
               <span className="sm:hidden font-semibold text-slate-500">Name</span>
@@ -136,27 +134,19 @@ const MembersSection = ({ onOpenAuth }) => {
     <section id="members" className="w-full px-4 py-12 sm:py-16 lg:py-10 bg-white">
       <div className="max-w-7xl mx-auto">
 
-        {/* Headings */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">CWC Members</h2>
-            <div className="w-16 h-1 bg-orange-500 mb-6" />
-          </div>
-
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">CEC Members</h2>
-            <div className="w-16 h-1 bg-orange-500 mb-6" />
-          </div>
-        </div>
-
-        {/* Lists (blurred when not authenticated) */}
+        {/* Members columns: each heading immediately above its box (mobile: stacked) */}
         <div className="relative mt-2">
           <div className={isAuthenticated ? '' : 'blur-md pointer-events-none select-none'}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12">
               <div>
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">CWC Members</h2>
+                <div className="w-16 h-1 bg-orange-500 mb-6" />
                 <LazyMemberList items={cwcMembers} />
               </div>
+
               <div>
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">CEC Members</h2>
+                <div className="w-16 h-1 bg-orange-500 mb-6" />
                 <LazyMemberList items={cecMembers} />
               </div>
             </div>

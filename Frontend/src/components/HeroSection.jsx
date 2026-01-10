@@ -1,4 +1,7 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+import 'swiper/css';
 import Hero1 from "../assets/Img/3.png";
 import Hero2 from "../assets/Img/5.png";
 import Hero3 from "../assets/Img/7.png";
@@ -7,29 +10,23 @@ import Hero5 from "../assets/Img/26.png";
 
 /* ===== MARQUEE ITEM ===== */
 const MarqueeItem = () => (
-  <span className="flex items-center whitespace-nowrap px-8 sm:px-12">
-    "Educate 
+  <span className="flex items-center whitespace-nowrap">
+    "Great Dr. Babasaheb Ambedkar thought:
     <span className="text-white">
-      &nbsp; 
-    &nbsp; Agitate
+      &nbsp;
+      &nbsp; Educate
     </span>
-    &nbsp; 
     &nbsp;
-    <span className="font-bold">Organize"</span>
+    &nbsp;
+    <span className="font-bold">Agitate</span>
+    &nbsp;
+    &nbsp;
+    <span className="text-white">Organize"</span>
   </span>
 );
 
 const HeroSection = ({ onOpenAuth }) => {
-  const wrapperRef = useRef(null);
-  const trackRef = useRef(null);
-
-  const pausedRef = useRef(false);
-  const draggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const offsetRef = useRef(0);
-  const startOffsetRef = useRef(0);
-
-  /* ---------- SCROLL TO ABOUT ---------- */
+  const [navHeight, setNavHeight] = useState(0);
   const scrollToAbout = () => {
     const aboutSection = document.getElementById("about");
     if (aboutSection) {
@@ -41,44 +38,7 @@ const HeroSection = ({ onOpenAuth }) => {
     if (onOpenAuth) onOpenAuth("login");
   };
 
-  /* ---------- CONTINUOUS MARQUEE ---------- */
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    const track = trackRef.current;
-    if (!wrapper || !track) return;
 
-    let rafId;
-    let lastTime = null;
-    const speed = 40;
-
-    offsetRef.current = 0;
-    track.style.transform = "translateX(0px)";
-
-    const step = (time) => {
-      if (pausedRef.current || draggingRef.current) {
-        lastTime = time;
-        rafId = requestAnimationFrame(step);
-        return;
-      }
-
-      if (lastTime === null) lastTime = time;
-      const delta = time - lastTime;
-      lastTime = time;
-
-      offsetRef.current -= (speed * delta) / 1000;
-
-      const halfWidth = track.scrollWidth / 2;
-      if (Math.abs(offsetRef.current) >= halfWidth) {
-        offsetRef.current = 0;
-      }
-
-      track.style.transform = `translateX(${offsetRef.current}px)`;
-      rafId = requestAnimationFrame(step);
-    };
-
-    rafId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafId);
-  }, []);
 
   /* ---------- BACKGROUND SLIDESHOW ---------- */
   const images = [Hero1, Hero2, Hero3, Hero4, Hero5];
@@ -95,16 +55,13 @@ const HeroSection = ({ onOpenAuth }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!pausedRef.current && !draggingRef.current) {
-        setIndex((i) => (i + 1) % images.length);
-      }
+      setIndex((i) => (i + 1) % images.length);
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
   // Ensure hero starts below the fixed navbar by measuring its height
-  const [navHeight, setNavHeight] = useState(0);
   useEffect(() => {
     function updateNavHeight() {
       const nav = document.querySelector('nav');
@@ -129,28 +86,8 @@ const HeroSection = ({ onOpenAuth }) => {
     };
   }, []);
 
-  /* ---------- DRAG HANDLERS ---------- */
-  const handlePointerDown = (e) => {
-    draggingRef.current = true;
-    startXRef.current = e.clientX;
-    startOffsetRef.current = offsetRef.current;
-    pausedRef.current = true;
-  };
-
-  const handlePointerMove = (e) => {
-    if (!draggingRef.current) return;
-    offsetRef.current =
-      startOffsetRef.current + (e.clientX - startXRef.current);
-    trackRef.current.style.transform = `translateX(${offsetRef.current}px)`;
-  };
-
-  const handlePointerUp = () => {
-    draggingRef.current = false;
-    setTimeout(() => (pausedRef.current = false), 600);
-  };
-
   return (
-    <section id="home" className="relative min-h-[100vh] w-full overflow-hidden mt-10" style={{ paddingTop: navHeight ? `${navHeight}px` : undefined }}>
+    <section id="home" className="relative min-h-[38vh] md:min-h-[100vh] w-full overflow-hidden mt-18" style={{ paddingTop: navHeight ? `${navHeight}px` : undefined }}>
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 lg:mt-10 ">
         {images.map((src, i) => (
@@ -177,38 +114,32 @@ const HeroSection = ({ onOpenAuth }) => {
       <div className="absolute bottom-16 left-0 z-10 p-4 sm:p-6 lg:p-8">
         <div className="max-w-2xl text-white text-left">
           <h1 className="font-semibold leading-tight text-xs sm:text-sm md:text-base lg:text-lg drop-shadow-lg">
-            <span className="inline text-sm sm:text-base md:text-lg lg:text-xl">All India SC & ST Employees
-              <br/> Welfare Association
-               <br/>Central Working Committee
+            <span className="inline text-sm sm:text-base md:text-lg lg:text-xl"><span className="hidden sm:inline">All India SC & ST Employees</span>
+              <br/> <span className="hidden sm:inline">Welfare Association</span>
+               <br/><span className="hidden sm:inline">Central Working Committee</span>
                <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span></span>
           </h1>
  </div>
       </div>
 
-      {/* ===== MARQUEE ===== */}
+      {/* ===== SWIPER MARQUEE ===== */}
       <div className="absolute bottom-0 w-full bg-[#0C2E50] py-3 sm:py-4">
-        <div
-          ref={wrapperRef}
-          className="overflow-hidden cursor-grab px-4"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-        >
-          <div
-            ref={trackRef}
-            className="flex w-max text-orange-400 text-xs sm:text-sm font-bold"
+        <div className="px-4">
+          <Swiper
+            modules={[Autoplay]}
+            spaceBetween={48}
+            slidesPerView={'auto'}
+            loop={true}
+            speed={8000}
+            autoplay={{ delay: 0, disableOnInteraction: false, pauseOnMouseEnter: false }}
+            className="text-orange-400 text-xs sm:text-sm font-bold"
           >
-            {/* FIRST COPY */}
-            <MarqueeItem />
-            <MarqueeItem />
-            <MarqueeItem />
-
-            {/* DUPLICATE COPY */}
-            <MarqueeItem />
-            <MarqueeItem />
-            <MarqueeItem />
-          </div>
+            {[0,1,2,3].map((i) => (
+              <SwiperSlide key={i} className="w-auto flex items-center">
+                <div className="mr-16"><MarqueeItem /></div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
     </section>

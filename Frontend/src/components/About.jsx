@@ -27,7 +27,7 @@ const About = () => {
           {/* Left Cards */}
           <div className="flex-1 flex flex-col gap-4 pr-4 lg:pr-6">
             {/* Mission */}
-            <div className="bg-blue-200 rounded-xl p-5 sm:p-6 shadow-sm flex-1 flex flex-col">
+            <div className="bg-blue-100 rounded-xl p-5 sm:p-6 shadow-sm flex-1 flex flex-col">
               <h3 className="text-1xl sm:text-3xl lg:text-4xl text-base font-bold text-slate-900">
                 Our Mission
               </h3>
@@ -41,7 +41,7 @@ const About = () => {
             </div>
 
             {/* Vision */}
-            <div className="bg-green-200 rounded-xl p-5 sm:p-6 shadow-sm flex-1 flex flex-col">
+            <div className="bg-green-100 rounded-xl p-5 sm:p-6 shadow-sm flex-1 flex flex-col">
               <h3 className="text-1xl sm:text-3xl lg:text-4xl text-base font-bold text-slate-900">
                 Our Vision
               </h3>
@@ -56,7 +56,7 @@ const About = () => {
           </div>
 
           {/* Right Image */}
-          <div className="flex-1 flex justify-center lg:justify-end">
+          <div className="flex-1 flex justify-center lg:justify-end mt-5 lg:mt-0">
             <div className="relative w-full max-w-md h-full">
               <img
                 src={about1}

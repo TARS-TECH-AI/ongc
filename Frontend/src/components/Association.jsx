@@ -16,23 +16,23 @@ const AssociationIdentity = () => {
         </div>
 
         {/* Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-12 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-stretch">
 
           {/* LEFT: Image */}
           <div className="flex justify-center items-center">
-            <div className="relative rounded-xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full h-full bg-white border-2 border-slate-200 overflow-hidden">
+            <div className="relative rounded-xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full bg-white overflow-hidden">
               <img
                 src={AmbedkarImg}
                 alt="Dr. B. R. Ambedkar"
-                className="w-full max-h-56 sm:max-h-72 object-contain mx-auto"
-              /> 
-                 <h4 className="mt-2 text-1xl font-semibold text-slate-900 text-center">Bharat Ratna DR B.R.Ambedkar</h4>
-                 <p className="text-sm text-slate-600 text-center">Father of Indian Constitution</p>            
-               </div>
+                className="w-full max-h-48 sm:max-h-80 md:max-h-96 object-contain mx-auto"
+              />
+              <h4 className="mt-2 text-1xl font-semibold text-slate-900 text-center">Bharat Ratna DR B.R.Ambedkar</h4>
+              <p className="text-sm text-slate-600 text-center">Father of Indian Constitution</p>
+            </div>
           </div>
 
           {/* RIGHT: Details */}
-          <div className="px-2 sm:px-0">
+          <div className="px-2 sm:px-0 mt-6 sm:mt-0">
             <div className="flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center gap-3">
@@ -58,11 +58,11 @@ const AssociationIdentity = () => {
             </p>
 
             {/* Details */}
-            <div className="space-y-2 sm:space-y-3 text-slate-800 text-base sm:text-base max-w-md">
-              <p className="text-base"><strong>Established:</strong> 02 March 1967</p>
-              <p className="text-base"><strong>Registration:</strong> Registered under Societies Registration Act XXI of 1860</p>
-              <p className="text-base"><strong>Affiliation:</strong> ONGC Group of Companies</p>
-              <p className="text-base"><strong>HeadOffice:</strong> Deendayal Urja Bhawan, 5A-5B, Nelson<br/>Mandela Marg, Vasant Kunj,<br/>New Delhi -110070</p>
+            <div className="space-y-1 sm:space-y-3 text-slate-800 text-base sm:text-base max-w-md">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Established:</span><span>02 March 1967</span></div>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Registration:</span><span>Registered under Societies Registration Act XXI of 1860</span></div>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Affiliation:</span><span>ONGC Group of Companies</span></div>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">HeadOffice:</span><span>Deendayal Urja Bhawan, 5A-5B, Nelson Mandela Marg, Vasant Kunj, New Delhi -110070</span></div>
             </div>
 
             {/* Quote */}

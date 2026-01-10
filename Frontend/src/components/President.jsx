@@ -43,48 +43,65 @@ const formatThought = (text) => {
 };
 
 // Member Card (stacked card layout)
-const MemberCard = ({ member, bg }) => (
-  <div className="w-full">
-    <div
-      className={`flex items-center gap-6 ${bg} rounded-2xl p-4 sm:p-6 shadow-sm w-full`}
-    >
-      {/* Image */}
-      <div className="w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-full overflow-hidden bg-slate-100 ring-2 ring-amber-200 flex-shrink-0">
-        <img
-          src={member.image}
-          alt={member.name}
-          className="w-full h-full object-cover"
-        />
-      </div>
+const MemberCard = ({ member, bg }) => {
+  const paragraphs = formatThought(member.thought);
+  const [expanded, setExpanded] = React.useState(false);
+  const firstPara = paragraphs[0] || '';
+  const hasOverflow = paragraphs.length > 1 || firstPara.length > 220;
 
-      {/* Text */}
-      <div className="flex-1 text-left">
-        <p className="mt-1 text-base sm:text-lg font-bold text-slate-900">
-          {member.name}
-        </p>
-        <p className="text-sm sm:text-base md:text-lg font-semibold text-[#0C2E50] whitespace-pre-line">
-          {member.role}
-        </p>
-        <div className="mt-3 text-sm sm:text-base text-slate-700 text-justify">
-          {formatThought(member.thought).map((para, i) => (
-            <p key={i} className="mb-3 last:mb-0">
-              {para}
-            </p>
-          ))}
+  return (
+    <div className="w-full">
+      <div className={`flex flex-col sm:flex-row items-center sm:items-start gap-6 ${bg} rounded-2xl p-4 sm:p-6 shadow-sm w-full`}>
+        {/* Image */}
+        <div className="w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-full overflow-hidden bg-slate-100 ring-2 ring-amber-200 flex-shrink-0 flex items-center justify-center mb-4 sm:mb-0">
+          <img
+            src={member.image}
+            alt={member.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Text */}
+        <div className="flex-1 text-left">
+          <p className="mt-1 text-base sm:text-lg font-bold text-slate-900 text-center sm:text-left">
+            {member.name}
+          </p>
+          <p className="text-sm sm:text-base md:text-lg font-semibold text-[#0C2E50] whitespace-pre-line text-center sm:text-left">
+            {member.role}
+          </p>
+          <div className="mt-3 text-sm sm:text-base text-slate-700 text-justify">
+            {!expanded ? (
+              <p className="mb-0 line-clamp-3">{firstPara}</p>
+            ) : (
+              paragraphs.map((para, i) => (
+                <p key={i} className="mb-3 last:mb-0">{para}</p>
+              ))
+            )}
+
+            {hasOverflow && (
+              <button
+                onClick={() => setExpanded((s) => !s)}
+                className="mt-2 text-sm text-[#0C2E50] font-semibold"
+              >
+                {expanded ? 'Read less' : 'Read more'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 // Main Component
 const President = ({ members = defaultMembers }) => {
   return (
     <section className="py-4">
       <div className="text-center mb-8 sm:mb-12 px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
-          Message From -
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+          Message From 
+           <span className="block h-1 w-16 bg-orange-400 mx-auto mt-3 rounded"></span>
         </h2>
-        <div className="w-20 sm:w-28 h-1 bg-orange-500 mx-auto mt-3"></div>
+        
       
         <div className="flex flex-col gap-6">
           {(() => {

@@ -98,7 +98,7 @@ const AISCSSTEWAUnits = () => {
         `}
       </style>
       {/* ===== HEADING ===== */}
-      <div className="max-w-7xl mx-auto px-4 text-center">
+      <div className="max-w-7xl mx-auto px-4 text-center lg:mt-0 -mt-15">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0C2E50]">
           AISCSTEWA Units
         </h2>
@@ -171,9 +171,9 @@ const AISCSSTEWAUnits = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4 py-2 justify-items-center">
                 {regions.map((r) => (
                   <div key={r.code} onClick={() => showUnitsForRegion(r.code)} className="w-full cursor-pointer">
-                    <div className="p-4 rounded-lg bg-slate-50 border border-orange-100 text-center hover:shadow-md">
-                      <h4 className="text-sm sm:text-base font-semibold text-slate-900">{r.name} <span className="text-xs text-slate-500 ml-2">({r.code})</span></h4>
-                      <p className="text-xs text-slate-600 mt-2">{units.filter((u) => unitRegionMap[u] === r.code).length} units</p>
+                    <div className="p-4 rounded-lg text-center">
+                      <h4 className="text-sm sm:text-base font-semibold text-[#0C2E50]">{r.name} <span className="text-xs text-[#0C2E50] ml-2">({r.code})</span></h4>
+                      <p className="text-xs text-[#0C2E50] mt-2">{units.filter((u) => unitRegionMap[u] === r.code).length} units</p>
                     </div>
                   </div>
                 ))}
@@ -181,9 +181,9 @@ const AISCSSTEWAUnits = () => {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-2 py-2 max-h-64 overflow-y-auto scrollbar-hide">
                 {visibleUnits.map((unit, index) => (
-                  <div key={index} className="p-2 sm:p-3 rounded-lg bg-slate-50 border border-orange-100">
+                  <div key={index} className="p-2 sm:p-3 rounded-lg">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs sm:text-sm md:text-base font-medium text-slate-900 truncate">{unit}</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-[#0C2E50] truncate">{unit}</p>
                     </div>
                   </div>
                 ))}

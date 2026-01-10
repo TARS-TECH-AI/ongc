@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
-const UpdateCard = ({ item, onClick }) => (
+const UpdateCard = ({ item, onReadMore }) => (
   <div 
-    onClick={onClick}
-    className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0 cursor-pointer hover:bg-slate-50 transition-colors px-3 rounded-md"
+    className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0 px-3 rounded-md"
   >
     {/* Icon */}
     <div
@@ -41,8 +40,24 @@ const UpdateCard = ({ item, onClick }) => (
       </h4>
 
       <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-        {item.desc}
+        <strong>Venue:</strong> {item.venue}
       </p>
+
+      {item.description && (
+        <div className="mt-2">
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2">
+            {item.description}
+          </p>
+          {item.description.split(/\s+/).length > 20 && (
+            <button 
+              onClick={onReadMore}
+              className="text-orange-500 hover:text-orange-600 text-xs font-medium mt-1 transition"
+            >
+              Read More
+            </button>
+          )}
+        </div>
+      )}
     </div>
   </div>
 );
@@ -60,6 +75,16 @@ const ImportantUpdates = ({ onOpenAuth }) => {
   useEffect(() => {
     loadUpdates();
   }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedUpdate) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [selectedUpdate]);
 
   const loadUpdates = async () => {
     try {
@@ -83,7 +108,8 @@ const ImportantUpdates = ({ onOpenAuth }) => {
   // Format update for UpdateCard
   const formatUpdate = (update, isHighlight = false) => ({
     title: update.title,
-    desc: update.venue,
+    venue: update.venue,
+    description: update.description,
     date: new Date(update.date).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -94,9 +120,9 @@ const ImportantUpdates = ({ onOpenAuth }) => {
 
   return (
     <section id="updates" className="w-full bg-white py-20 sm:py-24 lg:py-15 overflow-hidden">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Heading */}
-        <div className="text-center mb-8 sm:mb-10">
+        <div className="text-center mb-8 sm:mb-10 lg:mt-0 -mt-15">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0C2E50]">
             Important Updates
           </h2>
@@ -125,7 +151,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                       <UpdateCard 
                         key={`upcoming-${i}`} 
                         item={formatUpdate(item, true)} 
-                        onClick={() => {
+                        onReadMore={() => {
                           console.log('Selected update:', item);
                           setSelectedUpdate(item);
                         }}
@@ -147,7 +173,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                       <UpdateCard 
                         key={`past-${i}`} 
                         item={formatUpdate(item, false)} 
-                        onClick={() => {
+                        onReadMore={() => {
                           console.log('Selected update:', item);
                           setSelectedUpdate(item);
                         }}
@@ -195,20 +221,21 @@ const ImportantUpdates = ({ onOpenAuth }) => {
 
         {/* Update Details Modal */}
         {selectedUpdate && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 relative shadow-2xl">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 pt-24 pb-0">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] relative shadow-2xl mt-0 mb-0">
               <button
                 onClick={() => {
                   setSelectedUpdate(null);
                   setIsDescriptionExpanded(false);
                 }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition"
+                className="sticky top-0 left-full -translate-x-12 translate-y-4 text-slate-400 hover:text-slate-600 transition z-50 bg-white rounded-full p-1 shadow-md"
               >
                 <X size={24} />
               </button>
 
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="overflow-y-auto max-h-[calc(80vh-2rem)] p-6 pt-2">
+                <div>
+                <div className="flex items-center gap-2">
                   <CalendarDays size={18} className="text-orange-500" />
                   <span className="text-sm text-slate-500">
                     {new Date(selectedUpdate.date).toLocaleDateString("en-GB", {
@@ -223,14 +250,14 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                     </span>
                   )}
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                <h3 className="text-xl font-bold text-slate-900 mt-2">
                   {selectedUpdate.title}
                 </h3>
-                <p className="text-slate-700 mb-4">
+                <p className="text-sm text-slate-700 mt-2">
                   <strong>Venue:</strong> {selectedUpdate.venue}
                 </p>
                 <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-                  <h4 className="font-semibold text-slate-800 mb-2">Description</h4>
+                  <h4 className="font-semibold text-sm text-slate-800">Description</h4>
                   {(() => {
                     const description = selectedUpdate.description || 'No description available';
                     const words = description.split(/\s+/);
@@ -242,7 +269,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
 
                     return (
                       <>
-                        <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
+                        <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
                           {displayText}
                         </p>
                         {shouldTruncate && (
@@ -257,6 +284,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                     );
                   })()}
                 </div>
+              </div>
               </div>
             </div>
           </div>

@@ -69,37 +69,10 @@ const ImportantLinks = () => {
 
         <div className="relative">
 
-          {/* Mobile Carousel */}
-          <div className="md:hidden overflow-hidden">
-            <div
-              className="flex space-x-4 px-1"
-              ref={carouselRef}
-            >
-              <div className="min-w-full">
-                <LinkColumn title="ONGC Portals" items={leftLinks} />
-              </div>
-              <div className="min-w-full">
-                <LinkColumn title="Government Portals" items={rightLinks} />
-              </div>
-            </div>
-
-            {/* Mobile Controls */}
-            <div className="flex items-center justify-between mt-4 px-6">
-              <button
-                onClick={() => setIndex((i) => Math.max(0, i - 1))}
-                disabled={index === 0}
-                className="p-2 border border-slate-200 rounded-md text-slate-500 hover:bg-slate-50 disabled:opacity-40"
-              >
-                ‹
-              </button>
-              <button
-                onClick={() => setIndex((i) => Math.min(1, i + 1))}
-                disabled={index === 1}
-                className="p-2 border border-slate-200 rounded-md text-slate-500 hover:bg-slate-50 disabled:opacity-40"
-              >
-                ›
-              </button>
-            </div>
+          {/* Mobile - Show Both Boxes */}
+          <div className="md:hidden space-y-6">
+            <LinkColumn title="ONGC Portals" items={leftLinks} />
+            <LinkColumn title="Government Portals" items={rightLinks} />
           </div>
 
           {/* Desktop Grid */}
