@@ -86,7 +86,7 @@ const AISCSSTEWAUnits = () => {
   const visibleUnits = selectedRegion ? units.filter((u) => unitRegionMap[u] === selectedRegion) : units;
 
   return (
-    <section id="units" className="w-full bg-white py-12 sm:py-16 lg:py-10">
+    <section id="units" className="w-full bg-white py-12 sm:py-16 lg:py-0">
       <style>
         {`
           .scrollbar-hide::-webkit-scrollbar {

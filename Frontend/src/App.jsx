@@ -213,18 +213,14 @@ function App() {
           <CoreValues />
           <President/>
           <MembersSection onOpenAuth={openAuth} />
+          <Documents />
           {/* Protected Content - Only for Approved Users */}
           {isApprovedUser && (
             <>
               {/* <Constitution /> */}
-              <Documents />
             </>
           )}
-          {isAuthenticated && (
-            <>
-              <ImportantUpdates />
-            </>
-          )}
+          <ImportantUpdates onOpenAuth={openAuth} />
           <AISCSSTEWAUnits />
           <PhotoGraphy viewMode="preview" onNavigate={setCurrentView} />
           <Association isAuthenticated={isAuthenticated} currentUser={currentUser} />

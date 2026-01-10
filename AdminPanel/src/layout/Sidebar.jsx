@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import defaultAvatar from '../assets/Vector.png';
-import { Grid, UserCheck, Users, FileText, Image, MessageSquare, Settings, LogOut } from 'lucide-react';
+import { Grid, UserCheck, Users, FileText, Image, MessageSquare, Settings, LogOut, Bell } from 'lucide-react';
 
 const Icon = ({ name }) => {
   const props = { size: 20, className: 'text-slate-700' };
@@ -15,6 +15,8 @@ const Icon = ({ name }) => {
       return <Users {...props} />;
     case 'documents':
       return <FileText {...props} />;
+    case 'updates':
+      return <Bell {...props} />;
     case 'gallery':
       return <Image {...props} />;
     case 'enquiry':
@@ -32,6 +34,7 @@ const menu = [
   { key: 'approvals', label: 'User Approvals', icon: 'approvals', to: '/approvals' },
   { key: 'members', label: 'Members', icon: 'members', to: '/members' },
   { key: 'documents', label: 'Documents', icon: 'documents', to: '/documents' },
+  { key: 'updates', label: 'Important Updates', icon: 'updates', to: '/updates' },
   { key: 'gallery', label: 'Gallery management', icon: 'gallery', to: '/gallery' },
   { key: 'enquiry', label: 'Enquiry', icon: 'enquiry', to: '/enquiry' },
   { key: 'settings', label: 'Settings', icon: 'settings', to: '/settings' },

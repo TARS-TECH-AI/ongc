@@ -6,6 +6,7 @@ import Dashboard from "./pages/dashboard";
 import Approvals from "./pages/approvals";
 import Members from "./pages/members";
 import Documents from "./pages/documents";
+import Updates from "./pages/updates";
 import Gallery from "./pages/gallery";
 import Enquiry from "./pages/enquiry";
 import Settings from "./pages/settings";
@@ -23,6 +24,7 @@ function App() {
           <Route path="approvals" element={<Approvals />} />
           <Route path="members" element={<React.Suspense fallback={<div>Loading...</div>}><Members /></React.Suspense>} />
           <Route path="documents" element={<Documents />} />
+          <Route path="updates" element={<Updates />} />
           <Route path="gallery" element={<React.Suspense fallback={<div>Loading...</div>}><Gallery /></React.Suspense>} />
           <Route path="enquiry" element={<Enquiry />} />
           <Route path="settings" element={<Settings />} />

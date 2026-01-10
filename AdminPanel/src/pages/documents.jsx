@@ -264,82 +264,9 @@ const Documents = () => {
       return;
     }
 
-    // Try to fetch the file as a blob first to avoid browser auto-downloads (and to normalize headers)
-    try {
-      const token = sessionStorage.getItem("admin-token");
-      const fetchHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(fullUrl, {
-        method: "GET",
-        headers: fetchHeaders,
-      });
-      if (!res.ok) throw new Error("Failed to fetch document");
-
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const newWindow = window.open("", "_blank");
-      if (!newWindow) {
-        URL.revokeObjectURL(blobUrl);
-        alert("Popup blocked. Please allow popups for this site.");
-        return;
-      }
-
-      // Clean up blob URL when the window is closed
-      newWindow.addEventListener("beforeunload", () => {
-        try {
-          URL.revokeObjectURL(blobUrl);
-        } catch (e) {
-          /* ignore */
-        }
-      });
-
-      // Show as iframe (PDF or other embeddable types) or image fallback
-      const isImage = blob.type.startsWith("image/");
-      newWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>${d.title || "Document"}</title>
-            <meta name="viewport" content="width=device-width,initial-scale=1" />
-            <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}iframe{width:100%;height:100%;border:0}img{max-width:100%;max-height:100%;display:block}</style>
-          </head>
-          <body>
-            <div class="viewer">
-              ${
-                isImage
-                  ? `<img src="${blobUrl}" alt="${d.title || "Document"}" />`
-                  : `<iframe src="${blobUrl}"></iframe>`
-              }
-            </div>
-          </body>
-        </html>
-      `);
-      newWindow.document.close();
-      return;
-    } catch (err) {
-      // If fetch fails (CORS or network), fallback to direct embed which may still trigger download
-      const newWindow = window.open("", "_blank");
-      if (newWindow) {
-        newWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>${d.title || "Document"}</title>
-              <meta name="viewport" content="width=device-width,initial-scale=1" />
-              <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}iframe{width:100%;height:100%;border:0}img{max-width:100%;max-height:100%;display:block}</style>
-            </head>
-            <body>
-              <div class="viewer">
-                <iframe src="${fullUrl}"></iframe>
-              </div>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      } else {
-        alert("Popup blocked. Please allow popups for this site.");
-      }
-    }
+    // Use Google Docs Viewer to display PDF without download
+    const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+    window.open(googleViewerUrl, "_blank", "noopener,noreferrer");
   };
 
   return (

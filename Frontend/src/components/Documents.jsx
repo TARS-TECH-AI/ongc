@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import pdfIcon from "../assets/Vector.png";
+import AuthModal from "./AuthModal";
 
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
@@ -12,6 +13,8 @@ const Documents = () => {
   const [year, setYear] = useState(2025);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
 
   useEffect(() => {
     loadDocuments();
@@ -51,65 +54,28 @@ const Documents = () => {
   }, [documents, activeTab, year]);
 
   const handleViewDocument = (fileUrl, title) => {
+    // Check if user is logged in (using sessionStorage like App.jsx)
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      // Show login modal if not logged in
+      setAuthMode("login");
+      setShowAuthModal(true);
+      return;
+    }
+
+    // User is logged in - open document for viewing
     if (!fileUrl) {
       alert("No document available");
       return;
     }
 
-    // If it's a data URL image, open directly
-    if (fileUrl.startsWith("data:image")) {
-      const win = window.open("", "_blank");
-      if (win) {
-        win.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>${title || "Document"}</title>
-              <meta name="viewport" content="width=device-width,initial-scale=1" />
-              <style>body{margin:0;background:#f3f4f6}.viewer{display:flex;align-items:center;justify-content:center;height:100vh}img{max-width:100%;max-height:100%;display:block}</style>
-            </head>
-            <body>
-              <div class="viewer"><img src="${fileUrl}" alt="${title || 'Document'}"/></div>
-            </body>
-          </html>
-        `);
-        win.document.close();
-      }
-      return;
-    }
-
-    // Try to fetch resource as blob and open in embedded viewer to avoid forced downloads
-    (async () => {
-      try {
-        const res = await fetch(fileUrl, { method: 'GET' });
-        if (!res.ok) throw new Error('Failed to fetch');
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const isImage = blob.type.startsWith('image/');
-        const isPDF = blob.type === 'application/pdf' || blob.type === 'application/x-pdf';
-
-        const win = window.open('', '_blank');
-        if (!win) {
-          URL.revokeObjectURL(blobUrl);
-          alert('Popup blocked. Please allow popups for this site.');
-          return;
-        }
-
-        const safeTitle = (title || 'Document').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>html,body{height:100%;margin:0} .viewer{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f3f4f6} iframe,embed,img{width:100%;height:100%;border:0;object-fit:contain}</style></head><body><div class="viewer">${isImage?`<img src="${blobUrl}" alt="${safeTitle}"/>`:isPDF?`<embed src="${blobUrl}" type="application/pdf" width="100%" height="100%"/>`:`<iframe src="${blobUrl}"></iframe>`}</div></body></html>`;
-
-        try { win.document.open(); win.document.write(html); win.document.close(); }
-        catch (e) { win.location.href = blobUrl; }
-
-        setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch (e) {} }, 1000 * 60 * 5);
-      } catch (err) {
-        alert('Unable to preview file in-browser (CORS or network issue).');
-      }
-    })();
+    // Use Google Docs Viewer to display PDF without download
+    const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+    window.open(googleViewerUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <section id="documents" className="w-full bg-white py-10 sm:py-14 lg:py-20 overflow-hidden">
+    <section id="documents" className="w-full bg-white py-10 sm:py-14 lg:py-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
@@ -177,15 +143,16 @@ const Documents = () => {
                 {list.map((item, idx) => (
                   <li
                     key={idx}
-                    className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                    onClick={() => handleViewDocument(item.fileUrl, item.title)}
+                    className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 rounded-lg hover:bg-slate-50 transition cursor-pointer group relative"
                   >
                     {/* Left */}
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-1">
                       <div className="w-12 h-12 flex items-center justify-center bg-slate-50 rounded-md shrink-0">
                         <img src={pdfIcon} alt="PDF" className="w-6 h-6" />
                       </div>
 
-                      <div>
+                      <div className="flex-1">
                         <p className="font-semibold text-slate-900 leading-snug">
                           {item.title}
                         </p>
@@ -203,16 +170,6 @@ const Documents = () => {
                       </div>
                     </div>
 
-                    {/* Right Buttons */}
-                    <div className="flex gap-3 sm:shrink-0">
-                      <button
-                        onClick={() => handleViewDocument(item.fileUrl, item.title)}
-                        className="text-[#0C2E50] underline text-sm cursor-pointer hover:text-[#0a1f35]"
-                      >
-                        View
-                      </button>
-                    </div>
-
                     {/* Divider (mobile only) */}
                     <div className="border-t border-slate-200 sm:hidden" />
                   </li>
@@ -222,6 +179,17 @@ const Documents = () => {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode={authMode}
+        onAuthSuccess={(user) => {
+          console.log("User logged in:", user);
+          setShowAuthModal(false);
+        }}
+      />
     </section>
   );
 };

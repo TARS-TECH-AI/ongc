@@ -35,8 +35,10 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/documents', documentsRoutes);
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminApprovalsRoutes = require('./routes/adminApprovals');
+const updatesRoutes = require('./routes/updates');
 app.use('/api/admin', adminAuthRoutes);
 app.use('/api/admin/approvals', adminApprovalsRoutes);
+app.use('/api/updates', updatesRoutes);
 // serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

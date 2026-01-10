@@ -8,13 +8,14 @@ import Hero5 from "../assets/Img/26.png";
 /* ===== MARQUEE ITEM ===== */
 const MarqueeItem = () => (
   <span className="flex items-center whitespace-nowrap px-8 sm:px-12">
-    Committee Coordinator CWC:
+    "Educate 
     <span className="text-white">
-      &nbsp; Working tirelessly for the constitutional rights and social justice
-      of our community.
+      &nbsp; 
+    &nbsp; Agitate
     </span>
+    &nbsp; 
     &nbsp;
-    <span className="font-bold">AISCSTEWA–CWC</span>
+    <span className="font-bold">Organize"</span>
   </span>
 );
 

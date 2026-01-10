@@ -1,26 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, CalendarDays, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const updates = [
-  {
-    title: "Notice for 42nd Annual General Meeting",
-    desc: "The 42nd AGM will be held at ONGC Bhawan, New Delhi on 28th October 2024.",
-    date: "15 Nov 2024",
-    highlight: true,
-  },
-  {
-    title: "Notice for 42nd Annual General Meeting",
-    desc: "The 42nd AGM will be held at ONGC Bhawan, New Delhi on 28th October 2024.",
-    date: "15 Nov 2024",
-    highlight: false,
-  },
-  {
-    title: "Notice for 42nd Annual General Meeting",
-    desc: "The 42nd AGM will be held at ONGC Bhawan, New Delhi on 28th October 2024.",
-    date: "15 Nov 2024",
-    highlight: false,
-  },
-];
+const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
 const UpdateCard = ({ item }) => (
   <div className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0">
@@ -39,15 +21,11 @@ const UpdateCard = ({ item }) => (
     {/* Content */}
     <div className="flex-1 min-w-0">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm mb-1">
-        <span
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${
-            item.highlight
-              ? "bg-orange-400 text-white"
-              : "bg-gray-200 text-slate-700"
-          }`}
-        >
-          New
-        </span>
+        {item.highlight && (
+          <span className="px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap bg-orange-400 text-white">
+            New
+          </span>
+        )}
 
         <span className="flex items-center gap-1 text-slate-500 text-xs sm:text-sm">
           <CalendarDays size={14} />
@@ -63,19 +41,54 @@ const UpdateCard = ({ item }) => (
         {item.desc}
       </p>
     </div>
-
-    {/* Arrow */}
-    {/* <div className="shrink-0 flex items-start">
-      <ChevronDown className="text-slate-500 mt-2" size={18} />
-    </div> */}
   </div>
 );
 
-const ImportantUpdates = () => {
-  return (
-    <section id="updates" className="w-full bg-white py-10 sm:py-14 lg:py-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+const ImportantUpdates = ({ onOpenAuth }) => {
+  const navigate = useNavigate();
+  const [updates, setUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Check if user is authenticated
+  const isAuthenticated = typeof window !== 'undefined' && (sessionStorage.getItem('token') || sessionStorage.getItem('user'));
+
+  useEffect(() => {
+    loadUpdates();
+  }, []);
+
+  const loadUpdates = async () => {
+    try {
+      const res = await fetch(`${API}/updates`);
+      if (res.ok) {
+        const data = await res.json();
+        setUpdates(data.updates || []);
+      }
+    } catch (err) {
+      console.error("Failed to load updates:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Separate upcoming and past updates
+  const upcomingUpdates = updates.filter((u) => u.isUpcoming);
+  const pastUpdates = updates.filter((u) => !u.isUpcoming);
+
+  // Format update for UpdateCard
+  const formatUpdate = (update, isHighlight = false) => ({
+    title: update.title,
+    desc: update.venue,
+    date: new Date(update.date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    highlight: isHighlight,
+  });
+
+  return (
+    <section id="updates" className="w-full bg-white py-20 sm:py-24 lg:py-15 overflow-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
@@ -84,27 +97,81 @@ const ImportantUpdates = () => {
           <div className="w-24 sm:w-32 h-1 bg-orange-400 mx-auto mt-3" />
         </div>
 
-        {/* Content */}
-        <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+        {loading ? (
+          <p className="text-center text-slate-500">Loading updates...</p>
+        ) : (
+          /* Content */
+          <div className="relative min-h-[300px]">
+            <div className={isAuthenticated ? '' : 'blur-md pointer-events-none select-none'}>
+              <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
 
-          {/* Center Divider (desktop only) */}
-          <div className="hidden md:block absolute left-1/2 top-0 h-full w-px bg-slate-300" />
+                {/* Center Divider (desktop only) */}
+                <div className="hidden md:block absolute left-1/2 top-0 h-full w-px bg-slate-300" />
 
-          {/* Left Column */}
-          <div className="md:pr-8 lg:pr-12">
-            {updates.map((item, i) => (
-              <UpdateCard key={`left-${i}`} item={item} />
-            ))}
+                {/* Left Column - Upcoming Events (New) */}
+                <div className="md:pr-8 lg:pr-12">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                    Upcoming Events
+                  </h3>
+                  {upcomingUpdates.length > 0 ? (
+                    upcomingUpdates.map((item, i) => (
+                      <UpdateCard key={`upcoming-${i}`} item={formatUpdate(item, true)} />
+                    ))
+                  ) : (
+                    <p className="text-slate-500 text-sm py-4">No upcoming events</p>
+                  )}
+                </div>
+
+                {/* Right Column - Past Events */}
+                <div className="md:pl-8 lg:pl-12">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    Past Events
+                  </h3>
+                  {pastUpdates.length > 0 ? (
+                    pastUpdates.map((item, i) => (
+                      <UpdateCard key={`past-${i}`} item={formatUpdate(item, false)} />
+                    ))
+                  ) : (
+                    <p className="text-slate-500 text-sm py-4">No past events</p>
+                  )}
+                </div>
+
+              </div>
+            </div>
+
+            {!isAuthenticated && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-40 rounded-lg">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 text-white p-6 rounded-md text-center max-w-sm z-40">
+                  <p className="text-white mb-4 font-medium">
+                    Please login or register to view important updates
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={() => {
+                        if (onOpenAuth) return onOpenAuth('login');
+                        navigate('/login');
+                      }}
+                      className="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800"
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (onOpenAuth) return onOpenAuth('register');
+                        navigate('/register');
+                      }}
+                      className="bg-transparent border border-white/30 text-white px-4 py-2 rounded hover:bg-white/5"
+                    >
+                      Register
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Right Column */}
-          <div className="md:pl-8 lg:pl-12">
-            {updates.map((item, i) => (
-              <UpdateCard key={`right-${i}`} item={item} />
-            ))}
-          </div>
-
-        </div>
+        )}
       </div>
     </section>
   );
