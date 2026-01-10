@@ -192,10 +192,10 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
               <button
                 onClick={close}
-                className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition cursor-pointer"
+                className="absolute top-20 right-4 bg-black/90 hover:bg-black text-white p-3 rounded-full transition cursor-pointer z-50 shadow-lg"
                 aria-label="Close lightbox"
               >
-                <X size={24} />
+                <X size={28} />
               </button>
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium cursor-pointer">
@@ -327,10 +327,10 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
             <button
               onClick={close}
-              className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition"
+              className="absolute top-20 right-4 bg-black/90 hover:bg-black text-white p-3 rounded-full transition z-50 shadow-lg"
               aria-label="Close lightbox"
             >
-              <X size={24} />
+              <X size={28} />
             </button>
 
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm font-medium">

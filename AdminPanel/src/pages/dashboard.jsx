@@ -16,20 +16,6 @@ const stats = [
     icon: <Users size={20} className="text-white" />,
     bg: "bg-amber-500",
   },
-  {
-    key: "docs",
-    label: "Documents",
-    value: "116",
-    icon: <FileText size={20} className="text-white" />,
-    bg: "bg-slate-700",
-  },
-  {
-    key: "updates",
-    label: "Updates Published",
-    value: "45",
-    icon: <Bell size={20} className="text-white" />,
-    bg: "bg-slate-900",
-  },
 ];
 
 const pageSize = 10;
@@ -222,7 +208,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {stats.map((s) => (
             <div
               key={s.key}
@@ -246,7 +232,7 @@ const Dashboard = () => {
         </div>
 
         {/* Panels */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Recent Registrations */}
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between mb-4">
