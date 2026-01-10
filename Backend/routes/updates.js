@@ -49,6 +49,7 @@ router.get('/', async (req, res) => {
       id: update._id.toString(),
       title: update.title,
       venue: update.venue,
+      description: update.description || '',
       date: update.date,
       isUpcoming: new Date(update.date) >= now,
     }));
@@ -65,7 +66,7 @@ router.post('/', adminAuth, async (req, res) => {
   try {
     await connectDB();
 
-    const { title, venue, date } = req.body;
+    const { title, venue, date, description } = req.body;
 
     if (!title || !venue || !date) {
       return res.status(400).json({ message: 'Title, venue and date are required' });
@@ -74,6 +75,7 @@ router.post('/', adminAuth, async (req, res) => {
     const newUpdate = new Update({
       title,
       venue,
+      description: description || '',
       date: new Date(date),
     });
 
@@ -85,6 +87,7 @@ router.post('/', adminAuth, async (req, res) => {
         id: newUpdate._id.toString(),
         title: newUpdate.title,
         venue: newUpdate.venue,
+        description: newUpdate.description,
         date: newUpdate.date,
       }
     });
@@ -100,7 +103,7 @@ router.put('/:id', adminAuth, async (req, res) => {
     await connectDB();
 
     const { id } = req.params;
-    const { title, venue, date } = req.body;
+    const { title, venue, description, date } = req.body;
 
     const update = await Update.findById(id);
     if (!update) {
@@ -109,6 +112,7 @@ router.put('/:id', adminAuth, async (req, res) => {
 
     if (title) update.title = title;
     if (venue) update.venue = venue;
+    if (description !== undefined) update.description = description;
     if (date) update.date = new Date(date);
 
     await update.save();
@@ -119,6 +123,7 @@ router.put('/:id', adminAuth, async (req, res) => {
         id: update._id.toString(),
         title: update.title,
         venue: update.venue,
+        description: update.description,
         date: update.date,
       }
     });

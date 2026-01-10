@@ -14,6 +14,7 @@ const Updates = () => {
   const [form, setForm] = useState({
     title: "",
     venue: "",
+    description: "",
     date: new Date().toISOString().split("T")[0],
   });
 
@@ -80,6 +81,7 @@ const Updates = () => {
     setForm({
       title: update.title,
       venue: update.venue,
+      description: update.description || '',
       date: new Date(update.date).toISOString().split("T")[0],
     });
     setIsModalOpen(true);
@@ -108,7 +110,7 @@ const Updates = () => {
 
   const openAddModal = () => {
     setEditingUpdate(null);
-    setForm({ title: "", venue: "", date: new Date().toISOString().split("T")[0] });
+    setForm({ title: "", venue: "", description: "", date: new Date().toISOString().split("T")[0] });
     setIsModalOpen(true);
   };
 
@@ -270,15 +272,28 @@ const Updates = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Venue / Description
+                    Venue
                   </label>
                   <textarea
                     value={form.venue}
                     onChange={(e) => setForm({ ...form, venue: e.target.value })}
-                    placeholder="e.g., The 42nd AGM will be held at ONGC Bhawan, New Delhi on 28th October 2024."
-                    rows={3}
+                    placeholder="e.g., ONGC Bhawan, New Delhi"
+                    rows={2}
                     className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Detailed description of the update or event..."
+                    rows={4}
+                    className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   />
                 </div>
 

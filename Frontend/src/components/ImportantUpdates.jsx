@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Bell, CalendarDays, ChevronDown } from "lucide-react";
+import { Bell, CalendarDays, ChevronDown, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
-const UpdateCard = ({ item }) => (
-  <div className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0">
+const UpdateCard = ({ item, onClick }) => (
+  <div 
+    onClick={onClick}
+    className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0 cursor-pointer hover:bg-slate-50 transition-colors px-3 rounded-md"
+  >
     {/* Icon */}
     <div
       className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center rounded-full ${
@@ -48,6 +51,8 @@ const ImportantUpdates = ({ onOpenAuth }) => {
   const navigate = useNavigate();
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUpdate, setSelectedUpdate] = useState(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // Check if user is authenticated
   const isAuthenticated = typeof window !== 'undefined' && (sessionStorage.getItem('token') || sessionStorage.getItem('user'));
@@ -61,6 +66,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
       const res = await fetch(`${API}/updates`);
       if (res.ok) {
         const data = await res.json();
+        console.log('Loaded updates:', data.updates);
         setUpdates(data.updates || []);
       }
     } catch (err) {
@@ -116,7 +122,14 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                   </h3>
                   {upcomingUpdates.length > 0 ? (
                     upcomingUpdates.map((item, i) => (
-                      <UpdateCard key={`upcoming-${i}`} item={formatUpdate(item, true)} />
+                      <UpdateCard 
+                        key={`upcoming-${i}`} 
+                        item={formatUpdate(item, true)} 
+                        onClick={() => {
+                          console.log('Selected update:', item);
+                          setSelectedUpdate(item);
+                        }}
+                      />
                     ))
                   ) : (
                     <p className="text-slate-500 text-sm py-4">No upcoming events</p>
@@ -131,7 +144,14 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                   </h3>
                   {pastUpdates.length > 0 ? (
                     pastUpdates.map((item, i) => (
-                      <UpdateCard key={`past-${i}`} item={formatUpdate(item, false)} />
+                      <UpdateCard 
+                        key={`past-${i}`} 
+                        item={formatUpdate(item, false)} 
+                        onClick={() => {
+                          console.log('Selected update:', item);
+                          setSelectedUpdate(item);
+                        }}
+                      />
                     ))
                   ) : (
                     <p className="text-slate-500 text-sm py-4">No past events</p>
@@ -170,6 +190,75 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Update Details Modal */}
+        {selectedUpdate && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 relative shadow-2xl">
+              <button
+                onClick={() => {
+                  setSelectedUpdate(null);
+                  setIsDescriptionExpanded(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <CalendarDays size={18} className="text-orange-500" />
+                  <span className="text-sm text-slate-500">
+                    {new Date(selectedUpdate.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                  {selectedUpdate.isUpcoming && (
+                    <span className="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs font-semibold rounded">
+                      Upcoming
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                  {selectedUpdate.title}
+                </h3>
+                <p className="text-slate-700 mb-4">
+                  <strong>Venue:</strong> {selectedUpdate.venue}
+                </p>
+                <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                  <h4 className="font-semibold text-slate-800 mb-2">Description</h4>
+                  {(() => {
+                    const description = selectedUpdate.description || 'No description available';
+                    const words = description.split(/\s+/);
+                    const wordCount = words.length;
+                    const shouldTruncate = wordCount > 100;
+                    const displayText = shouldTruncate && !isDescriptionExpanded 
+                      ? words.slice(0, 100).join(' ') + '...'
+                      : description;
+
+                    return (
+                      <>
+                        <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
+                          {displayText}
+                        </p>
+                        {shouldTruncate && (
+                          <button
+                            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                            className="mt-3 text-orange-500 hover:text-orange-600 font-medium text-sm transition"
+                          >
+                            {isDescriptionExpanded ? 'Show Less' : 'Read More'}
+                          </button>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
