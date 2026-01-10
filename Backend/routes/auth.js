@@ -123,6 +123,8 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
         email: user.email,
         mobile: user.mobile,
         employeeId: user.employeeId,
+        designation: user.designation,
+        category: user.category,
         status: user.status,
         hasIdProof: !!user.idProofDocument
       }
@@ -157,6 +159,8 @@ router.post('/login', async (req, res) => {
         email: user.email,
         mobile: user.mobile,
         employeeId: user.employeeId,
+        designation: user.designation,
+        category: user.category,
         status: user.status,
         hasIdProof: !!user.idProofDocument
       }

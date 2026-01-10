@@ -124,8 +124,8 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
               alt="ONGC Logo"
               className="h-10 sm:h-14 md:h-16 lg:h-18 object-contain"
             />
-            <div className="text-black leading-tight max-w-[48ch] sm:max-w-[64ch] md:max-w-[80ch] whitespace-nowrap overflow-hidden font-bold">
-              <p className="m-0 text-base sm:text-lg md:text-xl font-bold " style={{fontFamily:"Poppins"}}>All India SC&ST Employees Welfare Association</p>
+            <div className="text-black leading-tight font-bold">
+              <p className="m-0 text-base sm:text-lg md:text-xl font-bold whitespace-nowrap" style={{fontFamily:"Poppins"}}>All India SC&ST Employees Welfare Association</p>
               <p className="m-0 text-sm sm:text-base" style={{fontFamily:"Poppins"}}>Central Working Committee
               <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span></p>
             </div>
@@ -133,7 +133,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           </div>
 
           {/* DESKTOP MENU */}
-          <ul className="hidden lg:flex items-center justify-center flex-1 text-sm font-medium text-slate-700">
+          <ul className="hidden lg:flex items-center justify-center flex-1 text-sm font-medium text-slate-700 pt-8">
             {links.map((item, i) => (
               <li
                 key={i}
@@ -168,7 +168,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           </ul>
 
           {/* DESKTOP BUTTONS */}
-          <div className="hidden lg:flex items-center gap-3 ml-6">
+          <div className="hidden lg:flex items-center gap-3 ml-6 pt-8">
             {onOpenAuth && !currentUser && (
               <button
                 onClick={() => onOpenAuth("login")}

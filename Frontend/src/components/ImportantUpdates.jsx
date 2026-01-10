@@ -91,7 +91,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0C2E50]">
             Important Updates
           </h2>
           <div className="w-24 sm:w-32 h-1 bg-orange-400 mx-auto mt-3" />

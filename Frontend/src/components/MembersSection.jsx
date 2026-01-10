@@ -12,7 +12,7 @@ const TableCard = () => (
 
     {/* Table Header (Hidden on Mobile) */}
     <div className="hidden sm:block bg-slate-900 text-white">
-      <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm" style={{ gridTemplateColumns: '2fr 2fr 1fr 1fr' }}>
+      <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm" style={{ gridTemplateColumns: '3fr 2fr 1.2fr 0.8fr' }}>
         <span>Name</span>
         <span>Designation</span>
         <span>Unit</span>
@@ -26,7 +26,7 @@ const TableCard = () => (
         <div
           key={index}
           className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
-          style={{ gridTemplateColumns: '2fr 2fr 1fr 1fr' }}
+          style={{ gridTemplateColumns: '3fr 2fr 1.2fr 0.8fr' }}
         >
           {/* Name */}
           <div>
@@ -82,7 +82,7 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
   return (
     <div className="w-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
       <div className="hidden sm:block bg-slate-900 text-white">
-        <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm">
+        <div className="grid grid-cols-4 px-6 py-4 font-semibold text-sm" style={{ gridTemplateColumns: '2fr 2.5fr 1.2fr 0.8fr' }}>
           <span>Name</span>
           <span>Post in the Association</span>
           <span>Unit</span>
@@ -95,6 +95,7 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
           <div
             key={index}
             className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
+            style={{ gridTemplateColumns: '2fr 2.5fr 1.2fr 0.8fr' }}
           >
             <div>
               <span className="sm:hidden font-semibold text-slate-500">Name</span>
