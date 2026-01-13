@@ -178,7 +178,7 @@ export const RegisterForm = ({onSuccess}) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6">
+    <form onSubmit={handleSubmit} className="mt-6 max-w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Full Name */}
         <div>

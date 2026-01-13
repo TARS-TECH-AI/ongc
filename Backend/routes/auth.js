@@ -6,6 +6,7 @@ const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const User = require('../models/User');
 const connectDB = require('../utils/db');
+const { sendMail, registrationEmail } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -149,6 +150,14 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
         hasIdProof: !!user.idProofDocument
       }
     });
+
+    // Send registration confirmation email (non-blocking)
+    try {
+      const mail = registrationEmail(user.name || user.email, process.env.SITE_NAME || 'AISCSTEWA');
+      sendMail({ to: user.email, ...mail });
+    } catch (mailErr) {
+      console.error('Failed to send registration email:', mailErr && mailErr.message ? mailErr.message : mailErr);
+    }
   } catch (err) {
     console.error('Registration error:', err);
     // Handle Mongo duplicate key error (E11000) - may occur during race conditions

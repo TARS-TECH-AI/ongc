@@ -117,6 +117,16 @@ router.patch('/:id/status', adminAuth, async (req, res) => {
     if (!u) return res.status(404).json({ message: 'Not found' });
     u.status = status;
     await u.save();
+
+    // Send email notifying user about approval/rejection (best-effort)
+    try {
+      const { sendMail, approvalEmail } = require('../utils/mailer');
+      const mail = approvalEmail(u.name || u.email, status === 'Approved', process.env.SITE_NAME || 'AISCSTEWA');
+      sendMail({ to: u.email, ...mail });
+    } catch (mailErr) {
+      console.error('Failed to send approval email:', mailErr && mailErr.message ? mailErr.message : mailErr);
+    }
+
     res.json({ message: 'Status updated', status: u.status });
   } catch (err) {
     console.error(err);

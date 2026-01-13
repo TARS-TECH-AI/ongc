@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
-
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contact');
 const galleryRoutes = require('./routes/gallery');

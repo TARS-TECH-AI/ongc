@@ -150,6 +150,13 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                 <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span>
               </p>
             </div>
+
+            {/* <img
+              src={Logo}
+              alt="ONGC Logo"
+              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'h-12 sm:h-14' : 'h-16 sm:h-18 md:h-20 lg:h-20'}`}
+            /> */}
+
             {/* Static nav images (Babashaheb, Gautam, Birsa) to the right of the title */}
             <div className={`hidden lg:flex items-center ml-2 gap-2 ${isScrolled ? 'opacity-95' : 'opacity-100'}`}>
               <img src={nav_babashaheb} alt="Babasaheb" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />

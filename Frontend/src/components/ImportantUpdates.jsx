@@ -6,16 +6,28 @@ const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "ht
 
 const formatTime = (time) => {
   if (!time) return '';
-  const [hours, minutes] = time.split(':');
-  const hour = parseInt(hours, 10);
+  // Accept formats like 'HH:mm' or full ISO datetime strings like '2026-01-13T14:30:00Z'
+  let hour, minutes;
+  if (time.includes('T') || time.includes('-')) {
+    const d = new Date(time);
+    if (isNaN(d.getTime())) return '';
+    hour = d.getHours();
+    minutes = d.getMinutes().toString().padStart(2, '0');
+  } else if (time.includes(':')) {
+    const parts = time.split(':');
+    hour = parseInt(parts[0], 10);
+    minutes = parts[1] ? parts[1].slice(0,2) : '00';
+  } else {
+    return time;
+  }
   const ampm = hour >= 12 ? 'PM' : 'AM';
   const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
   return `${displayHour}:${minutes} ${ampm}`;
 };
 
-const UpdateCard = ({ item, onReadMore, isAuthenticated }) => (
+const UpdateCard = ({item,onReadMore,isAuthenticated}) => (
   <div 
-    className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0 px-3 rounded-md"
+    className="flex gap-4 py-5 sm:py-6  px-3 rounded-md"
   >
     {/* Icon */}
     <div
@@ -32,27 +44,43 @@ const UpdateCard = ({ item, onReadMore, isAuthenticated }) => (
     {/* Content */}
     <div className="flex-1 min-w-0">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm mb-1">
+
         {item.highlight && (
           <span className="px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap bg-orange-400 text-white">
             New
           </span>
         )}
 
-        <span className="flex items-center gap-1 text-slate-500 text-xs sm:text-sm">
-          <CalendarDays size={14} />
-          {item.date}
-        </span>
+        {item.isPast && (
+          <span className="px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap bg-gray-400 text-white">
+            Old
+          </span>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 text-slate-500 text-xs sm:text-sm">
+          <span className="flex items-center gap-1">
+            <CalendarDays size={14} />
+            <strong className="mr-1">Posted:</strong> {item.postedDateFormatted}
+          </span>
+          <span className="hidden sm:inline">•</span>
+          <span className="flex items-center gap-1">
+            <CalendarDays size={14} />
+            <strong className="mr-1">Meeting:</strong> {item.meetingDateFormatted}{item.time && ` • ${formatTime(item.time)}`}
+          </span>
+        </div>
       </div>
 
       <h4 className="font-semibold text-slate-900 text-sm sm:text-base leading-snug">
         {item.title}
       </h4>
 
+
+
       {isAuthenticated ? (
         <>
-          <p className="text-xs sm:text-sm font-bold text-slate-700 mt-1">
-            {item.date}{item.time && ` • ${formatTime(item.time)}`}
-          </p>
+          {/* <p className="text-xs sm:text-sm font-bold text-slate-700 mt-1">
+            <strong>Meeting:</strong> {item.meetingDateFormatted}{item.time && ` • ${formatTime(item.time)}`}
+          </p> */}
           <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
             <strong>Venue:</strong> {item.venue}
           </p>
@@ -143,17 +171,25 @@ const ImportantUpdates = ({ onOpenAuth }) => {
   });
 
   // Format update for UpdateCard
-  const formatUpdate = (update, isHighlight = false) => ({
+  const formatUpdate = (update, isHighlight = false, isPast = false) => ({
     title: update.title,
     venue: update.venue,
     description: update.description,
-    date: new Date(update.date).toLocaleDateString("en-GB", {
+    // Meeting date formatting
+    meetingDateFormatted: new Date(update.date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    // Posted date (fallback to createdAt if postedDate is not set)
+    postedDateFormatted: new Date(update.postedDate || update.createdAt || update.date).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     }),
     time: update.time,
     highlight: isHighlight,
+    isPast,
   });
 
   return (
@@ -188,7 +224,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                     upcomingUpdates.map((item, i) => (
                       <UpdateCard 
                         key={`upcoming-${i}`} 
-                        item={formatUpdate(item, true)} 
+                        item={formatUpdate(item, true, false)} 
                         isAuthenticated={isAuthenticated}
                         onReadMore={() => {
                           console.log('Selected update:', item);
@@ -215,7 +251,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                     pastUpdates.map((item, i) => (
                       <UpdateCard 
                         key={`past-${i}`} 
-                        item={formatUpdate(item, false)} 
+                        item={formatUpdate(item, false, true)} 
                         isAuthenticated={isAuthenticated}
                         onReadMore={() => {
                           console.log('Selected update:', item);
@@ -258,7 +294,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                 <div className="flex items-center gap-2">
                   <CalendarDays size={18} className="text-orange-500" />
                   <span className="text-sm text-slate-500">
-                    Posted: {new Date(selectedUpdate.createdAt || selectedUpdate.date).toLocaleDateString("en-GB", {
+                    Posted: {new Date(selectedUpdate.postedDate || selectedUpdate.createdAt || selectedUpdate.date).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
