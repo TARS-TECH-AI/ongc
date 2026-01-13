@@ -62,8 +62,16 @@ const PORT = process.env.PORT || 5000;
 // Try an initial connection but do NOT exit on failure - serverless environments
 // should return controlled errors per-request rather than crash on cold start.
 connectDB()
-  .then(() => {
+  .then(async () => {
     console.log('MongoDB connected (initial)');
+    // Ensure model indexes are built at startup (will fail fast if duplicates exist)
+    try {
+      const User = require('./models/User');
+      await User.init();
+      console.log('User indexes ensured');
+    } catch (e) {
+      console.warn('User.init() failed at startup:', e && e.message ? e.message : e);
+    }
   })
   .catch((err) => {
     console.error('Initial MongoDB connection failed (continuing):', err && err.message ? err.message : err);

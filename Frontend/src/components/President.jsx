@@ -22,7 +22,7 @@ const defaultMembers = [
     name: "Mr. Dembi Ram Panging",
     image: coordinatorImg,
     thought:
-      "We feel immensely proud to be ONGCians and committed members of AISCSTEWA, ONGC. Our dedication has always been towards the welfare of our members and the upliftment of our society. In today’s evolving environment, it is essential to transform our activities from traditional modes to transparent and technology-driven platforms. To ensure that our general members have a clear understanding of the Association’s initiatives and to strengthen communication across all levels, the development of a dedicated website has become a vital necessity. As entrusted by our respected President, CWC, this website has been successfully developed. I extend my sincere gratitude to him for giving me the opportunity to lead and coordinate this important task. My heartfelt thanks to all esteemed members of the Social Media and Website Design Committee for their continuous support, valuable suggestions, and teamwork throughout this journey.I look forward to your continued cooperation and active involvement in the future as we work together for the growth and transparency of our Jai Bhim..",
+      "We feel immensely proud to be Ongcians and committed members of AISCSTEWA, ONGC. Our dedication has always been towards the welfare of our members and the upliftment of our society. In today’s evolving environment, it is essential to transform our activities from traditional modes to transparent and technology-driven platforms. To ensure that our general members have a clear understanding of the Association’s initiatives and to strengthen communication across all levels, the development of a dedicated website has become a vital necessity. As entrusted by our respected President, CWC, this website has been successfully developed. I extend my sincere gratitude to him for giving me the opportunity to lead and coordinate this important task. My heartfelt thanks to all esteemed members of the Social Media and Website Design Committee for their continuous support, valuable suggestions, and teamwork throughout this journey.I look forward to your continued cooperation and active involvement in the future as we work together for the growth and transparency of our Jai Bhim..",
   },
 ];
 
@@ -81,7 +81,7 @@ const MemberCard = ({ member, bg }) => {
             {hasOverflow && (
               <button
                 onClick={() => setExpanded((s) => !s)}
-                className="mt-2 text-sm text-[#0C2E50] font-semibold"
+                className="mt-2 text-sm text-[#0C2E50] font-semibold cursor-pointer"
               >
                 {expanded ? 'Read less' : 'Read more'}
               </button>

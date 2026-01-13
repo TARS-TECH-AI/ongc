@@ -19,9 +19,39 @@ export const RegisterForm = ({onSuccess}) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Field-level availability errors (email, mobile, employeeId)
+  const [fieldErrors, setFieldErrors] = useState({ email: '', mobile: '', employeeId: '' });
+
+  const checkFieldAvailability = async (field, value) => {
+    const v = (value || '').trim();
+    if (!v) {
+      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+      return;
+    }
+    try {
+      // send normalized value for email
+      const sendVal = field === 'email' ? v.toLowerCase() : v;
+      const res = await fetch(`${API}/auth/check?field=${encodeURIComponent(field)}&value=${encodeURIComponent(sendVal)}`);
+      const json = await res.json();
+      if (!res.ok) {
+        // on error, clear specific field error (don't block user due to transient issues)
+        setFieldErrors(prev => ({ ...prev, [field]: '' }));
+        return;
+      }
+      setFieldErrors(prev => ({ ...prev, [field]: json.available ? '' : (json.message || 'Your registration already exists. Please login.') }));
+    } catch (err) {
+      console.error('Check field error', err);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear global error while user edits
+    setError(null);
+    // Clear that field's availability error while typing
+    if (['email','mobile','employeeId'].includes(e.target.name)) {
+      setFieldErrors(prev => ({ ...prev, [e.target.name]: '' }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -55,6 +85,12 @@ export const RegisterForm = ({onSuccess}) => {
     e.preventDefault();
     setError(null);
     
+    // Prevent submit if any field-level errors exist
+    if (Object.values(fieldErrors).some(Boolean)) {
+      setError('Please fix highlighted errors before submitting');
+      return;
+    }
+
     // Validate all required fields
     if (!formData.name || !formData.email || !formData.mobile || !formData.employeeId || !formData.designation || !formData.category || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all required fields');
@@ -76,7 +112,7 @@ export const RegisterForm = ({onSuccess}) => {
     try {
       const registrationData = {
         name: formData.name.trim(),
-        email: formData.email.trim(),
+        email: formData.email.trim().toLowerCase(),
         mobile: formData.mobile.trim(),
         employeeId: formData.employeeId.trim(),
         designation: formData.designation.trim(),
@@ -133,7 +169,9 @@ export const RegisterForm = ({onSuccess}) => {
       onSuccess && onSuccess(json.user, 'register');
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message);
+      // Normalize duplicate registration messages to a single friendly prompt
+      const msg = err && err.message && /already/i.test(err.message) ? 'Your registration already exists. Please login.' : (err && err.message) || 'Registration failed';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -141,10 +179,10 @@ export const RegisterForm = ({onSuccess}) => {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Full Name */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Full Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -153,14 +191,14 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
             placeholder="Enter your full name"
           />
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Email Address <span className="text-red-500">*</span>
           </label>
           <input
@@ -169,14 +207,18 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            onBlur={(e) => checkFieldAvailability('email', e.target.value.trim())}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
             placeholder="your.email@example.com"
           />
+          {fieldErrors.email && (
+            <p className="text-xs text-red-600 mt-1">{fieldErrors.email}</p>
+          )}
         </div>
 
         {/* Mobile Number */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Mobile Number <span className="text-red-500">*</span>
           </label>
           <input
@@ -185,15 +227,19 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.mobile}
             onChange={handleChange}
+            onBlur={(e) => checkFieldAvailability('mobile', e.target.value.trim())}
             pattern="[0-9]{10}"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
             placeholder="10 digit mobile number"
           />
+          {fieldErrors.mobile && (
+            <p className="text-xs text-red-600 mt-1">{fieldErrors.mobile}</p>
+          )}
         </div>
 
         {/* Employee ID */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Employee ID <span className="text-red-500">*</span>
           </label>
           <input
@@ -202,14 +248,18 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.employeeId}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            onBlur={(e) => checkFieldAvailability('employeeId', e.target.value.trim())}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
             placeholder="Enter your employee ID"
           />
+          {fieldErrors.employeeId && (
+            <p className="text-xs text-red-600 mt-1">{fieldErrors.employeeId}</p>
+          )}
         </div>
 
         {/* Category */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Category <span className="text-red-500">*</span>
           </label>
           <select
@@ -217,7 +267,7 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition bg-white"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
           >
             <option value="">Select category</option>
             <option value="SC">SC</option>
@@ -230,7 +280,7 @@ export const RegisterForm = ({onSuccess}) => {
 
         {/* Designation */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Designation <span className="text-red-500">*</span>
           </label>
           <input
@@ -239,14 +289,14 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.designation}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
             placeholder="Enter your designation"
           />
         </div>
 
         {/* Password */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Password <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -257,21 +307,21 @@ export const RegisterForm = ({onSuccess}) => {
               value={formData.password}
               onChange={handleChange}
               minLength="6"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
               placeholder="Minimum 6 characters"
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-orange-500 transition"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </span>
           </div>
         </div>
 
         {/* Confirm Password */}
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             Confirm Password <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -281,26 +331,26 @@ export const RegisterForm = ({onSuccess}) => {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
               placeholder="Re-enter password"
             />
             <span
               onClick={() =>
                 setShowConfirmPassword(!showConfirmPassword)
               }
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-orange-500 transition"
             >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </span>
           </div>
         </div>
 
         {/* ID Proof Upload */}
         <div className="md:col-span-2">
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
             ID Proof Document <span className="text-red-500">*</span>
           </label>
-          <label className="flex items-center justify-center w-full px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition">
+          <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md">
             <Upload className="w-5 h-5 mr-2 text-gray-500" />
             <span className="text-sm text-gray-600 truncate">
               {idProofPreview || "Upload (JPG, PNG, PDF - Max 2MB)"}
@@ -323,7 +373,7 @@ export const RegisterForm = ({onSuccess}) => {
 
       <button 
         disabled={loading} 
-        className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6 shadow-md hover:shadow-lg"
+        className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3.5 rounded-lg font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
       >
         {loading ? 'Creating Account...' : 'Register'}
       </button>
@@ -333,15 +383,17 @@ export const RegisterForm = ({onSuccess}) => {
 
 const Register = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-8">
-      <div className="w-full max-w-7xl bg-white/80 backdrop-blur-sm border border-white/40 rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 px-4 py-8">
+      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 lg:p-14 border border-gray-100">
 
-        <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#0C2E50] mb-2">
-          Create Account
-        </h2>
-        <p className="text-center text-gray-600 mb-6">
-          Fill in the details below to register
-        </p>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#0C2E50] to-orange-500 bg-clip-text text-transparent mb-2">
+            Create Account
+          </h2>
+          <p className="text-gray-600 text-sm">
+            Fill in the details below to register
+          </p>
+        </div>
 
         <RegisterForm />
 

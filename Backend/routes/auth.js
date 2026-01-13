@@ -46,10 +46,19 @@ const verifyToken = (req, res, next) => {
 router.post('/register', upload.single('idProof'), async (req, res) => {
   try {
     await connectDB();
+    // Ensure indexes are created (forces index build and surfaces duplicate key errors early)
+    try { await User.init(); } catch (e) { console.warn('User.init() failed:', e && e.message ? e.message : e); }
     console.log('Registration request received');
 
     // Accept fields from multipart/form-data or JSON body
-    const { name, email, password, mobile, employeeId, designation, category } = req.body;
+    const { name, password, designation, category } = req.body;
+    // Normalize and trim critical fields to avoid mismatches
+    const emailRaw = (req.body.email || '').trim();
+    const mobileRaw = (req.body.mobile || '').trim();
+    const employeeIdRaw = (req.body.employeeId || '').trim();
+    const email = emailRaw.toLowerCase();
+    const mobile = mobileRaw;
+    const employeeId = employeeIdRaw;
 
     if (!name || !email || !password || !mobile || !employeeId) {
       const missing = [];
@@ -58,6 +67,8 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
       if (!password) missing.push('password');
       if (!mobile) missing.push('mobile');
       if (!employeeId) missing.push('employeeId');
+      // Trimmed/normalized inputs for debugging
+      console.log('Normalized registration fields:', { email, mobile, employeeId });
       
       console.log('Missing fields:', missing);
       return res.status(400).json({ 
@@ -66,8 +77,12 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
       });
     }
 
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: 'Email already registered' });
+    // Check for existing user by email, mobile or employeeId (normalized)
+    const existing = await User.findOne({ $or: [{ email }, { mobile }, { employeeId }] });
+    if (existing) {
+      // Unified message to avoid leaking which field matched and give clear next action
+      return res.status(400).json({ message: 'Your registration already exists. Please login.' });
+    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -81,6 +96,11 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
       designation,
       category,
     };
+
+    // Ensure fields saved are normalized
+    userData.email = email;
+    userData.mobile = mobile;
+    userData.employeeId = employeeId;
 
     // Handle ID proof upload if file is provided
     if (req.file) {
@@ -131,7 +151,33 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
     });
   } catch (err) {
     console.error('Registration error:', err);
+    // Handle Mongo duplicate key error (E11000) - may occur during race conditions
+    if (err && err.code === 11000) {
+      // Duplicate key error - return friendly unified message
+      return res.status(400).json({ message: 'Your registration already exists. Please login.' });
+    }
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Check field availability (email/mobile/employeeId)
+router.get('/check', async (req, res) => {
+  try {
+    await connectDB();
+    const { field, value } = req.query;
+    if (!field || !value) return res.status(400).json({ message: 'Missing params' });
+    const v = value.trim();
+    let query;
+    if (field === 'email') query = { email: v.toLowerCase() };
+    else if (field === 'mobile') query = { mobile: v };
+    else if (field === 'employeeId') query = { employeeId: v };
+    else return res.status(400).json({ message: 'Invalid field' });
+    const existing = await User.findOne(query);
+    if (existing) return res.json({ available: false, message: 'Your registration already exists. Please login.' });
+    return res.json({ available: true });
+  } catch (err) {
+    console.error('Availability check error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -139,7 +185,9 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     await connectDB();
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const emailRaw = (req.body.email || '').trim();
+    const email = emailRaw.toLowerCase();
     if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 
     const user = await User.findOne({ email });
@@ -189,15 +237,26 @@ router.get('/profile', verifyToken, async (req, res) => {
 router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) => {
   try {
     await connectDB();
-    const { name, mobile, employeeId, designation, category } = req.body;
-    
+    const { name, designation, category } = req.body;
+    const mobileRaw = req.body.mobile ? req.body.mobile.trim() : undefined;
+    const employeeIdRaw = req.body.employeeId ? req.body.employeeId.trim() : undefined;
+
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
     
     // Update fields
     if (name) user.name = name;
-    if (mobile) user.mobile = mobile;
-    if (employeeId) user.employeeId = employeeId;
+    if (mobileRaw) {
+      // ensure no other user has this mobile
+      const other = await User.findOne({ mobile: mobileRaw, _id: { $ne: user._id } });
+      if (other) return res.status(400).json({ message: 'Mobile number already registered' });
+      user.mobile = mobileRaw;
+    }
+    if (employeeIdRaw) {
+      const other = await User.findOne({ employeeId: employeeIdRaw, _id: { $ne: user._id } });
+      if (other) return res.status(400).json({ message: 'Employee ID already registered' });
+      user.employeeId = employeeIdRaw;
+    }
     // Accept designation and category updates (allow empty string)
     if (designation !== undefined) user.designation = designation;
     if (category !== undefined) user.category = category;

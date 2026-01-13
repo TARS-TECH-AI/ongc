@@ -397,8 +397,7 @@ const Approvals = () => {
                 <button
                   onClick={closeDetails}
                   className="text-slate-400 hover:text-slate-600 text-2xl leading-none"
-                >
-                  ✕
+                > ✕
                 </button>
               </div>
 
@@ -410,7 +409,7 @@ const Approvals = () => {
                 <>
                   {selected.error && (
                     <div className="mb-4 p-3 bg-rose-50 border border-rose-100 text-rose-700 rounded">
-                      Failed to load full details: {selected.error}
+                    Failed to load full details: {selected.error}
                     </div>
                   )}
 

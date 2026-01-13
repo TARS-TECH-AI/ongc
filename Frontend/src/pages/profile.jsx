@@ -301,7 +301,7 @@ const Profile = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 mt-24">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 mt-40">
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
         <button
@@ -372,7 +372,7 @@ const Profile = ({ onBack }) => {
         </div>
 
         {/* Profile Information Card */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 ">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Shield className="w-6 h-6 text-[#0C2E50]" />
             Profile Information

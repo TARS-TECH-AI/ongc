@@ -87,7 +87,7 @@ const HeroSection = ({ onOpenAuth }) => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[38vh] md:min-h-[100vh] w-full overflow-hidden mt-18" style={{ paddingTop: navHeight ? `${navHeight}px` : undefined }}>
+    <section id="home" className="relative min-h-[38vh] md:min-h-[100vh] w-full overflow-hidden mt-22" style={{ paddingTop: navHeight ? `${navHeight}px` : undefined }}>
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 lg:mt-10 ">
         {images.map((src, i) => (

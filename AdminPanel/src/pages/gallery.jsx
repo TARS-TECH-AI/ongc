@@ -42,7 +42,7 @@ const Gallery = () => {
             caption: item.caption,
             date: new Date(item.date).toLocaleDateString(),
             src: item.src
-          }));
+          })).reverse(); // Reverse to show oldest first
           setItems(backendItems);
           try { sessionStorage.setItem('admin-gallery-items', JSON.stringify(backendItems)); } catch (e) { /* ignore */ }
           return;
@@ -146,7 +146,7 @@ const Gallery = () => {
             date: data.date || new Date().toLocaleDateString(),
             src: data.url || filePreview,
           };
-          const updated = [newItem, ...items];
+          const updated = [...items, newItem];
           setItems(updated);
           try { sessionStorage.setItem('admin-gallery-items', JSON.stringify(updated)); } catch (e) { /* ignore */ }
           // Reset form and close modal

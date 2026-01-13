@@ -4,7 +4,16 @@ import { useNavigate } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
-const UpdateCard = ({ item, onReadMore }) => (
+const formatTime = (time) => {
+  if (!time) return '';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
+const UpdateCard = ({ item, onReadMore, isAuthenticated }) => (
   <div 
     className="flex gap-4 py-5 sm:py-6 border-b last:border-b-0 px-3 rounded-md"
   >
@@ -39,23 +48,39 @@ const UpdateCard = ({ item, onReadMore }) => (
         {item.title}
       </h4>
 
-      <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-        <strong>Venue:</strong> {item.venue}
-      </p>
-
-      {item.description && (
-        <div className="mt-2">
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2">
-            {item.description}
+      {isAuthenticated ? (
+        <>
+          <p className="text-xs sm:text-sm font-bold text-slate-700 mt-1">
+            {item.date}{item.time && ` • ${formatTime(item.time)}`}
           </p>
-          {item.description.split(/\s+/).length > 20 && (
-            <button 
-              onClick={onReadMore}
-              className="text-orange-500 hover:text-orange-600 text-xs font-medium mt-1 transition"
-            >
-              Read More
-            </button>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+            <strong>Venue:</strong> {item.venue}
+          </p>
+
+          {item.description && (
+            <div className="mt-2">
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2">
+                {item.description}
+              </p>
+              {item.description.split(/\s+/).length > 20 && (
+                <button 
+                  onClick={onReadMore}
+                  className="text-orange-500 hover:text-orange-600 text-xs font-medium mt-1 transition cursor-pointer"
+                >
+                  View
+                </button>
+              )}
+            </div>
           )}
+        </>
+      ) : (
+        <div className="mt-2">
+          <button 
+            onClick={onReadMore}
+            className="text-orange-500 hover:text-orange-600 text-xs font-medium transition cursor-pointer"
+          >
+            View
+          </button>
         </div>
       )}
     </div>
@@ -101,9 +126,21 @@ const ImportantUpdates = ({ onOpenAuth }) => {
     }
   };
 
-  // Separate upcoming and past updates
-  const upcomingUpdates = updates.filter((u) => u.isUpcoming);
-  const pastUpdates = updates.filter((u) => !u.isUpcoming);
+  // Separate upcoming and past updates based on date
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+
+  const upcomingUpdates = updates.filter((u) => {
+    const eventDate = new Date(u.date);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate >= today;
+  });
+
+  const pastUpdates = updates.filter((u) => {
+    const eventDate = new Date(u.date);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate < today;
+  });
 
   // Format update for UpdateCard
   const formatUpdate = (update, isHighlight = false) => ({
@@ -115,11 +152,12 @@ const ImportantUpdates = ({ onOpenAuth }) => {
       month: "short",
       year: "numeric",
     }),
+    time: update.time,
     highlight: isHighlight,
   });
 
   return (
-    <section id="updates" className="w-full bg-white py-20 sm:py-24 lg:py-15 overflow-hidden">
+    <section id="updates" className="w-full bg-white py-20 sm:py-24 lg:py-15 overflow-hidden cursor-pointer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-10 lg:mt-0 -mt-15">
@@ -134,7 +172,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
         ) : (
           /* Content */
           <div className="relative min-h-[300px]">
-            <div className={isAuthenticated ? '' : 'blur-md pointer-events-none select-none'}>
+            <div>
               <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
 
                 {/* Center Divider (desktop only) */}
@@ -151,9 +189,14 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                       <UpdateCard 
                         key={`upcoming-${i}`} 
                         item={formatUpdate(item, true)} 
+                        isAuthenticated={isAuthenticated}
                         onReadMore={() => {
                           console.log('Selected update:', item);
-                          setSelectedUpdate(item);
+                          if (isAuthenticated) {
+                            setSelectedUpdate(item);
+                          } else {
+                            alert('Please login/register to view Important Updates');
+                          }
                         }}
                       />
                     ))
@@ -173,9 +216,14 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                       <UpdateCard 
                         key={`past-${i}`} 
                         item={formatUpdate(item, false)} 
+                        isAuthenticated={isAuthenticated}
                         onReadMore={() => {
                           console.log('Selected update:', item);
-                          setSelectedUpdate(item);
+                          if (isAuthenticated) {
+                            setSelectedUpdate(item);
+                          } else {
+                            alert('Please login/register to view Important Updates');
+                          }
                         }}
                       />
                     ))
@@ -187,35 +235,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
               </div>
             </div>
 
-            {!isAuthenticated && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-40 rounded-lg">
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 text-white p-6 rounded-md text-center max-w-sm z-40">
-                  <p className="text-white mb-4 font-medium">
-                    Please login or register to view important updates
-                  </p>
-                  <div className="flex gap-3 justify-center">
-                    <button
-                      onClick={() => {
-                        if (onOpenAuth) return onOpenAuth('login');
-                        navigate('/login');
-                      }}
-                      className="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800"
-                    >
-                      Login
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (onOpenAuth) return onOpenAuth('register');
-                        navigate('/register');
-                      }}
-                      className="bg-transparent border border-white/30 text-white px-4 py-2 rounded hover:bg-white/5"
-                    >
-                      Register
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+
           </div>
         )}
 
@@ -238,7 +258,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                 <div className="flex items-center gap-2">
                   <CalendarDays size={18} className="text-orange-500" />
                   <span className="text-sm text-slate-500">
-                    {new Date(selectedUpdate.date).toLocaleDateString("en-GB", {
+                    Posted: {new Date(selectedUpdate.createdAt || selectedUpdate.date).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
@@ -253,7 +273,14 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                 <h3 className="text-xl font-bold text-slate-900 mt-2">
                   {selectedUpdate.title}
                 </h3>
-                <p className="text-sm text-slate-700 mt-2">
+                <p className="text-sm font-bold text-slate-800 mt-2">
+                  {new Date(selectedUpdate.date).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}{selectedUpdate.time && ` • ${formatTime(selectedUpdate.time)}`}
+                </p>
+                <p className="text-sm text-slate-700 mt-2 ">
                   <strong>Venue:</strong> {selectedUpdate.venue}
                 </p>
                 <div className="mt-4 p-4 bg-slate-50 rounded-lg">

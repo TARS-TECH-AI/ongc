@@ -44,7 +44,7 @@ const AssociationIdentity = () => {
                   <a
                     href={constitutionPDF}
                     download
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0C2E50] text-white rounded-md text-sm hover:bg-[#0a2440]"
+                    className="inline-flex items-center gap-2 px-2 py-1 bg-[#0C2E50] text-white rounded-md text-sm hover:bg-[#0a2440]"
                   >
                   Download
                   </a>

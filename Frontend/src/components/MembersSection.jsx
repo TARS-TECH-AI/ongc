@@ -3,6 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import cecMembers from "../data/cecMembers";
 import cwcMembers from "../data/cwcMember";
 
+// Custom scrollbar hiding styles
+const scrollbarHideStyle = `
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
 const membersData = [
   
 ];
@@ -12,11 +23,11 @@ const TableCard = () => (
 
     {/* Table Header (Hidden on Mobile) */}
     <div className="hidden sm:block bg-slate-900 text-white">
-      <div className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:3fr_2fr_1.2fr_0.8fr] px-6 py-4 font-semibold text-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:3fr_2fr_1.2fr_80px] px-4 py-4 font-semibold text-sm gap-x-2">
         <span>Name</span>
-        <span>Designation</span>
+        <span>Post In Association</span>
         <span>Unit</span>
-        <span>CPF No</span>
+        <span className="text-left">CPF No</span>
       </div>
     </div>
 
@@ -25,7 +36,7 @@ const TableCard = () => (
       {membersData.map((member, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:3fr_2fr_1.2fr_0.8fr] gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
+          className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:3fr_2fr_1.2fr_80px] gap-2 sm:gap-1 px-4 py-4 text-sm text-slate-800"
         >
           {/* Name */}
           <div>
@@ -47,7 +58,7 @@ const TableCard = () => (
             <p>{member.unit}</p>
           </div>
 
-          <div>
+          <div className="text-left">
             <span className="sm:hidden font-semibold text-slate-500">CPF No</span>
             <p>{member.cpf}</p>
           </div>
@@ -79,21 +90,22 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
   const get = (member, key) => member[key] ?? member[key.toLowerCase()] ?? member[key.toUpperCase()] ?? member[key.charAt(0).toUpperCase() + key.slice(1)] ?? "";
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+    <div className="w-Full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+      <style>{scrollbarHideStyle}</style>
       <div className="hidden sm:block bg-slate-900 text-white">
-        <div className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:2fr_2.5fr_1.2fr_0.8fr] px-6 py-4 font-semibold text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:2fr_2.5fr_1.2fr_50px] px-4 py-4 font-semibold text-sm gap-x-2">
           <span>Name</span>
-          <span>Post in the Association</span>
+          <span>Post In the Association</span>
           <span>Unit</span>
-          <span>CPF No</span>
+          <span className="text-left">CPF No</span>
         </div>
       </div>
 
-      <div ref={containerRef} className="divide-y divide-slate-200 max-h-[320px] overflow-auto">
+      <div ref={containerRef} className="divide-y divide-slate-200 max-h-[320px] overflow-auto scrollbar-hide">
         {items.slice(0, visible).map((member, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:2fr_2.5fr_1.2fr_0.8fr] gap-2 sm:gap-0 px-4 sm:px-6 py-4 text-sm text-slate-800"
+            className="grid grid-cols-1 sm:grid-cols-4 sm:[grid-template-columns:2fr_2.5fr_1.2fr_80px] gap-2 sm:gap-1 px-4 py-4 text-sm text-slate-800"
           >
             <div>
               <span className="sm:hidden font-semibold text-slate-500">Name</span>
@@ -110,9 +122,9 @@ const LazyMemberList = ({ items = [], initialVisible = 5, batch = 5 }) => {
               <p>{get(member, 'unit')}</p>
             </div>
 
-            <div>
+            <div className="text-left">
               <span className="sm:hidden font-semibold text-slate-500">CPF No</span>
-              <p>{get(member, 'cpfNo')}</p>
+              <p className="">{get(member, 'cpfNo')}</p>
             </div>
          </div>
         ))}
@@ -133,56 +145,23 @@ const MembersSection = ({ onOpenAuth }) => {
   return (
     <section id="members" className="w-full px-4 py-12 sm:py-16 lg:py-10 bg-white">
       <div className="max-w-7xl mx-auto">
-
         {/* Members columns: each heading immediately above its box (mobile: stacked) */}
         <div className="relative mt-2">
-          <div className={isAuthenticated ? '' : 'blur-md pointer-events-none select-none'}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold mb-2">CWC Members</h2>
-                <div className="w-16 h-1 bg-orange-500 mb-6" />
-                <LazyMemberList items={cwcMembers} />
-              </div>
+            <div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 cursor-pointer">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2">CWC Members</h2>
+                  <div className="w-16 h-1 bg-orange-500 mb-6 cursor-pointer" />
+                  <LazyMemberList items={cwcMembers} />
+                </div>
 
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold mb-2">CEC Members</h2>
-                <div className="w-16 h-1 bg-orange-500 mb-6" />
-                <LazyMemberList items={cecMembers} />
-              </div>
-            </div>
-          </div>
-
-          {!isAuthenticated && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-40">
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 text-white p-6 rounded-md text-center max-w-sm z-40">
-                <p className="text-white mb-4 font-medium">
-                  Please login or register to view member details
-                </p>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => {
-                      console.log('MembersSection: Login clicked');
-                      if (onOpenAuth) return onOpenAuth('login');
-                      navigate('/login');
-                    }}
-                    className="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => {
-                      console.log('MembersSection: Register clicked');
-                      if (onOpenAuth) return onOpenAuth('register');
-                      navigate('/register');
-                    }}
-                    className="bg-transparent border border-white/30 text-white px-4 py-2 rounded hover:bg-white/5"
-                  >
-                    Register
-                  </button>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2">CEC Members</h2>
+                  <div className="w-16 h-1 bg-orange-500 mb-6" />
+                  <LazyMemberList items={cecMembers} />
                 </div>
               </div>
             </div>
-          )}
         </div>
       </div>
     </section>

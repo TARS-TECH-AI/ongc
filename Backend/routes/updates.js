@@ -51,8 +51,12 @@ router.get('/', async (req, res) => {
       venue: update.venue,
       description: update.description || '',
       date: update.date,
+      postedDate: update.postedDate,
+      time: update.time,
       isUpcoming: new Date(update.date) >= now,
     }));
+    
+    console.log('Formatted updates for GET:', formattedUpdates);
     
     res.json({ updates: formattedUpdates });
   } catch (err) {
@@ -66,7 +70,9 @@ router.post('/', adminAuth, async (req, res) => {
   try {
     await connectDB();
 
-    const { title, venue, date, description } = req.body;
+    const { title, venue, date, description, postedDate, time } = req.body;
+
+    console.log('Create Update payload:', { title, venue, date, description, postedDate, time });
 
     if (!title || !venue || !date) {
       return res.status(400).json({ message: 'Title, venue and date are required' });
@@ -77,6 +83,8 @@ router.post('/', adminAuth, async (req, res) => {
       venue,
       description: description || '',
       date: new Date(date),
+      postedDate: postedDate ? new Date(postedDate) : new Date(),
+      time: time || '',
     });
 
     await newUpdate.save();
@@ -89,6 +97,8 @@ router.post('/', adminAuth, async (req, res) => {
         venue: newUpdate.venue,
         description: newUpdate.description,
         date: newUpdate.date,
+        postedDate: newUpdate.postedDate,
+        time: newUpdate.time,
       }
     });
   } catch (err) {
@@ -103,7 +113,9 @@ router.put('/:id', adminAuth, async (req, res) => {
     await connectDB();
 
     const { id } = req.params;
-    const { title, venue, description, date } = req.body;
+    const { title, venue, description, date, postedDate, time } = req.body;
+
+    console.log('Update payload for id', id, { title, venue, description, date, postedDate, time });
 
     const update = await Update.findById(id);
     if (!update) {
@@ -114,6 +126,8 @@ router.put('/:id', adminAuth, async (req, res) => {
     if (venue) update.venue = venue;
     if (description !== undefined) update.description = description;
     if (date) update.date = new Date(date);
+    if (postedDate) update.postedDate = new Date(postedDate);
+    if (time !== undefined) update.time = time;
 
     await update.save();
 
@@ -125,6 +139,8 @@ router.put('/:id', adminAuth, async (req, res) => {
         venue: update.venue,
         description: update.description,
         date: update.date,
+        postedDate: update.postedDate,
+        time: update.time,
       }
     });
   } catch (err) {

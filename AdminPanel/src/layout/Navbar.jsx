@@ -11,6 +11,7 @@ const routeTitleMap = {
   'members': 'Member Management',
   'documents': 'Document Management',
   'gallery': 'Gallery Management',
+  'enquiry':"Enquiry",
   'settings': 'Settings',
 };
 

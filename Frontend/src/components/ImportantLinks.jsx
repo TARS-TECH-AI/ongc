@@ -80,8 +80,7 @@ const ImportantLinks = () => {
             <LinkColumn title="ONGC Portals" items={leftLinks} />
             <LinkColumn title="Government Portals" items={rightLinks} />
           </div>
-
-        </div>
+          </div>
       </div>
     </section>
   );

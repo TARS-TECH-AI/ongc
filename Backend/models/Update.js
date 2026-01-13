@@ -5,6 +5,8 @@ const updateSchema = new mongoose.Schema({
   venue: { type: String, required: true },
   description: { type: String, default: '' },
   date: { type: Date, required: true },
+  time: { type: String },
+  postedDate: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
 

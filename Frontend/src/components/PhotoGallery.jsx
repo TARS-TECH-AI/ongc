@@ -112,21 +112,29 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
       <section className="min-h-screen bg-gray-50 py-8 cursor-pointer">
         <div className="max-w-7xl mx-auto px-4">
           {/* Back Button */}
-          <button
+          {/* <button
             onClick={closeFullGallery}
             className="flex items-center gap-2 mb-6 px-4 py-2 bg-white hover:bg-gray-100 rounded-lg shadow-md transition cursor-pointer"
           >
             <ArrowLeft size={20} />
             <span className="font-semibold cursor-pointer">Back to Gallery</span>
-          </button>
+          </button> */}
 
           {/* Heading */}
-          <div className="text-center mb-8">
+          <div className="relative text-center mb-8 mt-42">
+            {/* Back Button */}
+            <button
+              onClick={closeFullGallery}
+              className="absolute left-0 -translate-x-0 top-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 rounded-md shadow-sm transition"
+            >
+              <ArrowLeft size={18} />
+              <span className="font-medium hidden sm:inline">Back</span>
+            </button>
             <h2 className="text-3xl font-bold text-slate-900">
               Complete Photo Gallery
             </h2>
-            <div className="w-28 h-1 bg-orange-500 mx-auto mt-3 cursor-pointer"></div>
-            <p className="text-slate-600 mt-2 cursor-pointer">Total {images.length} Images</p>
+            <div className="w-28 h-1 bg-orange-500 mx-auto mt-3"></div>
+            <p className="text-slate-600 mt-2">Total {images.length} Images</p>
           </div>
 
           {/* All Images Grid */}
@@ -213,7 +221,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
 
   // Main Gallery Preview (6 images)
   return (
-    <section id="gallery" className="py-12 sm:py-16 lg:py-20 bg-white overflow-hidden">
+    <section id="gallery" className="py-12 sm:py-16 lg:py-20 bg-white overflow-hidden cursor-pointer">
       {/* Heading */}
       <div className="text-center mb-8 sm:mb-12 px-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
@@ -222,9 +230,9 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
         <div className="w-20 sm:w-28 h-1 bg-orange-500 mx-auto mt-3"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 cursor-pointer">
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 cursor-pointer">
             {/* Skeleton loaders */}
             {[...Array(6)].map((_, i) => (
               <div
@@ -278,7 +286,7 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
             {remainingCount > 0 && visibleImages[5] && (
               <button
                 onClick={openFullGallery}
-                className="relative overflow-hidden rounded-2xl shadow-lg focus:outline-none group"
+                className="relative overflow-hidden rounded-2xl shadow-lg focus:outline-none group cursor-pointer"
               >
                 <img
                   src={visibleImages[5]}

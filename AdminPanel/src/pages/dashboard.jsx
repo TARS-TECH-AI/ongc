@@ -24,7 +24,6 @@ const API =
   import.meta.env.VITE_API_BASE ||
   "https://ongc-q48j.vercel.app/api";
 
-
 const Dashboard = () => {
   const [allRegs, setAllRegs] = React.useState([]);
   const [recentRegs, setRecentRegs] = React.useState([]);
@@ -353,23 +352,25 @@ const Dashboard = () => {
 
                   {/* Details Modal */}
                   {showUserModal && userDetails && (
-                    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+                    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto ">
                       <div
-                        className="fixed inset-0 bg-black/50 cursor-pointer"
+                        className="fixed inset-0 bg-black/50 cursor-pointer "
                         onClick={closeDetails}
                       />
 
-                      <div className="relative z-50 w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 my-8">
-                        <div className="flex items-start justify-between mb-6">
-                          <h2 className="text-xl font-bold text-slate-900">
-                            User Details
-                          </h2>
-                          <button
-                            onClick={closeDetails}
-                            className="text-slate-400 hover:text-slate-600 text-2xl leading-none"
-                          >
-                            ✕
-                          </button>
+                      <div className="relative z-50 w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 my-8 max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-white pb-4 mb-4 border-b border-slate-100">
+                          <div className="flex items-start justify-between">
+                            <h2 className="text-xl font-bold text-slate-900">
+                              User Details
+                            </h2>
+                            <button
+                              onClick={closeDetails}
+                              className="text-slate-400 hover:text-slate-600 text-2xl leading-none p-1"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </div>
 
                         {userDetails.loading ? (
@@ -590,12 +591,7 @@ const Dashboard = () => {
                                 )}
                               </div>
 
-                              {/* Additional Documents */}
-                              <div>
-                                <h4 className="text-md font-semibold mb-3 text-slate-800">
-                                  Additional Documents (
-                                  {userDetails.docs?.length || 0})
-                                </h4>
+                              <div className="border-t pt-6 flex items-center gap-4">
                                 <div className="space-y-2">
                                   {userDetails.docs &&
                                   userDetails.docs.length ? (
@@ -679,11 +675,8 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-
-          
-      
-    </div>
-    </div>
+        </div>
+      </div>
     </div>
   );
 };

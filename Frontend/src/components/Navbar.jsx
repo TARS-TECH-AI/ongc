@@ -2,14 +2,16 @@ import React, { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
 import Logo2 from "../assets/ongc.png";
-import nav_babashaheb from "../assets/NavImg/babashaheb.png";
+import nav_babashaheb from "../assets/NavImg/babashaheb.jpg";
 import nav_chhtrapati from "../assets/NavImg/chhtrapati.png";
 import nav_Gandhi from "../assets/NavImg/Gandhi.png";
 import nav_jyotiba from "../assets/NavImg/jyotiba.png";
 import nav_lokmanya from "../assets/NavImg/lokmanya.png";
 import nav_savitribai from "../assets/NavImg/savitribai.png";
 import nav_bhimbori from "../assets/NavImg/bhimbori.jpg";
-import nav_bhupen_h from "../assets/NavImg/bhupen_h.png"
+import nav_bhupen_h from "../assets/NavImg/bhupen_h.png";
+import nav_gautam_b from "../assets/NavImg/budha.jpg";
+import nav_birsa_m from "../assets/NavImg/birsa_M.jpg";
 
 const Carousel = ({ images = [], interval = 2500, className = "w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain" }) => {
   const [idx, setIdx] = React.useState(0);
@@ -103,7 +105,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
     { label: "Members", id: "members" },
     { label: "Documents", id: "documents", restricted: true },
     { label: "Updates", id: "updates", restricted: true },
-    { label: "AISCTEWA Units", id: "units" },
+    { label: "AISCSTEWA Units", id: "units" },
     { label: "Gallery", id: "gallery" },
   ];
 
@@ -113,15 +115,15 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
         {/* NAVBAR ROW */}
         <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-1' : 'py-2 md:py-3'}`}>
           {/* LOGO */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {showExpanded && (
-              <div className="hidden lg:flex items-center px-2 lg:px-3">
-                <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_Gandhi, nav_jyotiba, nav_lokmanya, nav_savitribai,nav_bhimbori,nav_bhupen_h]} className="w-16 h-16 sm:w-18 sm:h-18 md:w-22 md:h-22 lg:w-28 lg:h-28 object-contain" />
+              <div className="hidden lg:flex items-center px-0 lg:px-1">
+                <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_Gandhi, nav_jyotiba, nav_lokmanya, nav_savitribai,nav_bhimbori,nav_bhupen_h,nav_birsa_m]} className="w-16 h-16 sm:w-18 sm:h-18 md:w-22 md:h-22 lg:w-28 lg:h-28 object-contain" />
               </div>
             )}
 
           <div
-            className={`flex items-center cursor-pointer px-2 lg:px-4 transition-all duration-300 ${isScrolled ? 'gap-2' : 'gap-4'}`}
+            className={`flex items-center cursor-pointer px-1 lg:px-2 transition-all duration-300 gap-1`}
             onClick={() => {
               onNavigate && onNavigate('home');
               setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
@@ -132,17 +134,27 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             <img
               src={Logo2}
               alt="ONGC Emblem"
-              className={`object-contain px-1 transition-all duration-300 ${isScrolled ? 'h-10 sm:h-12' : 'h-14 sm:h-18 md:h-22 lg:h-20'}`}
+              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'h-12 sm:h-14' : 'h-16 sm:h-18 md:h-20 lg:h-18'}`}
             />
             <img
               src={Logo}
               alt="ONGC Logo"
-              className={`object-contain px-1 transition-all duration-300 ${isScrolled ? 'h-10 sm:h-12' : 'h-14 sm:h-18 md:h-22 lg:h-24'}`}
+              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'h-12 sm:h-14' : 'h-16 sm:h-18 md:h-20 lg:h-20'}`}
             />
             <div className="text-black leading-tight font-bold hidden lg:block transition-all duration-300">
-              <p className={`m-0 font-bold text-blue-500 whitespace-nowrap ${isScrolled ? 'text-sm sm:text-base md:text-lg lg:text-xl' : 'text-lg sm:text-xl md:text-2xl lg:text-4xl'}`} style={{fontFamily:"Poppins"}}>All India SC & ST Employees Welfare Association</p>
-              <p className={`m-0 text-blue-500 ${isScrolled ? 'text-xs sm:text-sm md:text-base lg:text-lg' : 'text-base sm:text-lg md:text-xl lg:text-3xl'}`} style={{fontFamily:"Poppins"}}>Central Working Committee
-              <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span></p>
+              <p className={`m-0 font-bold text-blue-500 whitespace-nowrap ${isScrolled ? 'text-sm sm:text-base md:text-lg lg:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'}`} style={{ fontFamily: 'Poppins' }}>
+                All India SC & ST Employees Welfare Association
+              </p>
+              <p className={`m-0 text-blue-500 ${isScrolled ? 'text-sm sm:text-sm md:text-base lg:text-lg' : 'text-base sm:text-lg md:text-xl lg:text-2xl'}`} style={{ fontFamily: 'Poppins' }}>
+                Central Working Committee
+                <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span>
+              </p>
+            </div>
+            {/* Static nav images (Babashaheb, Gautam, Birsa) to the right of the title */}
+            <div className={`hidden lg:flex items-center ml-2 gap-2 ${isScrolled ? 'opacity-95' : 'opacity-100'}`}>
+              <img src={nav_babashaheb} alt="Babasaheb" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />
+              <img src={nav_gautam_b} alt="Gautambuddha" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />
+              <img src={nav_birsa_m} alt="Birsa Munda" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />
             </div>
           </div>
           </div>
@@ -217,12 +229,20 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             {/* DESKTOP BUTTONS */}
             <div className="flex items-center gap-2 ml-4">
               {onOpenAuth && !currentUser && (
-                <button
-                  onClick={() => onOpenAuth("login")}
-                  className="px-3 py-1 rounded-md border border-white text-sm cursor-pointer bg-white text-[#0C2E50] hover:bg-gray-100"
-                >
-                  Login
-                </button>
+                <>
+                  <button
+                    onClick={() => onOpenAuth("register")}
+                    className="px-3 py-1 rounded-md border border-white text-sm cursor-pointer bg-white text-[#0C2E50] hover:bg-gray-100"
+                  >
+                    Register
+                  </button>
+                  <button
+                    onClick={() => onOpenAuth("login")}
+                    className="px-3 py-1 rounded-md border border-white text-sm cursor-pointer bg-white text-[#0C2E50] hover:bg-gray-100"
+                  >
+                    Login
+                  </button>
+                </>
               )}
 
               {currentUser && (
@@ -324,10 +344,18 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                 <button
                   onClick={() => {
                     setOpen(false);
+                    onOpenAuth && onOpenAuth("register");
+                  }}
+                  className="border px-3 py-1 rounded-md bg-transparent text-sm text-[#0C2E50] border-[#0C2E50]"
+                >
+                  Register
+                </button>
+                <button
+                  onClick={() => {
+                    setOpen(false);
                     onOpenAuth && onOpenAuth("login");
                   }}
-                  className="border px-3 py-1 rounded-md bg-[#0C2E50] text-sm text-white"
-                >
+                  className="border px-3 py-1 rounded-md bg-[#0C2E50] text-sm text-white">
                   Login
                 </button>
               </>
@@ -348,8 +376,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                     setOpen(false);
                     onNavigate && onNavigate('profile');
                   }}
-                  className="w-full border py-2 rounded-md"
-                >
+                  className="w-full border py-2 rounded-md">
                   View Profile
                 </button>
                 <button
@@ -358,8 +385,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                     onLogout && onLogout();
                     onNavigate && onNavigate('home');
                   }}
-                  className="w-full border py-2 rounded-md"
-                >
+                  className="w-full border py-2 rounded-md">
                   Logout
                 </button>
               </div>

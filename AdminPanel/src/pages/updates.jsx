@@ -6,6 +6,15 @@ const API =
   import.meta.env.VITE_API_BASE ||
   "https://ongc-q48j.vercel.app/api";
 
+const formatTime = (time) => {
+  if (!time) return '';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
 const Updates = () => {
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -15,7 +24,11 @@ const Updates = () => {
     title: "",
     venue: "",
     description: "",
+    postedDate: new Date().toISOString().split("T")[0],
     date: new Date().toISOString().split("T")[0],
+    hour: "",
+    minute: "",
+    ampm: "AM",
   });
 
   useEffect(() => {
@@ -45,6 +58,29 @@ const Updates = () => {
       return;
     }
 
+    // Convert 12-hour time to 24-hour format
+    let time = "";
+    if (form.hour && form.minute) {
+      let hour24 = parseInt(form.hour, 10);
+      if (form.ampm === "PM" && hour24 !== 12) {
+        hour24 += 12;
+      } else if (form.ampm === "AM" && hour24 === 12) {
+        hour24 = 0;
+      }
+      time = `${String(hour24).padStart(2, '0')}:${form.minute}`;
+    }
+
+    const submitData = {
+      title: form.title,
+      venue: form.venue,
+      description: form.description,
+      postedDate: form.postedDate,
+      date: form.date,
+      time: time,
+    };
+
+    console.log('Submitting update with data:', submitData);
+
     try {
       const token = sessionStorage.getItem("admin-token");
       const url = editingUpdate
@@ -58,14 +94,14 @@ const Updates = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(submitData),
       });
 
       if (res.ok) {
         alert(editingUpdate ? "Update modified successfully" : "Update added successfully");
         setIsModalOpen(false);
         setEditingUpdate(null);
-        setForm({ title: "", venue: "", date: new Date().toISOString().split("T")[0] });
+        setForm({ title: "", venue: "", description: "", postedDate: new Date().toISOString().split("T")[0], date: new Date().toISOString().split("T")[0], hour: "", minute: "", ampm: "AM" });
         loadUpdates();
       } else {
         const err = await res.json();
@@ -78,11 +114,41 @@ const Updates = () => {
 
   const handleEdit = (update) => {
     setEditingUpdate(update);
+    
+    // Parse time back to 12-hour format
+    let hour = "";
+    let minute = "";
+    let ampm = "AM";
+    
+    if (update.time) {
+      const [h, m] = update.time.split(':');
+      const hour24 = parseInt(h, 10);
+      
+      if (hour24 === 0) {
+        hour = "12";
+        ampm = "AM";
+      } else if (hour24 === 12) {
+        hour = "12";
+        ampm = "PM";
+      } else if (hour24 > 12) {
+        hour = String(hour24 - 12);
+        ampm = "PM";
+      } else {
+        hour = String(hour24);
+        ampm = "AM";
+      }
+      minute = m;
+    }
+    
     setForm({
       title: update.title,
       venue: update.venue,
       description: update.description || '',
+      postedDate: update.postedDate ? new Date(update.postedDate).toISOString().split("T")[0] : (update.createdAt ? new Date(update.createdAt).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]),
       date: new Date(update.date).toISOString().split("T")[0],
+      hour: hour,
+      minute: minute,
+      ampm: ampm,
     });
     setIsModalOpen(true);
   };
@@ -110,7 +176,7 @@ const Updates = () => {
 
   const openAddModal = () => {
     setEditingUpdate(null);
-    setForm({ title: "", venue: "", description: "", date: new Date().toISOString().split("T")[0] });
+    setForm({ title: "", venue: "", description: "", postedDate: new Date().toISOString().split("T")[0], date: new Date().toISOString().split("T")[0], hour: "", minute: "", ampm: "AM" });
     setIsModalOpen(true);
   };
 
@@ -245,7 +311,20 @@ const Updates = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Date
+                    Posted Date
+                  </label>
+                  <input
+                    type="date"
+                    value={form.postedDate}
+                    onChange={(e) => setForm({ ...form, postedDate: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Meeting Date
                   </label>
                   <input
                     type="date"
@@ -254,6 +333,42 @@ const Updates = () => {
                     className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Meeting Time (Optional)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <select
+                      value={form.hour}
+                      onChange={(e) => setForm({ ...form, hour: e.target.value })}
+                      className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Hour</option>
+                      {[...Array(12)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>{i + 1}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={form.minute}
+                      onChange={(e) => setForm({ ...form, minute: e.target.value })}
+                      className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Min</option>
+                      {["00", "15", "30", "45"].map((m) => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={form.ampm}
+                      onChange={(e) => setForm({ ...form, ampm: e.target.value })}
+                      className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -335,7 +450,7 @@ const UpdateCard = ({ update, onEdit, onDelete, isUpcoming }) => (
         )}
         <span className="text-xs text-slate-500 flex items-center gap-1">
           <Calendar size={12} />
-          {new Date(update.date).toLocaleDateString("en-GB", {
+          Posted: {new Date(update.postedDate || update.createdAt || update.date).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
             year: "numeric",
@@ -346,6 +461,14 @@ const UpdateCard = ({ update, onEdit, onDelete, isUpcoming }) => (
       <p className="text-xs text-slate-500 mt-1 flex items-start gap-1">
         <MapPin size={12} className="shrink-0 mt-0.5" />
         {update.venue}
+      </p>
+      <p className="text-xs font-bold text-slate-700 mt-1">
+        Meeting: {new Date(update.date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
+        {update.time && ` • ${formatTime(update.time)}`}
       </p>
     </div>
     <div className="flex gap-2 shrink-0">
