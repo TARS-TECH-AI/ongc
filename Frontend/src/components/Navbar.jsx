@@ -134,18 +134,18 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             <img
               src={Logo2}
               alt="ONGC Emblem"
-              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'h-12 sm:h-14' : 'h-16 sm:h-18 md:h-20 lg:h-18'}`}
+              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'ml-10 h-12 sm:h-14' : 'h-16 sm:h-18 md:h-20 lg:h-18'}`}
             />
             <img
               src={Logo}
               alt="ONGC Logo"
-              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'h-12 sm:h-14' : 'h-16 sm:h-18 md:h-20 lg:h-20'}`}
+              className={`object-contain px-0 transition-all duration-300 ${isScrolled ? 'ml-6 h-16 sm:h-18' : 'h-16 sm:h-18 md:h-20 lg:h-20'}`}
             />
             <div className="text-black leading-tight font-bold hidden lg:block transition-all duration-300">
-              <p className={`m-0 font-bold text-blue-500 whitespace-nowrap ${isScrolled ? 'text-sm sm:text-base md:text-lg lg:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'}`} style={{ fontFamily: 'Poppins' }}>
+              <p className={`m-0 font-bold text-blue-500 whitespace-nowrap ${isScrolled ? 'ml-10 text-sm sm:text-base md:text-lg lg:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'}`} style={{ fontFamily: 'Poppins' }}>
                 All India SC & ST Employees Welfare Association
               </p>
-              <p className={`m-0 text-blue-500 ${isScrolled ? 'text-sm sm:text-sm md:text-base lg:text-lg' : 'text-base sm:text-lg md:text-xl lg:text-2xl'}`} style={{ fontFamily: 'Poppins' }}>
+              <p className={`m-0 text-blue-500 ${isScrolled ? 'ml-10 text-sm sm:text-sm md:text-base lg:text-lg' : 'text-base sm:text-lg md:text-xl lg:text-2xl'}`} style={{ fontFamily: 'Poppins' }}>
                 Central Working Committee
                 <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span>
               </p>
@@ -158,7 +158,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
             /> */}
 
             {/* Static nav images (Babashaheb, Gautam, Birsa) to the right of the title */}
-            <div className={`hidden lg:flex items-center ml-2 gap-2 ${isScrolled ? 'opacity-95' : 'opacity-100'}`}>
+            <div className={`hidden lg:flex items-center ml-2 gap-2  ${isScrolled ? 'ml-5 opacity-95' : 'opacity-100'}`}>
               <img src={nav_babashaheb} alt="Babasaheb" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />
               <img src={nav_gautam_b} alt="Gautambuddha" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />
               <img src={nav_birsa_m} alt="Birsa Munda" className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 object-contain rounded-sm" />

@@ -220,14 +220,14 @@ const Approvals = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 ">
+      <div className="max-w-9xl px-2 sm:px-6 lg:px-4">
         {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-white rounded-lg shadow -mt-4 -ml-4">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search Input */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Search className="absolute  top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by name, email, mobile or employee ID..."
@@ -255,12 +255,12 @@ const Approvals = () => {
 
           {/* Results Count */}
           <div className="mt-3 text-sm text-slate-600">
-            Showing {filteredRows.length} of {rows.length} users
+            Showing {filteredRows.length} of {rows.length}users
           </div>
 
           {loadError && (
             <div className="mt-4 p-3 bg-rose-50 border border-rose-100 text-rose-700 rounded flex items-center justify-between">
-              <div>Failed to load users: {loadError}</div>
+              <div>Failed to load users:{loadError}</div>
               <div>
                 <button
                   onClick={() => {

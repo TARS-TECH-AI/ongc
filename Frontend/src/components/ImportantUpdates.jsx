@@ -267,12 +267,9 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                     <p className="text-slate-500 text-sm py-4">No past events</p>
                   )}
                 </div>
-
-              </div>
+               </div>
             </div>
-
-
-          </div>
+         </div>
         )}
 
         {/* Update Details Modal */}

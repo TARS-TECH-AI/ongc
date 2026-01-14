@@ -35,9 +35,15 @@ app.use('/api/documents', documentsRoutes);
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminApprovalsRoutes = require('./routes/adminApprovals');
 const updatesRoutes = require('./routes/updates');
+const membersRoutes = require('./routes/members');
 app.use('/api/admin', adminAuthRoutes);
 app.use('/api/admin/approvals', adminApprovalsRoutes);
 app.use('/api/updates', updatesRoutes);
+app.use('/api/members', membersRoutes);
+
+// Return JSON 404 for unknown API routes
+app.use('/api', (req, res) => res.status(404).json({ message: 'API endpoint not found' }));
+
 // serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -71,12 +77,28 @@ connectDB()
     } catch (e) {
       console.warn('User.init() failed at startup:', e && e.message ? e.message : e);
     }
+
+    // ensure Member indexes
+    try {
+      const Member = require('./models/Member');
+      await Member.init();
+      console.log('Member indexes ensured');
+    } catch (e) {
+      console.warn('Member.init() failed at startup:', e && e.message ? e.message : e);
+    }
+
+    // start server after initial DB connection attempt (do not crash on failure)
+    console.log('Starting server...');
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   })
-  .catch((err) => {
-    console.error('Initial MongoDB connection failed (continuing):', err && err.message ? err.message : err);
-  })
-  .finally(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  .catch(err => {
+    console.error('Initial DB connection failed (continuing without DB):', err && err.message ? err.message : err);
+    // still start the server; DB errors will be handled per-request
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT} (DB not connected)`);
+    });
   });
 
 // Global error handler to ensure JSON responses

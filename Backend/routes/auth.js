@@ -81,7 +81,6 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
     // Check for existing user by email, mobile or employeeId (normalized)
     const existing = await User.findOne({ $or: [{ email }, { mobile }, { employeeId }] });
     if (existing) {
-      // Unified message to avoid leaking which field matched and give clear next action
       return res.status(400).json({ message: 'Your registration already exists. Please login.' });
     }
 

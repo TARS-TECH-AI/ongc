@@ -61,9 +61,13 @@ router.get('/', adminAuth, async (req, res) => {
 // GET /:id - get user details
 router.get('/:id', adminAuth, async (req, res) => {
   try {
+    console.log(`adminApprovals GET /:id requested by admin=${req.admin && req.admin.email ? req.admin.email : 'unknown'} id=${req.params.id}`);
     await connectDB();
     const u = await User.findById(req.params.id).select('-passwordHash');
-    if (!u) return res.status(404).json({ message: 'Not found' });
+    if (!u) {
+      console.warn(`adminApprovals: user not found id=${req.params.id}`);
+      return res.status(404).json({ message: `User ${req.params.id} not found` });
+    }
     // Avoid returning large inline/base64 documents in the main details payload.
     // If the idProofDocument is a data URL (inline), omit it and set a flag so
     // the frontend can request it explicitly when needed.
@@ -155,9 +159,13 @@ router.post('/:id/documents', adminAuth, upload.single('file'), async (req, res)
 // DELETE /:id - delete a user and cascade-delete related resources (id proof, uploaded files)
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
+    console.log(`adminApprovals DELETE /:id requested by admin=${req.admin && req.admin.email ? req.admin.email : 'unknown'} id=${req.params.id}`);
     await connectDB();
     const u = await User.findById(req.params.id);
-    if (!u) return res.status(404).json({ message: 'Not found' });
+    if (!u) {
+      console.warn(`adminApprovals DELETE: user not found id=${req.params.id}`);
+      return res.status(404).json({ message: `User ${req.params.id} not found` });
+    }
 
     // Delete Cloudinary id proof if present
     if (u.idProofPublicId) {

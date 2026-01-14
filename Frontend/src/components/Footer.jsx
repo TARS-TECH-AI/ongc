@@ -17,18 +17,18 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
         <div className="border-t border-slate-200"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-6 md:py-10">
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 md:gap-12">
 
           {/* Logo + About */}
-          <div className="lg:col-span-6 space-y-6">
+          <div className="lg:col-span-6 space-y-4 md:space-y-6">
             <div className="flex items-center gap-5">
               <img
                 src={Logo}
                 alt="AISCSTEWA Logo"
-                className="w-24 h-24 object-contain"
+                className="w-16 h-16 md:w-24 md:h-24 object-contain"
               />
               <div>
                 <h3 className="text-lg font-semibold text-slate-900">
@@ -40,7 +40,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
               </div>
             </div>
 
-            <p className="text-base text-slate-700 leading-relaxed max-w-xl">
+            <p className="text-sm md:text-base text-slate-700 leading-relaxed max-w-xl">
               Committed to safeguarding the constitutional rights and promoting
               the welfare of Scheduled Caste and Scheduled Tribe employees across
               all ONGC establishments.
@@ -58,7 +58,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
                   key={i}
                   href="#"
                   aria-label={label}
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-black text-black hover:bg-black hover:text-white transition"
+                  className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border border-black text-black hover:bg-black hover:text-white transition"
                 >
                   <Icon size={16} strokeWidth={1.5} />
                 </a>
