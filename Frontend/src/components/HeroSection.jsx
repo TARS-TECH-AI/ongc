@@ -12,15 +12,10 @@ import Hero5 from "../assets/Img/26.png";
 const MarqueeItem = () => (
   <span className="flex items-center whitespace-nowrap">
     "Great Dr. Babasaheb Ambedkar thought:
-    <span className="text-white">
-      &nbsp;
-      &nbsp; Educate
-    </span>
-    &nbsp;
-    &nbsp;
+    <span className="text-white">&nbsp;&nbsp;Educate</span>
+    &nbsp;&nbsp;
     <span className="font-bold">Agitate</span>
-    &nbsp;
-    &nbsp;
+    &nbsp;&nbsp;
     <span className="text-white">Organize"</span>
   </span>
 );
@@ -133,16 +128,16 @@ const HeroSection = ({ onOpenAuth }) => {
         <div className="px-4">
           <Swiper
             modules={[Autoplay]}
-            spaceBetween={48}
+            spaceBetween={isSmall ? 120 : 48}
             slidesPerView={'auto'}
             loop={true}
             speed={8000}
             autoplay={{ delay: 0, disableOnInteraction: false, pauseOnMouseEnter: false }}
-            className="text-orange-400 text-xs sm:text-sm font-bold"
+            className="text-orange-400 text-xs sm:text-sm font-bold overflow-visible"
           >
             {[0,1,2,3].map((i) => (
-              <SwiperSlide key={i} className="w-auto flex items-center">
-                <div className="mr-16"><MarqueeItem /></div>
+              <SwiperSlide key={i} className="w-auto flex items-center flex-shrink-0">
+                <div className="mr-16 pr-6 whitespace-nowrap"><MarqueeItem /></div>
               </SwiperSlide>
             ))}
           </Swiper>
