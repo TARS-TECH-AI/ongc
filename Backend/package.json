@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "seed-members": "node scripts/seed_members.js"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",

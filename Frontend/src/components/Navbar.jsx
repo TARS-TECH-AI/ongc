@@ -178,8 +178,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
               text-slate-900
               active:scale-95
               transition
-            "
-            aria-label="Toggle menu"
+            "aria-label="Toggle menu"
           >
             {open ? <X size={26} /> : <Menu size={26} />}
           </button>
@@ -275,7 +274,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                         }}
                         className="w-full text-left px-4 py-2 hover:bg-gray-100"
                       >
-                        View Profile
+                      View Profile
                       </button>
                       <button
                         onClick={() => {
@@ -353,7 +352,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
                     setOpen(false);
                     onOpenAuth && onOpenAuth("register");
                   }}
-                  className="border px-3 py-1 rounded-md bg-transparent text-sm text-[#0C2E50] border-[#0C2E50]"
+                  className="border px-3 py-1 rounded-md  text-sm text-white bg-[#0C2E50]  "
                 >
                   Register
                 </button>

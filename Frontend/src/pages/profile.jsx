@@ -301,17 +301,17 @@ const Profile = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 mt-40">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 lg:mt-40 ">
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
         <button
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            console.log("Back button clicked");
             if (onBack) {
               onBack();
-              console.log("Navigating to home");
+            } else {
+              window.history.back();
             }
             setTimeout(() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -321,6 +321,20 @@ const Profile = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Back to Home</span>
+        </button>
+
+        {/* Mobile fixed compact Back button (visible on small screens) */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onBack) onBack(); else window.history.back();
+            setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+          }}
+          className="block md:hidden fixed bottom-6 left-4 z-50 flex items-center justify-center w-12 h-12 bg-[#0C2E50] text-white rounded-full shadow-lg"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-5 h-5" />
         </button>
 
         {/* Header Card */}

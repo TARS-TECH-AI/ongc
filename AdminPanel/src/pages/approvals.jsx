@@ -537,22 +537,8 @@ const Approvals = () => {
                       )}
 
                       <div className="ml-auto flex gap-2">
-                        {selected.status !== "Approved" && (
-                          <button
-                            onClick={() => approve(selected.id || selected._id)}
-                            className="px-3 py-2 bg-green-600 text-white rounded"
-                          >
-                            Approve
-                          </button>
-                        )}
-                        {selected.status !== "Rejected" && (
-                          <button
-                            onClick={() => reject(selected.id || selected._id)}
-                            className="px-3 py-2 bg-rose-600 text-white rounded"
-                          >
-                            Reject
-                          </button>
-                        )}
+                        
+                      
                       </div>
                     </div>
                   </div>
@@ -614,7 +600,7 @@ const Approvals = () => {
                     </div>
 
                     {/* Additional Documents */}
-                    <div>
+                    {/* <div>
                       <h4 className="text-md font-semibold mb-3 text-slate-800">
                         Additional Documents ({selected.docs?.length || 0})
                       </h4>
@@ -669,7 +655,7 @@ const Approvals = () => {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Raw JSON for debugging */}
                     {/* <div className="mt-6">

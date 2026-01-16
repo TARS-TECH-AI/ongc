@@ -178,8 +178,8 @@ export const RegisterForm = ({onSuccess}) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 max-w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <form onSubmit={handleSubmit} className="mt-6 max-w-2xl w-full mx-auto px-2 sm:px-0 max-h-[72vh] overflow-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
         {/* Full Name */}
         <div>
           <label className="text-sm font-semibold text-gray-700 block mb-2">
@@ -350,9 +350,9 @@ export const RegisterForm = ({onSuccess}) => {
           <label className="text-sm font-semibold text-gray-700 block mb-2">
             ID Proof Document <span className="text-red-500">*</span>
           </label>
-          <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md">
-            <Upload className="w-5 h-5 mr-2 text-gray-500" />
-            <span className="text-sm text-gray-600 truncate">
+          <label className="flex flex-col sm:flex-row items-center sm:items-center justify-start gap-3 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md">
+            <Upload className="w-5 h-5 text-gray-500" />
+            <span className="text-sm text-gray-600 truncate w-full sm:w-auto text-center sm:text-left">
               {idProofPreview || "Upload (JPG, PNG, PDF - Max 2MB)"}
             </span>
             <input
@@ -383,8 +383,8 @@ export const RegisterForm = ({onSuccess}) => {
 
 const Register = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 px-4 py-8">
-      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 lg:p-14 border border-gray-100">
+    <div className="min-h-screen flex items-start sm:items-center justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 px-4 py-6 sm:py-8 overflow-auto">
+      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 lg:p-12 border border-gray-100">
 
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#0C2E50] to-orange-500 bg-clip-text text-transparent mb-2">

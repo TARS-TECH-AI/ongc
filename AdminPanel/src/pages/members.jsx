@@ -5,8 +5,7 @@ import Member2 from "../assets/Member2.png";
 import Member3 from "../assets/Member3.png";
 
 // Import static lists (local copies)
-import cwcMembers from "../data/cwcMember";
-import cecMembers from "../data/cecMembers";
+// static member lists removed — members are loaded from backend and local pending storage
 
 const sampleMembers = [
 
@@ -110,6 +109,7 @@ const Members = () => {
 
       // reload members to ensure UI matches backend
       await loadMembers();
+      try { localStorage.setItem('members-updated', Date.now().toString()); } catch (e) { /* noop */ }
       if (selected && (selected.id === memberId || selected._id === memberId)) setSelected(null);
       alert('Member deleted');
     } catch (err) {
@@ -118,12 +118,79 @@ const Members = () => {
   };
 
   // Save (create or edit) member - robust parsing for non-JSON responses
+  const addLocalMember = (m) => {
+    const id = `local-${Date.now()}`;
+    const newMember = {
+      id,
+      name: m.name,
+      postInAssociation: m.postInAssociation || m.designation || '',
+      unit: m.unit || '',
+      cpfNo: (m.cpfNo || '').toString(),
+      category: (m.type || m.category || 'CWC').toString().toUpperCase(),
+      status: 'Active',
+      createdAt: new Date().toISOString(),
+      isNew: true,
+    };
+
+    // Persist pending local saves to localStorage so frontend can pick them up
+    try {
+      const pending = JSON.parse(localStorage.getItem('members-pending') || '[]');
+      pending.unshift(newMember);
+      localStorage.setItem('members-pending', JSON.stringify(pending));
+      // Notify other tabs/windows to reload members
+      localStorage.setItem('members-updated', Date.now().toString());
+    } catch (e) { console.warn('Could not persist pending member', e); }
+
+    // Reload members to show the newly added member
+    loadMembers();
+
+    setShowAdd(false); setEditing(null); setForm({ name: '', postInAssociation: '', unit: '', cpfNo: '', type: 'CWC' });
+    alert('Saved locally (offline). Login to sync to server later.');
+  };
+
+  const updateLocalMember = (id, m) => {
+    // Update pending local storage entry if present
+    try {
+      const pending = JSON.parse(localStorage.getItem('members-pending') || '[]');
+      const changed = pending.map(p => p.id === id ? { ...p, name: m.name, postInAssociation: m.postInAssociation || '', unit: m.unit || '', cpfNo: (m.cpfNo||'').toString(), category: (m.type || m.category || '').toString().toUpperCase() } : p);
+      localStorage.setItem('members-pending', JSON.stringify(changed));
+      localStorage.setItem('members-updated', Date.now().toString());
+    } catch (e) { console.warn('Could not update pending member', e); }
+
+    // Reload members to show the updated member
+    loadMembers();
+
+    setShowAdd(false); setEditing(null); setForm({ name: '', postInAssociation: '', unit: '', cpfNo: '', type: 'CWC' });
+    alert('Updated locally (offline). Login to sync to server later.');
+  };
+
   const handleSaveMember = async () => {
     if (!form.name || !form.cpfNo) return alert('Name and CPF are required');
     try {
       if (saving) return; // prevent double submits
       setSaving(true);
+
       const token = sessionStorage.getItem('admin-token');
+
+      // If editing a local member, update locally
+      if (editing && String(editing.id).startsWith('local-')) {
+        updateLocalMember(editing.id, form);
+        setSaving(false);
+        return;
+      }
+
+      // If not authenticated, save locally as offline member
+      if (!token) {
+        if (window.confirm('You are not logged in as admin. Save locally (will not sync to server)?')) {
+          addLocalMember(form);
+          setSaving(false);
+          return;
+        } else {
+          setSaving(false);
+          return;
+        }
+      }
+
       let res;
 
       if (editing && !String(editing.id).startsWith('static-')) {
@@ -148,17 +215,30 @@ const Members = () => {
 
       if (!res.ok) {
         const errMsg = (data && (data.message || data.error)) || `Request failed (${res.status})`;
+        // Ask whether to save locally when server fails
+        if (window.confirm(`${errMsg}. Save locally instead?`)) {
+          addLocalMember(form);
+          setSaving(false);
+          return;
+        }
         throw new Error(errMsg);
       }
 
-      const member = data && data.member;
-      const normalize = (memb) => ({ id: memb._id || memb.id, name: memb.name, postInAssociation: memb.postInAssociation || memb.designation || '', unit: memb.unit || '', cpfNo: memb.cpfNo || '', category: memb.type || memb.category || '', createdAt: memb.createdAt });
+      // Remove from pending if it was saved there
+      try {
+        const pending = JSON.parse(localStorage.getItem('members-pending') || '[]');
+        // Remove based on CPF match to avoid duplicates
+        const filtered = pending.filter(p => (p.cpfNo || '') !== (form.cpfNo || ''));
+        localStorage.setItem('members-pending', JSON.stringify(filtered));
+      } catch (e) { console.warn('Could not clean pending', e); }
 
       // Refresh authoritative data from backend to avoid duplicates and ensure persistence
       await loadMembers();
+      // Notify other tabs/windows that members changed
+      try { localStorage.setItem('members-updated', Date.now().toString()); } catch (e) { /* noop */ }
 
       setShowAdd(false); setEditing(null); setForm({ name: '', postInAssociation: '', unit: '', cpfNo: '', type: 'CWC' });
-      alert('Saved');
+      alert('Saved successfully!');
     } catch (err) {
       console.error('Save failed', err);
       alert(err.message || 'Save failed');
@@ -169,7 +249,6 @@ const Members = () => {
 
   const loadMembers = async () => {
     try {
-      // Use original static lists only (do not fetch or sync with backend)
       const map = (arr, category) => (arr || []).map((u, idx) => ({
         id: `static-${category}-${idx}`,
         name: u.name || u.Name || '—',
@@ -188,11 +267,93 @@ const Members = () => {
         lastOnline: null
       }));
 
-      const cwc = map(cwcMembers, 'CWC');
-      const cec = map(cecMembers, 'CEC');
-      setCwcList(cwc);
-      setCecList(cec);
-      const combined = [...cwc, ...cec];
+      // No static lists — rely on backend + local pending members
+      // Fetch members from backend API
+      let backendCwc = [];
+      let backendCec = [];
+      try {
+        const [resCwc, resCec] = await Promise.all([
+          fetch(`${API}/members?type=cwc`),
+          fetch(`${API}/members?type=cec`)
+        ]);
+        
+        if (resCwc.ok) {
+          const dataCwc = await resCwc.json();
+          let arrCwc = [];
+          if (Array.isArray(dataCwc)) arrCwc = dataCwc;
+          else if (dataCwc && Array.isArray(dataCwc.members)) arrCwc = dataCwc.members;
+          else if (dataCwc && Array.isArray(dataCwc.items)) arrCwc = dataCwc.items;
+          else {
+            console.warn('Unexpected backend response for CWC members:', dataCwc);
+            arrCwc = [];
+          }
+          backendCwc = arrCwc.map(m => ({
+            id: m._id || m.id,
+            name: m.name || '—',
+            email: m.email || '',
+            phone: m.phone || '',
+            category: 'CWC',
+            postInAssociation: m.postInAssociation || m.designation || '—',
+            unit: m.unit || '',
+            cpfNo: (m.cpfNo || '').toString(),
+            status: m.status || 'Active',
+            joined: m.createdAt || '—',
+            createdAt: m.createdAt,
+            isNew: false,
+            docs: m.docs || [],
+            online: false,
+            lastOnline: null
+          }));
+        }
+
+        if (resCec.ok) {
+          const dataCec = await resCec.json();
+          let arrCec = [];
+          if (Array.isArray(dataCec)) arrCec = dataCec;
+          else if (dataCec && Array.isArray(dataCec.members)) arrCec = dataCec.members;
+          else if (dataCec && Array.isArray(dataCec.items)) arrCec = dataCec.items;
+          else {
+            console.warn('Unexpected backend response for CEC members:', dataCec);
+            arrCec = [];
+          }
+          backendCec = arrCec.map(m => ({
+            id: m._id || m.id,
+            name: m.name || '—',
+            email: m.email || '',
+            phone: m.phone || '',
+            category: 'CEC',
+            postInAssociation: m.postInAssociation || m.designation || '—',
+            unit: m.unit || '',
+            cpfNo: (m.cpfNo || '').toString(),
+            status: m.status || 'Active',
+            joined: m.createdAt || '—',
+            createdAt: m.createdAt,
+            isNew: false,
+            docs: m.docs || [],
+            online: false,
+            lastOnline: null
+          }));
+        }
+      } catch (e) {
+        console.warn('Could not fetch backend members', e);
+      }
+      
+      // Load pending members from localStorage
+      let pending = [];
+      try {
+        pending = JSON.parse(localStorage.getItem('members-pending') || '[]');
+      } catch (e) {
+        console.warn('Could not load pending members', e);
+      }
+      
+      // Split pending by category
+      const pendingCwc = pending.filter(m => (m.category || m.type || '').toString().toUpperCase() === 'CWC');
+      const pendingCec = pending.filter(m => (m.category || m.type || '').toString().toUpperCase() === 'CEC');
+
+      // Combine: pending first, then backend results
+      setCwcList([...pendingCwc, ...backendCwc]);
+      setCecList([...pendingCec, ...backendCec]);
+      const combined = [...pending, ...backendCwc, ...backendCec];
       setMembers(combined);
     } catch (err) {
       console.warn('Load members failed', err);
@@ -436,7 +597,7 @@ const Members = () => {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {filtered.map((m) => (
+              {filtered.slice().reverse().map((m) => (
                 <tr key={m.id} className="bg-white">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
@@ -484,7 +645,7 @@ const Members = () => {
 
         {/* Mobile list */}
         <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filtered.map((m) => (
+          {filtered.slice().reverse().map((m) => (
             <div
               key={m.id}
               onClick={() => openDetails(m.id)}

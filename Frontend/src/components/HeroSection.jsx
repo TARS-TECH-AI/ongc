@@ -66,7 +66,13 @@ const HeroSection = ({ onOpenAuth }) => {
     function updateNavHeight() {
       const nav = document.querySelector('nav');
       const h = nav ? nav.getBoundingClientRect().height : 0;
-      setNavHeight(h);
+      // Only apply nav height for medium+ screens. On mobile the nav can expand/overlay,
+      // which would otherwise push the hero down and change its height — we avoid that.
+      if (window.innerWidth >= 768) {
+        setNavHeight(h);
+      } else {
+        setNavHeight(0);
+      }
     }
 
     updateNavHeight();
@@ -87,7 +93,7 @@ const HeroSection = ({ onOpenAuth }) => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[38vh] md:min-h-[100vh] w-full overflow-hidden mt-22" style={{ paddingTop: navHeight ? `${navHeight}px` : undefined }}>
+    <section id="home" className="relative min-h-[38vh] md:min-h-[100vh] w-full overflow-hidden mt-22" style={{ paddingTop: !isSmall && navHeight ? `${navHeight}px` : undefined }}>
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 lg:mt-10 ">
         {images.map((src, i) => (
@@ -98,7 +104,7 @@ const HeroSection = ({ onOpenAuth }) => {
             }`}
             style={{
               backgroundImage: `url(${src})`,
-              backgroundSize: isSmall ? 'contain' : 'cover',
+              backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               backgroundColor: '#000',

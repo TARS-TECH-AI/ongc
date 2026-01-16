@@ -13,11 +13,8 @@ const About = () => {
             <span className="block h-1 w-16 bg-orange-400 mx-auto mt-3 rounded"></span>
           </h2>
 
-          <p className="mt-6 text-gray-600 text-sm sm:text-base leading-relaxed ">
-            All India SC & ST Employees Welfare Association (AISCSTEWA) is a
-            registered organization dedicated to protecting the constitutional
-            rights and promoting the welfare of Scheduled Caste and Scheduled
-            Tribe employees working in ONGC and its affiliated establishments.
+          <p className="mt-6 text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed ">
+            All India SC & ST Employees Welfare Association (AISCSTEWA) is a registered organization dedicated to protecting the constitutional rights and promoting the welfare of Scheduled Caste and Scheduled Tribe employees working in ONGC and its affiliated establishments.
           </p>
         </div>
 
@@ -31,7 +28,7 @@ const About = () => {
               <h3 className="text-1xl sm:text-3xl lg:text-4xl text-base font-bold text-slate-900">
                 Our Mission
               </h3>
-              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed flex-1">
+              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed flex-1 text-justify break-words">
                 To create an equitable and inclusive work environment where every
                 SC/ST employee can thrive with dignity, respect, and equal
                 opportunities. We envision a society where constitutional
@@ -45,7 +42,7 @@ const About = () => {
               <h3 className="text-1xl sm:text-3xl lg:text-4xl text-base font-bold text-slate-900">
                 Our Vision
               </h3>
-              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed flex-1">
+              <p className="mt-3 text-gray-600 text-sm sm:text-base leading-relaxed flex-1 text-justify break-words">
                 To safeguard the interests and rights of SC/ST employees through
                 collective representation, policy advocacy, and continuous
                 engagement with management. We are committed to ensuring proper

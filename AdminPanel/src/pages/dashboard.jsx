@@ -639,16 +639,12 @@ const Dashboard = () => {
                                         </button>
                                       </div>
                                     ))
-                                  ) : (
-                                    <div className="text-sm text-slate-500 py-4 bg-slate-50 rounded-lg text-center border border-slate-200">
-                                      No additional documents uploaded
-                                    </div>
-                                  )}
+                                  ) : null}
                                 </div>
                               </div>
                             </div>
 
-                            <div className="border-t pt-6 flex items-center gap-4">
+                            <div className=" pt-4 flex items-center gap-2">
                               <button
                                 onClick={() =>
                                   changeStatus(userDetails.id, "Approved")

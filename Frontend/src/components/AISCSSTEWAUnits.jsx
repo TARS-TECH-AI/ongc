@@ -96,7 +96,7 @@ const AISCSSTEWAUnits = () => {
       {/* ===== STATS ===== */}
       <div className="max-w-4xl mx-auto px-2 mt-10">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-          <div className="h-15 sm:h-24 md:h-28 lg:h-30">
+          <div className="w-full sm:w-1/2 sm:max-w-[220px] h-20 sm:h-24 md:h-28">
             <button
               type="button"
               aria-pressed={viewMode === "units"}
@@ -104,12 +104,12 @@ const AISCSSTEWAUnits = () => {
                 setViewMode("units");
                 setSelectedRegion(null);
               }}
-              className={`w-full sm:w-auto md:min-w-[300px] h-full flex flex-col items-center justify-center rounded-lg text-white shadow-md px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 active:translate-y-[1px] transition-all cursor-pointer ${
+              className={`w-full h-full flex flex-col items-center justify-center rounded-lg text-white shadow-md px-3 py-1 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 active:translate-y-[1px] transition-all cursor-pointer ${
                 viewMode === "units"?"ring-4 ring-yellow-300" : ""
               }`}
             >
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
                   {units.length}
                 </div>
                 <p className="mt-1 text-xs sm:text-sm md:text-base font-semibold">
@@ -119,7 +119,7 @@ const AISCSSTEWAUnits = () => {
             </button>
           </div>
 
-          <div className="h-15 sm:h-24 md:h-28 lg:h-30">
+          <div className="w-full sm:w-1/1 sm:max-w-[220px] h-20 sm:h-24 md:h-28">
             <button
               type="button"
               aria-pressed={viewMode==="regions"}
@@ -127,12 +127,12 @@ const AISCSSTEWAUnits = () => {
                 setViewMode("regions");
                 setSelectedRegion(null);
               }}
-              className={`w-full sm:w-auto md:min-w-[300px] h-full flex flex-col items-center justify-center rounded-lg text-white shadow-md px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 active:translate-y-[1px] transition-all cursor-pointer ${
+              className={`w-full h-full flex flex-col items-center justify-center rounded-lg text-white shadow-md px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 active:translate-y-[1px] transition-all cursor-pointer ${
                 viewMode === "regions" ? "ring-4 ring-yellow-300" : ""
               }`}
             >
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
                   {regions.length}
                 </div>
                 <p className="mt-1 text-xs sm:text-sm md:text-base font-semibold">
@@ -192,7 +192,7 @@ const AISCSSTEWAUnits = () => {
                       </h4>
                       <p className="text-xs text-[#0C2E50] mt-2">
                         {
-                          units.filter((u) => unitRegionMap[u] === r.code)
+                          units.filter((u) =>unitRegionMap[u] === r.code)
                             .length
                         }{" "}
                         units

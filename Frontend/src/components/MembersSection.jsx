@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import cecMembers from "../data/cecMembers";
-import cwcMembers from "../data/cwcMember";
+// static member lists removed — fetch only from backend and local pending storage
 
 const API = import.meta.env.VITE_API_URL || 'https://ongc-q48j.vercel.app/api';
 
@@ -32,9 +31,7 @@ const scrollbarHideStyle = `
   }
 `;
 
-const membersData = [
-  
-];
+const membersData = [];
 
 const TableCard = () => (
   <div className="w-50 bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden cursor-pointer">
@@ -176,41 +173,82 @@ const MembersSection = ({ onOpenAuth }) => {
   // Check if user is authenticated
   const isAuthenticated = typeof window !== 'undefined' && (sessionStorage.getItem('token') || sessionStorage.getItem('user'));
 
-  const [cwcListState, setCwcListState] = useState(cwcMembers);
-  const [cecListState, setCecListState] = useState(cecMembers);
+  const [cwcListState, setCwcListState] = useState([]);
+  const [cecListState, setCecListState] = useState([]);
   const [loadingCwc, setLoadingCwc] = useState(false);
   const [loadingCec, setLoadingCec] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    const fetchMembers = async (type, setter, setLoading) => {
+
+    const fetchBackend = async (type) => {
       try {
-        setLoading(true);
         const res = await fetch(`${API}/members?type=${type}`, { cache: 'no-store' });
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
-        if (mounted && data && Array.isArray(data.items)) {
-          // Merge local static list with backend items so original members remain visible
-          const backendItems = data.items.map(i => ({ ...i, postInAssociation: i.postInAssociation || i.designation || '' }));
-          const merged = (type === 'cwc' ? cwcMembers.map(m => ({ ...m })) : cecMembers.map(m => ({ ...m }))).concat(backendItems);
-          setter(merged);
+        // Support multiple response shapes: array | { items: [] } | { members: [] }
+        let arr = [];
+        if (Array.isArray(data)) arr = data;
+        else if (data && Array.isArray(data.items)) arr = data.items;
+        else if (data && Array.isArray(data.members)) arr = data.members;
+        else {
+          console.warn('Members fetch returned unexpected shape for', type, data);
         }
+        return arr.map(i => ({ ...i, postInAssociation: i.postInAssociation || i.designation || '' }));
       } catch (e) {
         console.warn('Members fetch failed for', type, e.message || e);
-      } finally { if (mounted) setLoading(false); }
+      }
+      return [];
     };
 
-    // initial fetch
-    fetchMembers('cwc', setCwcListState, setLoadingCwc);
-    fetchMembers('cec', setCecListState, setLoadingCec);
+    const loadAllMembers = async () => {
+      setLoadingCwc(true); setLoadingCec(true);
+
+      const [backendCwc, backendCec] = await Promise.all([fetchBackend('cwc'), fetchBackend('cec')]);
+
+      // read pending local saves
+      let pending = [];
+      try { pending = JSON.parse(localStorage.getItem('members-pending') || '[]'); } catch (e) { pending = []; }
+
+      const normalizeAndMerge = (backendItems, typeUpper) => {
+        const pendingFor = (pending || []).filter(p => (p.category || p.type || '').toString().toUpperCase() === typeUpper);
+        const combined = ([]).concat(backendItems || [], pendingFor || []);
+
+        // Deduplicate by CPF or name
+        const seen = new Map();
+        combined.forEach(item => {
+          const cpfVal = (item.cpfNo || item.cpf || '').toString().trim();
+          const nameVal = (item.name || item.Name || '').toString().toLowerCase().trim();
+          const key = cpfVal || nameVal || Math.random().toString(36).slice(2, 9);
+          if (!seen.has(key)) seen.set(key, item);
+        });
+        return Array.from(seen.values());
+      };
+
+      const mergedCwc = normalizeAndMerge(backendCwc, 'CWC');
+      const mergedCec = normalizeAndMerge(backendCec, 'CEC');
+
+      if (mounted) {
+        setCwcListState(mergedCwc);
+        setCecListState(mergedCec);
+        setLoadingCwc(false);
+        setLoadingCec(false);
+      }
+    };
+
+    // initial load
+    loadAllMembers();
 
     // poll every 30s
-    const t = setInterval(() => {
-      fetchMembers('cwc', setCwcListState, setLoadingCwc);
-      fetchMembers('cec', setCecListState, setLoadingCec);
-    }, 30000);
+    const t = setInterval(() => loadAllMembers(), 30000);
 
-    return () => { mounted = false; clearInterval(t); };
+    // listen for storage events (admin panel updates)
+    const onStorage = (e) => {
+      if (e.key === 'members-updated') loadAllMembers();
+    };
+    window.addEventListener('storage', onStorage);
+
+    return () => { mounted = false; clearInterval(t); window.removeEventListener('storage', onStorage); };
   }, []);
 
   return (
@@ -223,7 +261,7 @@ const MembersSection = ({ onOpenAuth }) => {
                   <h2 className="text-xl sm:text-2xl font-bold mb-2">CWC Members</h2>
                   <div className="w-16 h-1 bg-orange-500 mb-6 cursor-pointer" />
                   <div className="h-[50vh] sm:h-[55vh] lg:h-[65vh] overflow-hidden">
-                    {loadingCwc ? <div className="text-sm text-slate-500 mb-2">Loading…</div> : <LazyMemberList items={cwcListState} />}
+                    {loadingCwc ? <div className="text-sm text-slate-500 mb-2">Loading…</div> : <LazyMemberList items={cwcListState.slice().reverse()} />}
                   </div>
                 </div>
 
@@ -231,7 +269,7 @@ const MembersSection = ({ onOpenAuth }) => {
                   <h2 className="text-xl sm:text-2xl font-bold mb-2">CEC Members</h2>
                   <div className="w-16 h-1 bg-orange-500 mb-6" />
                   <div className="h-[50vh] sm:h-[55vh] lg:h-[65vh] overflow-hidden">
-                    {loadingCec ? <div className="text-sm text-slate-500 mb-2">Loading…</div> : <LazyMemberList items={cecListState} />}
+                    {loadingCec ? <div className="text-sm text-slate-500 mb-2">Loading…</div> : <LazyMemberList items={cecListState.slice().reverse()} />}
                   </div>
                 </div>
               </div>
