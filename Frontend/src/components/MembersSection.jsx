@@ -125,7 +125,7 @@ const LazyMemberList = ({ items = [], initialVisible = 20, batch = 10 }) => {
     <div className="w-full h-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden flex flex-col cursor-pointer">
       <style>{scrollbarHideStyle}</style>
       <div className="hidden sm:block bg-slate-900 text-white shrink-0">
-        <div className="grid grid-cols-1 sm:grid-cols-[2fr_2.5fr_1.2fr_50px] px-4 py-4 font-semibold text-sm gap-x-2">
+        <div className="grid grid-cols-1 sm:grid-cols-[2fr_2.5fr_1.1fr_50px] px-4 py-4 font-semibold text-sm gap-x-2">
           <span>Name</span>
           <span>Post In the Association</span>
           <span>Unit</span>
@@ -144,7 +144,7 @@ const LazyMemberList = ({ items = [], initialVisible = 20, batch = 10 }) => {
               <p className="font-medium">{get(member, 'name')}</p>
             </div>
 
-            <div className={`${((member.type || member.category || '').toString().toUpperCase() === 'CEC') ? 'text-center sm:text-left' : ''}`}>
+            <div className={`${((member.type || member.category || '').toString().toUpperCase() === 'CEC') ? 'sm:text-center text-left' : ''}`}>
               <span className="sm:hidden font-semibold text-slate-500">postInAssociation</span>
               <p className="truncate">{get(member, 'postInAssociation')}</p>
             </div>
