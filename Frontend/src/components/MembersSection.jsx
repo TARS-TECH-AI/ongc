@@ -40,9 +40,9 @@ const TableCard = () => (
     <div className="hidden sm:block bg-slate-900 text-white cursor-pointer">
       <div className="grid grid-cols-1 sm:grid-cols-[3fr_2fr_1.2fr_80px] px-4 py-4 font-semibold text-sm gap-x-2 cursor-pointer">
         <span>Name</span>
-        <span>Post In Association</span>
-        <span>Unit</span>
-        <span className="text-left">CPF No</span>
+        <span className="md:-ml-4 lg:-ml-6">Post In Association</span>
+        <span className="md:-ml-4 lg:-ml-8">Unit</span>
+        <span className="md:-ml-4 lg:-ml-6">CPF No</span>
       </div>
     </div>
 
@@ -125,11 +125,11 @@ const LazyMemberList = ({ items = [], initialVisible = 20, batch = 10 }) => {
     <div className="w-full h-full bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden flex flex-col cursor-pointer">
       <style>{scrollbarHideStyle}</style>
       <div className="hidden sm:block bg-slate-900 text-white shrink-0">
-        <div className="grid grid-cols-1 sm:grid-cols-[2fr_2.5fr_1.1fr_50px] px-4 py-4 font-semibold text-sm gap-x-2">
+        <div className="grid grid-cols-1 sm:grid-cols-[2fr_2.5fr_1.1fr_50px] px-4 py-4 font-semibold text-sm gap-x-1">
           <span>Name</span>
-          <span>Post In the Association</span>
-          <span>Unit</span>
-          <span>CPF No</span>
+          <span className='mr-2 md:-ml-4 lg:-ml-6'>Post In the Association</span>
+          <span className='md:-ml-4 lg:-ml-6'>Unit</span>
+          <span className='md:-ml-4 lg:-ml-6'>CPF No</span>
         </div>
       </div>
 

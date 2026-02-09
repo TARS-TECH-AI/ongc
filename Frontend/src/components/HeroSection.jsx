@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
-import 'swiper/css';
+
 import Hero1 from "../assets/Img/3.png";
 import Hero2 from "../assets/Img/5.png";
 import Hero3 from "../assets/Img/7.png";
@@ -88,7 +86,7 @@ const HeroSection = ({ onOpenAuth }) => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[38vh] md:min-h-[100vh] w-full overflow-hidden mt-22" style={{ paddingTop: !isSmall && navHeight ? `${navHeight}px` : undefined }}>
+    <section id="home" className="relative min-h-[85vh] md:min-h-[100vh] w-full overflow-hidden mt-22" style={{ paddingTop: !isSmall && navHeight ? `${navHeight}px` : undefined }}>
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 lg:mt-10 ">
         {images.map((src, i) => (
@@ -115,32 +113,31 @@ const HeroSection = ({ onOpenAuth }) => {
       <div className="absolute bottom-16 left-0 z-10 p-4 sm:p-6 lg:p-8">
         <div className="max-w-2xl text-white text-left">
           <h1 className="font-semibold leading-tight text-xs sm:text-sm md:text-base lg:text-lg drop-shadow-lg">
-            <span className="inline text-sm sm:text-base md:text-lg lg:text-xl"><span className="hidden sm:inline">All India SC & ST Employees</span>
-              <br/> <span className="hidden sm:inline">Welfare Association</span>
-               <br/><span className="hidden sm:inline">Central Working Committee</span>
+            <span className="inline text-sm sm:text-base md:text-lg lg:text-xl"><span className="sm:text-2xl sm:mt-5">All India SC & ST Employees</span>
+              <br/> <span className="sm:text-2xl">Welfare Association</span>
+               <br/><span className="sm:text-2xl">Central Working Committee</span>
                <span className="text-orange-500 font-bold bg-linear-90 bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent"> ONGC</span></span>
           </h1>
- </div>
+        </div>
       </div>
 
-      {/* ===== SWIPER MARQUEE ===== */}
+      {/* ===== MARQUEE ===== */}
       <div className="absolute bottom-0 w-full bg-[#0C2E50] py-3 sm:py-4">
-        <div className="px-4">
-          <Swiper
-            modules={[Autoplay]}
-            spaceBetween={isSmall ? 120 : 48}
-            slidesPerView={'auto'}
-            loop={true}
-            speed={8000}
-            autoplay={{ delay: 0, disableOnInteraction: false, pauseOnMouseEnter: false }}
-            className="text-orange-400 text-xs sm:text-sm font-bold overflow-visible"
-          >
-            {[0,1,2,3].map((i) => (
-              <SwiperSlide key={i} className="w-auto flex items-center flex-shrink-0">
-                <div className="mr-16 pr-6 whitespace-nowrap"><MarqueeItem /></div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+        <div className="px-4 overflow-hidden hide-scrollbar">
+          <div className="marquee">
+            <div className="marquee-track inline-flex items-center">
+              {[...Array(8)].map((_, i) => (
+                <div key={`m-${i}`} className="mx-8 whitespace-nowrap text-orange-400 text-xs sm:text-sm font-bold">
+                  <MarqueeItem />
+                </div>
+              ))}
+              {[...Array(8)].map((_, i) => (
+                <div key={`m2-${i}`} className="mx-8 whitespace-nowrap text-orange-400 text-xs sm:text-sm font-bold">
+                  <MarqueeItem />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

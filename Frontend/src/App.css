@@ -4,18 +4,32 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
+/* Continuous marquee track (duplicate content in markup for seamless loop) */
 .marquee {
-  white-space: nowrap;
-  display: inline-block;
-  animation: marquee 18s linear infinite;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
+
+.marquee .marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem; /* increased spacing between items for readability */
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee 60s linear infinite; /* slowed to 60s so users can read */
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+} 
 
 @keyframes marquee {
   0% {
-    transform: translateX(100%);
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
