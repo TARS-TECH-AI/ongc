@@ -37,7 +37,7 @@ const menu = [
   { key: 'updates', label: 'Important Updates', icon: 'updates', to: '/updates' },
   { key: 'gallery', label: 'Gallery management', icon: 'gallery', to: '/gallery' },
   { key: 'enquiry', label: 'Enquiry', icon: 'enquiry', to: '/enquiry' },
-  { key: 'settings', label: 'Settings', icon: 'settings', to: '/settings' },
+  // { key: 'settings', label: 'Settings', icon: 'settings', to: '/settings' },
 ];
 
 export default function Sidebar({ open, setOpen }) {

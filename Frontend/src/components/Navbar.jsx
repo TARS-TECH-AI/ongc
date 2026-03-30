@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
 import Logo2 from "../assets/ongc.png";
-import nav_babashaheb from "../assets/NavImg/babashaheb.jpg";
-import nav_chhtrapati from "../assets/NavImg/chhtrapati.png";
-import nav_Gandhi from "../assets/NavImg/Gandhi.png";
+import nav_babashaheb from "../assets/ambedkar1.png";
+import nav_chhtrapati from "../assets/NavImg/shivajimaharaj.png";
+// import nav_Gandhi from "../assets/NavImg/Gandhi.png";
 import nav_jyotiba from "../assets/NavImg/jyotiba.png";
-import nav_lokmanya from "../assets/NavImg/lokmanya.png";
+// import nav_lokmanya from "../assets/NavImg/lokmanya.png";
 import nav_savitribai from "../assets/NavImg/savitribai.png";
-import nav_bhimbori from "../assets/NavImg/bhimbori.jpg";
+import nav_bhimbori from "../assets/NavImg/bhimbori.jpeg";
 import nav_bhupen_h from "../assets/NavImg/bhupen_h.png";
 import nav_gautam_b from "../assets/NavImg/budha.jpg";
 import nav_birsa_m from "../assets/NavImg/birsa_M.jpg";
@@ -118,7 +118,7 @@ const Navbar = ({ onOpenAuth, currentUser, onLogout, isAuthenticated, onNavigate
           <div className="flex items-center gap-2">
             {showExpanded && (
               <div className="hidden lg:flex items-center px-0 lg:px-1">
-                <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_Gandhi, nav_jyotiba, nav_lokmanya, nav_savitribai,nav_bhimbori,nav_bhupen_h,nav_birsa_m]} className="w-16 h-16 sm:w-18 sm:h-18 md:w-22 md:h-22 lg:w-28 lg:h-28 object-contain" />
+                <Carousel images={[nav_babashaheb, nav_chhtrapati, nav_jyotiba,  nav_savitribai,nav_bhimbori,nav_bhupen_h,nav_birsa_m]} className="w-16 h-16 sm:w-18 sm:h-18 md:w-22 md:h-22 lg:w-28 lg:h-28 object-contain" />
               </div>
             )}
 

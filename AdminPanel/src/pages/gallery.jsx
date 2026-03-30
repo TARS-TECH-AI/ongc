@@ -7,7 +7,7 @@ const Gallery = () => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [form, setForm] = useState({ title: '', caption: '' });
+  const [form, setForm] = useState({ caption: '' });
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [error, setError] = useState("");
@@ -36,13 +36,16 @@ const Gallery = () => {
       if (res.ok) {
         const data = await res.json();
           if (data.items && data.items.length > 0) {
-          const backendItems = data.items.map(item => ({
-            id: item.id,
-            title: item.title,
-            caption: item.caption,
-            date: new Date(item.date).toLocaleDateString(),
-            src: item.src
-          })).reverse(); // Reverse to show oldest first
+          const backendItems = (data.items || [])
+            .slice()
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .map(item => ({
+              id: item.id,
+              title: item.title && item.title.trim().toLowerCase() !== 'untitled' ? item.title : '',
+              caption: item.caption,
+              date: new Date(item.date).toLocaleDateString(),
+              src: item.src
+            }));
           setItems(backendItems);
           try { sessionStorage.setItem('admin-gallery-items', JSON.stringify(backendItems)); } catch (e) { /* ignore */ }
           return;
@@ -121,7 +124,6 @@ const Gallery = () => {
               method: "POST",
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: form.title || file.name,
                 caption: form.caption || "",
                 image: filePreview,
               }),
@@ -139,9 +141,10 @@ const Gallery = () => {
           }
 
           const data = await res.json().catch(() => ({}));
+          const normalizedTitle = (data.title || '').trim();
           const newItem = {
             id: data.id || Date.now(),
-            title: data.title || form.title || file.name,
+            title: normalizedTitle && normalizedTitle.toLowerCase() !== 'untitled' ? normalizedTitle : '',
             caption: data.caption || form.caption || "",
             date: data.date || new Date().toLocaleDateString(),
             src: data.url || filePreview,
@@ -176,7 +179,7 @@ const Gallery = () => {
 
   const resetForm = () => {
     setIsOpen(false);
-    setForm({ title: "", caption: "" });
+    setForm({ caption: "" });
     setFile(null);
     setFilePreview(null);
     setError("");
@@ -213,7 +216,7 @@ const Gallery = () => {
   const onDownload = (item) => {
     const a = document.createElement("a");
     a.href = item.src;
-    a.download = item.title;
+    a.download = item.title || 'image';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -289,9 +292,11 @@ const Gallery = () => {
               </div>
               <div className="p-3 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-slate-800">
-                    {i.title}
-                  </div>
+                  {i.title ? (
+                    <div className="text-sm font-medium text-slate-800">
+                      {i.title}
+                    </div>
+                  ) : null}
                   <div className="text-xs text-slate-500">{i.caption}</div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -346,19 +351,6 @@ const Gallery = () => {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Image Title</label>
-                <input
-                  required
-                  value={form.title}
-                  onChange={(e) =>
-                    setForm((s) => ({ ...s, title: e.target.value }))
-                  }
-                  placeholder="Enter title"
-                  className="w-full mt-2 border rounded px-3 py-2"
-                />
-              </div>
-
               <div>
                 <label className="text-sm font-medium">Upload Image</label>
                 <div

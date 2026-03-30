@@ -130,6 +130,15 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
             © copyright 2025 Design and Developed with love by TARS TECHNOLOGIES
           </a>
         </div>
+
+        {/* Back to top button */}
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Back to top"
+          className="fixed bottom-6 right-6 z-50 w-10 h-10 bg-[#0C2E50] cursor-pointer text-white rounded-full shadow-lg flex items-center justify-center transition"
+        >
+          <span className="text-xl leading-none">↑</span>
+        </button>
       </div>
     </footer>
   );

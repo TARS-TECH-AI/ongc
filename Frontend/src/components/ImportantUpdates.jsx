@@ -231,7 +231,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                           if (isAuthenticated) {
                             setSelectedUpdate(item);
                           } else {
-                            alert('Please login/register to view Important Updates');
+                            onOpenAuth && onOpenAuth('login');
                           }
                         }}
                       />
@@ -258,7 +258,7 @@ const ImportantUpdates = ({ onOpenAuth }) => {
                           if (isAuthenticated) {
                             setSelectedUpdate(item);
                           } else {
-                            alert('Please login/register to view Important Updates');
+                            onOpenAuth && onOpenAuth('login');
                           }
                         }}
                       />

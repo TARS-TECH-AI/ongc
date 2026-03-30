@@ -35,7 +35,10 @@ const PhotoGallery = ({ viewMode = "preview", onNavigate, onBack }) => {
       const data = await res.json();
       console.log('Full API response:', data);
       
-      const imageList = data.items?.map(item => item.src) || [];
+      const imageList = (data.items || [])
+        .slice()
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .map(item => item.src || "");
       console.log('Total images loaded:', imageList.length);
       
       setImages(imageList);

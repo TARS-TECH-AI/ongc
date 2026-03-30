@@ -11,6 +11,9 @@ const documentsRoutes = require('./routes/documents');
 const path = require('path');
 const connectDB = require('./utils/db');
 
+const dns = require("dns");
+
+dns.setServers(["8.8.8.8","1.1.1.1"]);
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increase JSON payload limit
