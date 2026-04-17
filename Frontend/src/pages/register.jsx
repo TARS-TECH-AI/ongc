@@ -9,6 +9,8 @@ export const RegisterForm = ({onSuccess}) => {
     employeeId: "",
     designation: "",
     category: "",
+    isONGCMember: "",
+    memberType: "",
     password: "",
     confirmPassword: "",
   });
@@ -92,8 +94,13 @@ export const RegisterForm = ({onSuccess}) => {
     }
 
     // Validate all required fields
-    if (!formData.name || !formData.email || !formData.mobile || !formData.employeeId || !formData.designation || !formData.category || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.email || !formData.mobile || !formData.employeeId || !formData.designation || !formData.category || !formData.isONGCMember || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all required fields');
+      return;
+    }
+    
+    if (formData.isONGCMember === 'no' && !formData.memberType) {
+      setError('Please select your member type');
       return;
     }
     
@@ -117,6 +124,8 @@ export const RegisterForm = ({onSuccess}) => {
         employeeId: formData.employeeId.trim(),
         designation: formData.designation.trim(),
         category: formData.category,
+        isONGCMember: formData.isONGCMember,
+        memberType: formData.memberType || null,
         password: formData.password
       };
       
@@ -129,6 +138,10 @@ export const RegisterForm = ({onSuccess}) => {
       form.append('employeeId', registrationData.employeeId);
       form.append('designation', registrationData.designation);
       form.append('category', registrationData.category);
+      form.append('isONGCMember', registrationData.isONGCMember);
+      if (registrationData.memberType) {
+        form.append('memberType', registrationData.memberType);
+      }
       form.append('password', registrationData.password);
 
       if (idProof) {
@@ -166,7 +179,7 @@ export const RegisterForm = ({onSuccess}) => {
       }
       
       console.log('Register success', json);
-      onSuccess && onSuccess(json.user, 'register');
+      onSuccess && onSuccess(json.user, 'register', formData.memberType);
     } catch (err) {
       console.error('Registration error:', err);
       // Normalize duplicate registration messages to a single friendly prompt
@@ -178,11 +191,11 @@ export const RegisterForm = ({onSuccess}) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 max-w-2xl w-full mx-auto px-2 sm:px-0 max-h-[72vh] overflow-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
         {/* Full Name */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Full Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -191,14 +204,14 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+            className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
             placeholder="Enter your full name"
           />
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Email Address <span className="text-red-500">*</span>
           </label>
           <input
@@ -208,7 +221,7 @@ export const RegisterForm = ({onSuccess}) => {
             value={formData.email}
             onChange={handleChange}
             onBlur={(e) => checkFieldAvailability('email', e.target.value.trim())}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+            className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
             placeholder="your.email@example.com"
           />
           {fieldErrors.email && (
@@ -218,7 +231,7 @@ export const RegisterForm = ({onSuccess}) => {
 
         {/* Mobile Number */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Mobile Number <span className="text-red-500">*</span>
           </label>
           <input
@@ -229,7 +242,7 @@ export const RegisterForm = ({onSuccess}) => {
             onChange={handleChange}
             onBlur={(e) => checkFieldAvailability('mobile', e.target.value.trim())}
             pattern="[0-9]{10}"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+            className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
             placeholder="10 digit mobile number"
           />
           {fieldErrors.mobile && (
@@ -239,7 +252,7 @@ export const RegisterForm = ({onSuccess}) => {
 
         {/* Employee ID */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Employee ID <span className="text-red-500">*</span>
           </label>
           <input
@@ -249,8 +262,8 @@ export const RegisterForm = ({onSuccess}) => {
             value={formData.employeeId}
             onChange={handleChange}
             onBlur={(e) => checkFieldAvailability('employeeId', e.target.value.trim())}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
-            placeholder="Enter your employee ID"
+            className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
+            placeholder="employee ID/ Other ID"
           />
           {fieldErrors.employeeId && (
             <p className="text-xs text-red-600 mt-1">{fieldErrors.employeeId}</p>
@@ -259,7 +272,7 @@ export const RegisterForm = ({onSuccess}) => {
 
         {/* Category */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Category <span className="text-red-500">*</span>
           </label>
           <select
@@ -267,7 +280,7 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
+            className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm bg-white"
           >
             <option value="">Select category</option>
             <option value="SC">SC</option>
@@ -280,7 +293,7 @@ export const RegisterForm = ({onSuccess}) => {
 
         {/* Designation */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Designation <span className="text-red-500">*</span>
           </label>
           <input
@@ -289,14 +302,69 @@ export const RegisterForm = ({onSuccess}) => {
             required
             value={formData.designation}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+            className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
             placeholder="Enter your designation"
           />
         </div>
 
+        {/* Are you ONGC Member? */}
+        <div>
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
+            Are you ONGC Member? <span className="text-red-500">*</span>
+          </label>
+          <div className="flex gap-4 h-full items-center">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="isONGCMember"
+                value="yes"
+                checked={formData.isONGCMember === 'yes'}
+                onChange={handleChange}
+                className="cursor-pointer w-4 h-4"
+              />
+              <span className="text-xs sm:text-sm text-gray-700">Yes</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="isONGCMember"
+                value="no"
+                checked={formData.isONGCMember === 'no'}
+                onChange={handleChange}
+                className="cursor-pointer w-4 h-4"
+              />
+              <span className="text-xs sm:text-sm text-gray-700">No</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Member Type */}
+        <div>
+          {formData.isONGCMember === 'no' && (
+            <div>
+              <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
+                Select who you are <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="memberType"
+                value={formData.memberType}
+                onChange={handleChange}
+                className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm bg-white"
+              >
+                <option value="">Select member type</option>
+                <option value="NGO">NGO</option>
+                <option value="Student">Student</option>
+                <option value="Social Activity">Social Activity</option>
+                <option value="Artist">Artist</option>
+                <option value="Any Other">Any Other</option>
+              </select>
+            </div>
+          )}
+        </div>
+
         {/* Password */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Password <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -307,21 +375,21 @@ export const RegisterForm = ({onSuccess}) => {
               value={formData.password}
               onChange={handleChange}
               minLength="6"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+              className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
               placeholder="Minimum 6 characters"
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-orange-500 transition"
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-orange-500"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </span>
           </div>
         </div>
 
         {/* Confirm Password */}
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             Confirm Password <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -331,29 +399,27 @@ export const RegisterForm = ({onSuccess}) => {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+              className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
               placeholder="Re-enter password"
             />
             <span
-              onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-orange-500 transition"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-orange-500"
             >
-              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </span>
           </div>
         </div>
 
         {/* ID Proof Upload */}
         <div className="md:col-span-2">
-          <label className="text-sm font-semibold text-gray-700 block mb-2">
+          <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-1">
             ID Proof Document <span className="text-red-500">*</span>
           </label>
-          <label className="flex flex-col sm:flex-row items-center sm:items-center justify-start gap-3 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md">
-            <Upload className="w-5 h-5 text-gray-500" />
-            <span className="text-sm text-gray-600 truncate w-full sm:w-auto text-center sm:text-left">
-              {idProofPreview || "Upload (JPG, PNG, PDF - Max 2MB)"}
+          <label className="flex items-center gap-3 w-full px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all text-sm">
+            <Upload className="w-4 h-4 text-gray-500 flex-shrink-0" />
+            <span className="text-gray-600 truncate w-full text-left">
+              {idProofPreview || "Upload (JPG, PNG, PDF)"}
             </span>
             <input
               type="file"
@@ -366,14 +432,14 @@ export const RegisterForm = ({onSuccess}) => {
       </div>
 
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-lg mt-4">
+        <div className="text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 p-2 rounded-lg mt-3">
           {error}
         </div>
       )}
 
       <button 
         disabled={loading} 
-        className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3.5 rounded-lg font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
+        className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2 sm:py-2.5 rounded-lg font-semibold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-4 mb-2 shadow hover:shadow-lg transform hover:scale-[1.01] disabled:transform-none"
       >
         {loading ? 'Creating Account...' : 'Register'}
       </button>
@@ -383,26 +449,25 @@ export const RegisterForm = ({onSuccess}) => {
 
 const Register = () => {
   return (
-    <div className="min-h-screen flex items-start sm:items-center justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 px-4 py-6 sm:py-8 overflow-auto">
-      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 lg:p-12 border border-gray-100">
-
-        <div className="text-center mb-8">
-          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#0C2E50] to-orange-500 bg-clip-text text-transparent mb-2">
-            Create Account
-          </h2>
-          <p className="text-gray-600 text-sm">
-            Fill in the details below to register
+    <div className="min-h-screen flex flex-col justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden my-4 sm:my-8">
+        <div className="px-4 py-5 sm:p-6 text-gray-900">
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#0C2E50] to-orange-500 bg-clip-text text-transparent mb-1">
+              Create Account
+            </h2>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              Fill in the details below to register
+            </p>
+            </div>
+          <RegisterForm />
+          <p className="text-center text-xs sm:text-sm text-gray-500 mt-4">
+            Already have an account?{" "}
+            <span className="text-orange-500 font-semibold cursor-pointer hover:underline">
+              Login
+            </span>
           </p>
         </div>
-
-        <RegisterForm />
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
-          <span className="text-orange-500 font-semibold cursor-pointer hover:underline">
-            Login
-          </span>
-        </p>
       </div>
     </div>
   );

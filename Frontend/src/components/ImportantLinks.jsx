@@ -2,15 +2,15 @@ import React, { useRef, useState, useEffect } from "react";
 import { ExternalLink } from "lucide-react";
 
 const leftLinks = [
-  { label: "ONGC India (Official Website)", url: "https://www.ongc.co.in" },
-  { label: "ONGC Webmail", url: "https://webmail.ongc.co.in" },
+  { label: "ONGC India (Official Website)", url: "https://www.ongcindia.com" },
+  { label: "ONGC Webmail", url: "https://mail.ongc.co.in" },
   { label: "WebICE Portal", url: "https://webice.ongc.co.in" },
 ];
 
 const rightLinks = [
-  { label: "Ministry of Petroleum & Natural Gas", url: "https://www.petroleum.nic.in/" },
-  { label: "National Commission for Scheduled Castes", url: "https://ncsc.nic.in/" },
-  { label: "National Commission for Scheduled Tribes", url: "https://ncst.nic.in/" },
+  { label: "Ministry of Petroleum & Natural Gas", url: "https://mopng.gov.in/en" },
+  { label: "National Commission for Scheduled Castes", url: "https://ncsc.nic.in" },
+  { label: "National Commission for Scheduled Tribes", url: "https://ncst.nic.in" },
  ];
 
 const LinkColumn = ({ title, items }) => (

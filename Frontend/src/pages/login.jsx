@@ -49,11 +49,11 @@ export const LoginForm = ({onSuccess, onOpenRegister}) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+    <form onSubmit={handleSubmit} className="mt-4 space-y-4 w-full max-w-full">
 
       {/* Email */}
       <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-2">
+        <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-2">
           Email Address
         </label>
         <input
@@ -62,7 +62,7 @@ export const LoginForm = ({onSuccess, onOpenRegister}) => {
           required
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
           placeholder="your.email@example.com"
         />
       </div>
@@ -79,7 +79,7 @@ export const LoginForm = ({onSuccess, onOpenRegister}) => {
             required
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm hover:shadow-md"
             placeholder="Enter your password"
           />
           <span
@@ -93,7 +93,7 @@ export const LoginForm = ({onSuccess, onOpenRegister}) => {
 
       {error && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</div>}
 
-      <button disabled={loading} className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-lg font-semibold cursor-pointer transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+      <button disabled={loading} className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2.5 sm:py-3 rounded-lg font-semibold cursor-pointer transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
         {loading ? 'Logging in...' : 'Login'}
       </button>
 
@@ -110,8 +110,8 @@ export const LoginForm = ({onSuccess, onOpenRegister}) => {
 const Login = () => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 sm:p-10 border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-orange-50 to-blue-50 px-2 sm:px-4 py-4 sm:py-6">
+      <div className="w-full max-w-full sm:max-w-3xl lg:max-w-4xl bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-gray-100">
 
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#0C2E50] to-orange-500 bg-clip-text text-transparent">

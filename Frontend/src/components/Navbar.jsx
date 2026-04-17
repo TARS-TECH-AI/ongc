@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import Logo from "../assets/Logo.png";
 import Logo2 from "../assets/ongc.png";
 import nav_babashaheb from "../assets/ambedkar1.png";
-import nav_chhtrapati from "../assets/NavImg/shivajimaharaj.png";
+import nav_chhtrapati from "../assets/NavImg/chhtrapati.png";
 // import nav_Gandhi from "../assets/NavImg/Gandhi.png";
 import nav_jyotiba from "../assets/NavImg/jyotiba.png";
 // import nav_lokmanya from "../assets/NavImg/lokmanya.png";

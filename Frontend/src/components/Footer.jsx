@@ -49,14 +49,16 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
             {/* Social Icons (LUCIDE) */}
             <div className="flex gap-4 pt-3">
               {[
-                { Icon: Youtube, label: "YouTube" },
-                { Icon: Send, label: "Telegram" },
-                { Icon: Linkedin, label: "LinkedIn" },
-                { Icon: Facebook, label: "Facebook" },
-              ].map(({ Icon, label }, i) => (
+                { Icon: Youtube, label: "YouTube", link: "https://www.youtube.com/@ONGCLtd" },
+                { Icon: Send, label: "Telegram", link: "https://t.me/ongcofficial" },
+                { Icon: Linkedin, label: "LinkedIn", link: "https://www.linkedin.com/company/ongc" },
+                { Icon: Facebook, label: "Facebook", link: "https://www.facebook.com/ONGCofficial" },
+              ].map(({ Icon, label, link }, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border border-black text-black hover:bg-black hover:text-white transition"
                 >
@@ -127,7 +129,7 @@ const Footer = ({ onOpenAuth, isAuthenticated }) => {
             rel="noopener noreferrer"
             className="hover:text-slate-700 cursor-pointer transition"
           >
-            © copyright 2025 Design and Developed with love by TARS TECHNOLOGIES
+            © copyright 2026 Design and Developed  by <span className="text-[#0C2E50] font-semibold">TARS TECHNOLOGIES</span>
           </a>
         </div>
 

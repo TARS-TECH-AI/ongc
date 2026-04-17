@@ -19,11 +19,11 @@ const AuthModal = ({ open, onClose, initialMode = "login", onAuthSuccess }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-start sm:items-center justify-center bg-black/50 p-4 overflow-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl w-full max-w-md p-6 sm:p-8 shadow-lg"
+        className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl w-full max-w-full sm:max-w-2xl lg:max-w-3xl p-4 sm:p-6 md:p-8 shadow-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -55,9 +55,9 @@ const AuthModal = ({ open, onClose, initialMode = "login", onAuthSuccess }) => {
           />
         ) : (
           <RegisterForm
-            onSuccess={(user) => {
-              console.log("AuthModal: register success", user);
-              onAuthSuccess && onAuthSuccess(user, "register");
+            onSuccess={(user, action, memberType) => {
+              console.log("AuthModal: register success", user, "memberType:", memberType);
+              onAuthSuccess && onAuthSuccess(user, action, memberType);
               onClose && onClose();
             }}
           />

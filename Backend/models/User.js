@@ -13,6 +13,25 @@ const userSchema = new mongoose.Schema({
   idProofFileType: { type: String }, // File MIME type
   idProofPublicId: { type: String, default: '' },
   status: { type: String, enum: ['Pending','Approved','Rejected'], default: 'Pending' },
+  
+  // ONGC Member fields
+  isONGCMember: { type: String, enum: ['yes', 'no'], required: false },
+  memberType: { type: String, required: false }, // NGO, Student, Social Activity, Artist, Any Other
+  
+  // Survey responses for different member types
+  ngoSurveyAnswers: { type: Object, default: null },
+  studentSurveyAnswers: { type: Object, default: null },
+  socialActivitySurveyAnswers: { type: Object, default: null },
+  artistSurveyAnswers: { type: Object, default: null },
+  otherSurveyAnswers: { type: Object, default: null },
+  
+  // Survey completion timestamps
+  ngoSurveyCompletedAt: { type: Date },
+  studentSurveyCompletedAt: { type: Date },
+  socialActivitySurveyCompletedAt: { type: Date },
+  artistSurveyCompletedAt: { type: Date },
+  otherSurveyCompletedAt: { type: Date },
+  
   documents: [
     {
       name: String,

@@ -52,7 +52,7 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
     console.log('Registration request received');
 
     // Accept fields from multipart/form-data or JSON body
-    const { name, password, designation, category } = req.body;
+    const { name, password, designation, category, isONGCMember, memberType } = req.body;
     // Normalize and trim critical fields to avoid mismatches
     const emailRaw = (req.body.email || '').trim();
     const mobileRaw = (req.body.mobile || '').trim();
@@ -95,6 +95,8 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
       employeeId,
       designation,
       category,
+      isONGCMember,
+      memberType
     };
 
     // Ensure fields saved are normalized
@@ -130,7 +132,9 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
     }
 
     const user = new User(userData);
+    console.log('User data before save:', userData);
     await user.save();
+    console.log('User saved successfully:', user._id);
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
@@ -146,7 +150,9 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
         designation: user.designation,
         category: user.category,
         status: user.status,
-        hasIdProof: !!user.idProofDocument
+        hasIdProof: !!user.idProofDocument,
+        isONGCMember: user.isONGCMember,
+        memberType: user.memberType
       }
     });
 
@@ -159,6 +165,8 @@ router.post('/register', upload.single('idProof'), async (req, res) => {
     }
   } catch (err) {
     console.error('Registration error:', err);
+    console.error('Error stack:', err && err.stack ? err.stack : 'No stack trace');
+    console.error('Full error object:', JSON.stringify(err, null, 2));
     // Handle Mongo duplicate key error (E11000) - may occur during race conditions
     if (err && err.code === 11000) {
       // Duplicate key error - return friendly unified message
@@ -218,7 +226,9 @@ router.post('/login', async (req, res) => {
         designation: user.designation,
         category: user.category,
         status: user.status,
-        hasIdProof: !!user.idProofDocument
+        hasIdProof: !!user.idProofDocument,
+        isONGCMember: user.isONGCMember,
+        memberType: user.memberType
       }
     });
   } catch (err) {
@@ -316,6 +326,106 @@ router.put('/profile', verifyToken, upload.single('idProof'), async (req, res) =
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// NGO Survey endpoint
+router.post('/ngo-survey', verifyToken, async (req, res) => {
+  try {
+    await connectDB();
+    const { answers } = req.body;
+    
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    user.ngoSurveyAnswers = answers;
+    user.ngoSurveyCompletedAt = new Date();
+    await user.save();
+    
+    res.json({ message: 'NGO survey submitted successfully', user });
+  } catch (err) {
+    console.error('NGO survey error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Student Survey endpoint
+router.post('/student-survey', verifyToken, async (req, res) => {
+  try {
+    await connectDB();
+    const { answers } = req.body;
+    
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    user.studentSurveyAnswers = answers;
+    user.studentSurveyCompletedAt = new Date();
+    await user.save();
+    
+    res.json({ message: 'Student survey submitted successfully', user });
+  } catch (err) {
+    console.error('Student survey error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Social Activity Survey endpoint
+router.post('/social-activity-survey', verifyToken, async (req, res) => {
+  try {
+    await connectDB();
+    const { answers } = req.body;
+    
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    user.socialActivitySurveyAnswers = answers;
+    user.socialActivitySurveyCompletedAt = new Date();
+    await user.save();
+    
+    res.json({ message: 'Social activity survey submitted successfully', user });
+  } catch (err) {
+    console.error('Social activity survey error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Artist Survey endpoint
+router.post('/artist-survey', verifyToken, async (req, res) => {
+  try {
+    await connectDB();
+    const { answers } = req.body;
+    
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    user.artistSurveyAnswers = answers;
+    user.artistSurveyCompletedAt = new Date();
+    await user.save();
+    
+    res.json({ message: 'Artist survey submitted successfully', user });
+  } catch (err) {
+    console.error('Artist survey error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Any Other Survey endpoint
+router.post('/other-survey', verifyToken, async (req, res) => {
+  try {
+    await connectDB();
+    const { answers } = req.body;
+    
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    user.otherSurveyAnswers = answers;
+    user.otherSurveyCompletedAt = new Date();
+    await user.save();
+    
+    res.json({ message: 'Member survey submitted successfully', user });
+  } catch (err) {
+    console.error('Other survey error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -505,6 +505,28 @@ const Profile = ({ onBack }) => {
               </div>
             </div>
 
+            {/* ONGC Member Status */}
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-gray-500 mt-1" />
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 font-medium">ONGC Member</p>
+                <p className="text-gray-900 font-semibold">
+                  {user?.isONGCMember === 'yes' ? '✓ Yes' : user?.isONGCMember === 'no' ? '✗ No' : '—'}
+                </p>
+              </div>
+            </div>
+
+            {/* Member Type (only if not ONGC member) */}
+            {user?.isONGCMember === 'no' && user?.memberType && (
+              <div className="flex items-start gap-3">
+                <User className="w-5 h-5 text-gray-500 mt-1" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 font-medium">Member Type</p>
+                  <p className="text-gray-900 font-semibold">{user?.memberType}</p>
+                </div>
+              </div>
+            )}
+
             {/* ID Proof */}
             <div className="flex items-start gap-3 md:col-span-2">
               <FileText className="w-5 h-5 text-gray-500 mt-1" />
@@ -656,6 +678,101 @@ const Profile = ({ onBack }) => {
                     or to resubmit your application.
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* NGO Survey Results (if available) */}
+          {user?.memberType === "NGO" && user?.ngoSurveyAnswers && (
+            <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg">
+              <p className="font-semibold text-blue-800 mb-4">
+                NGO Survey Responses
+              </p>
+              <div className="space-y-3">
+                {Object.entries(user.ngoSurveyAnswers).map(([key, value], index) => (
+                  <div key={index} className="bg-white p-3 rounded border border-blue-200">
+                    <p className="text-sm font-medium text-gray-600">
+                      Question {parseInt(key) + 1}
+                    </p>
+                    <p className="text-blue-900 font-semibold mt-1">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Student Survey Results (if available) */}
+          {user?.memberType === "Student" && user?.studentSurveyAnswers && (
+            <div className="mt-6 p-4 bg-cyan-50 border-l-4 border-cyan-400 rounded-lg">
+              <p className="font-semibold text-cyan-800 mb-4">
+                Student Survey Responses
+              </p>
+              <div className="space-y-3">
+                {Object.entries(user.studentSurveyAnswers).map(([key, value], index) => (
+                  <div key={index} className="bg-white p-3 rounded border border-cyan-200">
+                    <p className="text-sm font-medium text-gray-600">
+                      Question {parseInt(key) + 1}
+                    </p>
+                    <p className="text-cyan-900 font-semibold mt-1">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Social Activity Survey Results (if available) */}
+          {user?.memberType === "Social Activity" && user?.socialActivitySurveyAnswers && (
+            <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+              <p className="font-semibold text-green-800 mb-4">
+                Social Activity Survey Responses
+              </p>
+              <div className="space-y-3">
+                {Object.entries(user.socialActivitySurveyAnswers).map(([key, value], index) => (
+                  <div key={index} className="bg-white p-3 rounded border border-green-200">
+                    <p className="text-sm font-medium text-gray-600">
+                      Question {parseInt(key) + 1}
+                    </p>
+                    <p className="text-green-900 font-semibold mt-1">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Artist Survey Results (if available) */}
+          {user?.memberType === "Artist" && user?.artistSurveyAnswers && (
+            <div className="mt-6 p-4 bg-purple-50 border-l-4 border-purple-400 rounded-lg">
+              <p className="font-semibold text-purple-800 mb-4">
+                Artist Survey Responses
+              </p>
+              <div className="space-y-3">
+                {Object.entries(user.artistSurveyAnswers).map(([key, value], index) => (
+                  <div key={index} className="bg-white p-3 rounded border border-purple-200">
+                    <p className="text-sm font-medium text-gray-600">
+                      Question {parseInt(key) + 1}
+                    </p>
+                    <p className="text-purple-900 font-semibold mt-1">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Any Other Survey Results (if available) */}
+          {user?.memberType === "Any Other" && user?.otherSurveyAnswers && (
+            <div className="mt-6 p-4 bg-orange-50 border-l-4 border-orange-400 rounded-lg">
+              <p className="font-semibold text-orange-800 mb-4">
+                Member Survey Responses
+              </p>
+              <div className="space-y-3">
+                {Object.entries(user.otherSurveyAnswers).map(([key, value], index) => (
+                  <div key={index} className="bg-white p-3 rounded border border-orange-200">
+                    <p className="text-sm font-medium text-gray-600">
+                      Question {parseInt(key) + 1}
+                    </p>
+                    <p className="text-orange-900 font-semibold mt-1">{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

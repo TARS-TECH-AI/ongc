@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import AuthModal from "./components/AuthModal";
+import NGOQuestionnaire from "./components/NGOQuestionnaire";
+import StudentQuestionnaire from "./components/StudentQuestionnaire";
+import SocialActivityQuestionnaire from "./components/SocialActivityQuestionnaire";
+import ArtistQuestionnaire from "./components/ArtistQuestionnaire";
+import AnyOtherQuestionnaire from "./components/AnyOtherQuestionnaire";
 import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import About from "./components/About";
@@ -21,6 +26,13 @@ function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [currentView, setCurrentView] = useState("home");
+  const [showNGOQuestionnaire, setShowNGOQuestionnaire] = useState(false);
+  const [showStudentQuestionnaire, setShowStudentQuestionnaire] = useState(false);
+  const [showSocialActivityQuestionnaire, setShowSocialActivityQuestionnaire] = useState(false);
+  const [showArtistQuestionnaire, setShowArtistQuestionnaire] = useState(false);
+  const [showAnyOtherQuestionnaire, setShowAnyOtherQuestionnaire] = useState(false);
+  const [questionnaireName, setQuestionnaireName] = useState("");
+  const [currentMemberType, setCurrentMemberType] = useState("");
 
   const openAuth = (mode = "login") => {
     setAuthMode(mode);
@@ -134,19 +146,52 @@ function App() {
     };
   }, [isAuthenticated, currentUser?.status]);
 
-  const handleAuthSuccess = (user, action) => {
+  const handleAuthSuccess = (user, action, memberType) => {
     setCurrentUser(user);
     sessionStorage.setItem("user", JSON.stringify(user));
 
-    setToast({
-      message:
-        action === "register"
-          ? `Welcome, ${user.name}! Your registration is complete.`
-          : `Welcome back, ${user.name}!`,
-      type: "success",
-    });
+    // If user registered with a member type, show appropriate questionnaire
+    if (action === "register" && memberType) {
+      setQuestionnaireName(user.name);
+      setCurrentMemberType(memberType);
+      setAuthOpen(false);
+      
+      // Show appropriate questionnaire based on member type
+      switch(memberType) {
+        case "NGO":
+          setShowNGOQuestionnaire(true);
+          break;
+        case "Student":
+          setShowStudentQuestionnaire(true);
+          break;
+        case "Social Activity":
+          setShowSocialActivityQuestionnaire(true);
+          break;
+        case "Artist":
+          setShowArtistQuestionnaire(true);
+          break;
+        case "Any Other":
+          setShowAnyOtherQuestionnaire(true);
+          break;
+        default:
+          // No questionnaire for this type
+          setToast({
+            message: `Welcome, ${user.name}! Your registration is complete.`,
+            type: "success",
+          });
+          setTimeout(() => setToast(null), 4000);
+      }
+    } else {
+      setToast({
+        message:
+          action === "register"
+            ? `Welcome, ${user.name}! Your registration is complete.`
+            : `Welcome back, ${user.name}!`,
+        type: "success",
+      });
 
-    setTimeout(() => setToast(null), 4000);
+      setTimeout(() => setToast(null), 4000);
+    }
   };
 
   const handleLogout = () => {
@@ -187,6 +232,77 @@ function App() {
         onAuthSuccess={handleAuthSuccess}
       />
 
+      {/* Questionnaires */}
+      {showNGOQuestionnaire && (
+        <NGOQuestionnaire
+          userName={questionnaireName}
+          onComplete={() => {
+            setShowNGOQuestionnaire(false);
+            setToast({
+              message: `Thank you for completing the survey, ${questionnaireName}!`,
+              type: "success",
+            });
+            setTimeout(() => setToast(null), 4000);
+          }}
+        />
+      )}
+
+      {showStudentQuestionnaire && (
+        <StudentQuestionnaire
+          userName={questionnaireName}
+          onComplete={() => {
+            setShowStudentQuestionnaire(false);
+            setToast({
+              message: `Thank you for completing the survey, ${questionnaireName}!`,
+              type: "success",
+            });
+            setTimeout(() => setToast(null), 4000);
+          }}
+        />
+      )}
+
+      {showSocialActivityQuestionnaire && (
+        <SocialActivityQuestionnaire
+          userName={questionnaireName}
+          onComplete={() => {
+            setShowSocialActivityQuestionnaire(false);
+            setToast({
+              message: `Thank you for completing the survey, ${questionnaireName}!`,
+              type: "success",
+            });
+            setTimeout(() => setToast(null), 4000);
+          }}
+        />
+      )}
+
+      {showArtistQuestionnaire && (
+        <ArtistQuestionnaire
+          userName={questionnaireName}
+          onComplete={() => {
+            setShowArtistQuestionnaire(false);
+            setToast({
+              message: `Thank you for completing the survey, ${questionnaireName}!`,
+              type: "success",
+            });
+            setTimeout(() => setToast(null), 4000);
+          }}
+        />
+      )}
+
+      {showAnyOtherQuestionnaire && (
+        <AnyOtherQuestionnaire
+          userName={questionnaireName}
+          onComplete={() => {
+            setShowAnyOtherQuestionnaire(false);
+            setToast({
+              message: `Thank you for completing the survey, ${questionnaireName}!`,
+              type: "success",
+            });
+            setTimeout(() => setToast(null), 4000);
+          }}
+        />
+      )}
+
       {/* Toast */}
       {toast && (
         <div className="fixed top-6 right-6 z-[9999]">
@@ -207,27 +323,29 @@ function App() {
       ) : currentView === "gallery" ? (
         <PhotoGraphy viewMode="full" onBack={() => setCurrentView("home")} />
       ) : (
-        <>
-          <HeroSection onOpenAuth={openAuth} />
-          <About />
-          <CoreValues />
-          <President/>
-          <MembersSection onOpenAuth={openAuth} />
-          <Documents />
-          {/* Protected Content - Only for Approved Users */}
-          {isApprovedUser && (
-            <>
-              {/* <Constitution /> */}
-            </>
-          )}
-          <ImportantUpdates onOpenAuth={openAuth} />
-          <AISCSSTEWAUnits />
-          <PhotoGraphy viewMode="preview" onNavigate={setCurrentView} />
-          <Association isAuthenticated={isAuthenticated} currentUser={currentUser} />
-          <ImportantLinks />
-          <ContactForm />
-          <Footer onOpenAuth={openAuth} isAuthenticated={isAuthenticated} />
-        </>
+        <div className={showNGOQuestionnaire || showStudentQuestionnaire || showSocialActivityQuestionnaire || showArtistQuestionnaire || showAnyOtherQuestionnaire ? "blur-sm" : ""}>
+          <>
+            <HeroSection onOpenAuth={openAuth} />
+            <About />
+            <CoreValues />
+            <President/>
+            <MembersSection onOpenAuth={openAuth} />
+            <Documents />
+            {/* Protected Content - Only for Approved Users */}
+            {isApprovedUser && (
+              <>
+                {/* <Constitution /> */}
+              </>
+            )}
+            <ImportantUpdates onOpenAuth={openAuth} />
+            <AISCSSTEWAUnits />
+            <PhotoGraphy viewMode="preview" onNavigate={setCurrentView} />
+            <Association isAuthenticated={isAuthenticated} currentUser={currentUser} />
+            <ImportantLinks />
+            <ContactForm />
+            <Footer onOpenAuth={openAuth} isAuthenticated={isAuthenticated} />
+          </>
+        </div>
       )}
     </>
   );
