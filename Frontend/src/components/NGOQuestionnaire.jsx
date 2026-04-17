@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 
-const NGOQuestionnaire = ({ onComplete, userName }) => {
+const NGOQuestionnaire = ({ userName, onComplete }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
 
@@ -51,16 +52,15 @@ const NGOQuestionnaire = ({ onComplete, userName }) => {
     }
   ];
 
-  const handleSelectOption = (option) => {
-    setAnswers({
-      ...answers,
-      [currentQuestion]: option
-    });
-
+  const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
-    } else {
-      handleSubmit();
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
     }
   };
 
@@ -117,90 +117,95 @@ const NGOQuestionnaire = ({ onComplete, userName }) => {
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-5 sm:p-8 max-h-[90vh] overflow-y-auto flex flex-col">
-        <div className="mb-5 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#0C2E50] to-orange-500 bg-clip-text text-transparent mb-1 sm:mb-2">
-            NGO Survey
+        {/* Header */}
+        <div className="mb-5 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Welcome, {userName}! 🤝
           </h2>
-          <p className="text-sm sm:text-base text-gray-600">
-            Welcome {userName}! Help us understand your organization better.
+          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+            Help us understand your organization better
           </p>
         </div>
 
-        {/* Progress bar */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex justify-between mb-1.5 sm:mb-2">
-            <span className="text-xs sm:text-sm font-semibold text-gray-700">
-              Question {currentQuestion + 1} of {questions.length}
-            </span>
-            <span className="text-xs sm:text-sm font-semibold text-orange-500">
-              {Math.round(progress)}%
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-            <div
-              className="bg-gradient-to-r from-orange-500 to-orange-600 h-1.5 sm:h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2 mb-6 sm:mb-8">
+          <div
+            className="bg-gradient-to-r from-orange-500 to-orange-600 h-1.5 sm:h-2 rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          ></div>
         </div>
 
         {/* Question */}
         <div className="mb-6 sm:mb-8 flex-grow">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">
+          <p className="text-gray-600 text-xs sm:text-sm font-medium mb-2">
+            Question {currentQuestion + 1} of {questions.length}
+          </p>
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
             {questions[currentQuestion].question}
           </h3>
 
           {/* Options */}
-          <div className="grid gap-2 sm:gap-3">
+          <div className="space-y-2 sm:space-y-3">
             {questions[currentQuestion].options.map((option, index) => (
               <button
                 key={index}
-                onClick={() => handleSelectOption(option)}
-                className={`p-3 sm:p-4 text-left rounded-lg border-2 transition-all ${
+                onClick={() =>
+                  setAnswers({ ...answers, [currentQuestion]: option })
+                }
+                className={`w-full p-3 sm:p-4 text-left rounded-lg border-2 transition-all ${
                   answers[currentQuestion] === option
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 hover:border-orange-300 bg-white hover:bg-gray-50'
+                    ? "border-orange-600 bg-orange-50"
+                    : "border-gray-200 bg-white hover:border-gray-300"
                 }`}
               >
-                <span className="font-medium text-sm sm:text-base text-gray-700">{option}</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm sm:text-base text-gray-900">{option}</span>
+                  <div
+                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-3 ${
+                      answers[currentQuestion] === option
+                        ? "border-orange-600 bg-orange-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {answers[currentQuestion] === option && (
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
+                    )}
+                  </div>
+                </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+        {/* Navigation Buttons */}
+        <div className="flex gap-3 sm:gap-4 justify-between mt-auto pt-4 border-t border-gray-100">
           <button
-            onClick={() => {
-              if (currentQuestion > 0) {
-                setCurrentQuestion(currentQuestion - 1);
-              }
-            }}
+            onClick={handlePrevious}
             disabled={currentQuestion === 0}
-            className="px-4 sm:px-6 py-2 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            Previous
+            <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Previous</span>
           </button>
 
-          <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">
-            {Object.keys(answers).length} answered
-          </span>
-
-          <button
-            onClick={() => {
-              if (currentQuestion === questions.length - 1) {
-                handleSubmit();
-              } else {
-                if (answers[currentQuestion]) {
-                  setCurrentQuestion(currentQuestion + 1);
-                }
-              }
-            }}
-            disabled={!answers[currentQuestion]}
-            className="px-4 sm:px-6 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all w-[100px] sm:w-auto text-center"
-          >
-            {currentQuestion === questions.length - 1 ? 'Complete' : 'Next'}
-          </button>
+          {currentQuestion === questions.length - 1 ? (
+            <button
+              onClick={handleSubmit}
+              disabled={!answers[currentQuestion]}
+              className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base font-medium flex-1 sm:flex-none"
+            >
+              Complete
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              disabled={!answers[currentQuestion]}
+              className="flex items-center justify-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base font-medium flex-1 sm:flex-none"
+            >
+              Next
+              <ChevronRight size={18} className="sm:w-5 sm:h-5" />
+            </button>
+          )}
         </div>
       </div>
     </div>
