@@ -5,12 +5,18 @@ import AuthModal from "./AuthModal";
 
 const API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "https://ongc-q48j.vercel.app/api";
 
-const years = [2026,2025, 2024, 2023, 2022];
-const categories = ["CWC Orders", "CWC Letters", "CWC Meeting","Others"];
+const yearRanges = [
+  { label: "2026-2027", start: 2026, end: 2027 },
+  { label: "2025-2026", start: 2025, end: 2026 },
+  { label: "2024-2025", start: 2024, end: 2025 },
+  { label: "2023-2024", start: 2023, end: 2024 },
+  { label: "2022-2023", start: 2022, end: 2023 },
+];
+const categories = ["CWC Orders", "CWC Letters", "CWC Meeting", "Others"];
 
 const Documents = () => {
   const [activeTab, setActiveTab] = useState("CWC Orders");
-  const [year, setYear] = useState(2025);
+  const [selectedYearRange, setSelectedYearRange] = useState(yearRanges[1].label);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -46,12 +52,17 @@ const Documents = () => {
   };
 
   const list = useMemo(() => {
-    return documents.filter(
-      (doc) => 
-        doc.category === activeTab &&
-        new Date(doc.date).getFullYear() === Number(year)
-    );
-  }, [documents, activeTab, year]);
+    const selectedRange = yearRanges.find((range) => range.label === selectedYearRange) || yearRanges[0];
+    return documents.filter((doc) => {
+      if (doc.category !== activeTab) return false;
+      const date = new Date(doc.date);
+      if (Number.isNaN(date.getTime())) return false;
+
+      // Filter by academic-style year range, e.g. 2025-2026
+      const year = date.getFullYear();
+      return year >= selectedRange.start && year <= selectedRange.end;
+    });
+  }, [documents, activeTab, selectedYearRange]);
 
   const handleViewDocument = (fileUrl, title) => {
     // Check if user is logged in (using sessionStorage like App.jsx)
@@ -86,12 +97,14 @@ const Documents = () => {
               Filter by Year :
             </label>
             <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
+              value={selectedYearRange}
+              onChange={(e) => setSelectedYearRange(e.target.value)}
               className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer"
             >
-              {years.map((y) => (
-                <option key={y} value={y}>{y}</option>
+              {yearRanges.map((range) => (
+                <option key={range.label} value={range.label}>
+                  {range.label}
+                </option>
               ))}
             </select>
           </div>
@@ -136,7 +149,7 @@ const Documents = () => {
               </p>
             ) : list.length === 0 ? (
               <p className="text-center text-slate-500 py-10">
-                No documents found for {year} in "{activeTab}".
+                No documents found for {selectedYearRange} in "{activeTab}".
               </p>
             ) : (
               <ul className="space-y-6">

@@ -2,9 +2,10 @@ import React, { useRef, useState, useEffect } from "react";
 import { ExternalLink } from "lucide-react";
 
 const leftLinks = [
-  { label: "ONGC India (Official Website)", url: "https://www.ongcindia.com" },
+  { label: "ONGC India (Official Website)", url: "https://ongcindia.com/" },
   { label: "ONGC Webmail", url: "https://mail.ongc.co.in" },
   { label: "WebICE Portal", url: "https://webice.ongc.co.in" },
+  {label: "ONGC Reports", url:"https://reports.ongc.co.in/"},
 ];
 
 const rightLinks = [

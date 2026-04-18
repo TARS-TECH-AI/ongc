@@ -41,13 +41,14 @@ const unitRegionMap = {
   Ankleshwar: "WR",
   Baroda: "WR",
   Cambay: "WR",
-  "CBM-Bokaro": "ER",
+  "CBM-Bokaro": "WR",
   Chennai: "SR",
   Dehradun: "NR",
   Delhi: "NR",
   Goa: "MR",
   Hazira: "MR",
   Jodhpur: "WR",
+  "Nazira/Sivasagar": "ER",
   Jorhat: "ER",
   Kakinada: "SR",
   Karaikal: "SR",
@@ -56,7 +57,6 @@ const unitRegionMap = {
   Mumbai: "MR",
   Rajamundry: "SR",
   Silchar: "ER",
-  "Nazira/Sivasagar": "ER",
   Uran: "MR",
 };
 
@@ -70,8 +70,15 @@ const AISCSSTEWAUnits = () => {
   };
 
   const visibleUnits = selectedRegion
-    ? units.filter((u) => unitRegionMap[u] === selectedRegion)
-    : units;
+  ? units
+      .filter((u) => unitRegionMap[u] === selectedRegion)
+      .sort((a, b) => {
+        // Nazira/Sivasagar ko top pe lana hai
+        if (a === "Nazira/Sivasagar") return -1;
+        if (b === "Nazira/Sivasagar") return 1;
+        return a.localeCompare(b); // baaki alphabetical
+      })
+  : units;
 
   return (
     <section id="units" className="w-full bg-white py-12 sm:py-16 lg:py-0">

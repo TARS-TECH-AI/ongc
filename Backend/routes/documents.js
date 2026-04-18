@@ -110,7 +110,13 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
       try {
         const result = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
-            { resource_type: 'raw', folder: 'ONGC/documents' },
+            { 
+              resource_type: 'auto', 
+              folder: 'ONGC/documents',
+              filename: req.file.originalname,
+              use_filename: true,
+              timeout: 120000
+            },
             (error, result) => {
               if (error) return reject(error);
               return resolve(result);

@@ -59,7 +59,7 @@ const AssociationIdentity = () => {
 
             {/* Details */}
             <div className="space-y-1 sm:space-y-3 text-slate-800 text-base sm:text-base max-w-md">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Established:</span><span>08 Feb 1967</span></div>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Established:</span><span>03 Feb 1967</span></div>
               <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Registration:</span><span>Registered under Societies Registration Act XXI of 1860</span></div>
               <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">Affiliation:</span><span>ONGC Group of Companies</span></div>
               <div className="flex flex-col sm:flex-row sm:items-start gap-1"><span className="font-bold sm:min-w-[120px]">HeadOffice:</span><span>Deendayal Urja Bhawan, 5A-5B, Nelson Mandela Marg, Vasant Kunj, New Delhi -110070</span></div>
